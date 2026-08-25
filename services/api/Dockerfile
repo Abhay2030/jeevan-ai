@@ -21,14 +21,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
-COPY requirements.txt .
+COPY ./services/api/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY ./app /code/app
-COPY ./alembic /code/alembic
-COPY ./alembic.ini /code/alembic.ini
+COPY ./services/api/app /code/app
+COPY ./services/api/alembic /code/alembic
+COPY ./services/api/alembic.ini /code/alembic.ini
 
 # Expose API port
 EXPOSE 8000

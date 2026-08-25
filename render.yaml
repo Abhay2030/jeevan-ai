@@ -3,7 +3,7 @@ services:
   - type: web
     name: jeevan-api
     env: docker
-    dockerContext: ./services/api
+    dockerContext: .
     dockerfilePath: ./services/api/Dockerfile
     region: singapore
     plan: free
