@@ -4,7 +4,7 @@ services:
     name: jeevan-api
     env: docker
     dockerContext: ./services/api
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./services/api/Dockerfile
     region: singapore
     plan: free
     envVars:
