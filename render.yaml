@@ -27,6 +27,7 @@ services:
     name: jeevan-redis
     region: singapore
     plan: free
+    ipAllowList: []
 
 databases:
   # PostgreSQL Database (Note: Render's managed Postgres doesn't natively support PostGIS on the free tier without custom Docker deployment, but this provisions the standard DB)
