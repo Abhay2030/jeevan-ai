@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   JEEVAN AI — Design Token System (SRS §8.2)
+   =========================================================================
+   Public/Responder surfaces: "Paper" theme (warm neutral)
+   Command Center/Digital Twin: "Ink" theme (dark ops-console)
+   ========================================================================= */
+
+@theme inline {
+  /* --- Typography (SRS §8.2) --- */
+  --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* --- Primary: Deep Teal (life-safety, confirmations, available status) --- */
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
+  --color-primary-200: #99f6e4;
+  --color-primary-300: #5eead4;
+  --color-primary-400: #2dd4bf;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  --color-primary-800: #115e59;
+  --color-primary-900: #134e4a;
+  --color-primary-950: #042f2e;
+
+  /* --- Accent: Marigold/Amber (AI intelligence, medium risk, forecast highlights) --- */
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
+  --color-accent-950: #451a03;
+
+  /* --- Alert: Red (CRITICAL severity, SOS, destructive actions ONLY) --- */
+  --color-alert-50: #fef2f2;
+  --color-alert-100: #fee2e2;
+  --color-alert-200: #fecaca;
+  --color-alert-300: #fca5a5;
+  --color-alert-400: #f87171;
+  --color-alert-500: #ef4444;
+  --color-alert-600: #dc2626;
+  --color-alert-700: #b91c1c;
+  --color-alert-800: #991b1b;
+  --color-alert-900: #7f1d1d;
+  --color-alert-950: #450a0a;
+
+  /* --- Paper Theme: Warm neutral public surface (SRS §8.2) --- */
+  --color-paper-50: #fdfcfb;
+  --color-paper-100: #faf8f5;
+  --color-paper-200: #f5f0ea;
+  --color-paper-300: #ede6db;
+  --color-paper-400: #ddd3c4;
+  --color-paper-500: #c4b5a2;
+  --color-paper-600: #a89882;
+  --color-paper-700: #857665;
+  --color-paper-800: #655a4d;
+  --color-paper-900: #4a4239;
+
+  /* --- Ink Theme: Deep dark command center surface (SRS §8.2) --- */
+  --color-ink-50: #f3f4f6;
+  --color-ink-100: #d1d5db;
+  --color-ink-200: #9ca3af;
+  --color-ink-300: #6b7280;
+  --color-ink-400: #4b5563;
+  --color-ink-500: #374151;
+  --color-ink-600: #1f2937;
+  --color-ink-700: #1a2332;
+  --color-ink-800: #141c27;
+  --color-ink-900: #0f1419;
+  --color-ink-950: #0a0e13;
+
+  /* --- Severity colors (SRS §8.1 — color + icon + text, never color alone) --- */
+  --color-severity-critical: #dc2626;
+  --color-severity-high: #ea580c;
+  --color-severity-medium: #d97706;
+  --color-severity-low: #0d9488;
+
+  /* --- Status colors --- */
+  --color-status-available: #16a34a;
+  --color-status-busy: #ea580c;
+  --color-status-offline: #6b7280;
+
+  /* --- Corner Radius Scale (SRS §8.2: 8/12/16px) --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* --- Spacing: touch target minimums --- */
+  --size-touch-min: 44px;
+  --size-touch-sos: 88px;
+}
+
+/* =========================================================================
+   Base Styles
+   ========================================================================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings use the display typeface */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Data readouts use monospace */
+code, kbd, samp, pre,
+[data-mono] {
+  font-family: var(--font-mono);
+}
+
+/* =========================================================================
+   Accessibility: Focus States (SRS §19 — visible focus indicators)
+   ========================================================================= */
+
+:focus-visible {
+  outline: 3px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Dark theme focus for command center */
+[data-theme="ink"] :focus-visible {
+  outline-color: var(--color-primary-400);
+}
+
+/* =========================================================================
+   Accessibility: Reduced Motion (SRS §19)
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================================
+   Theme Surfaces
+   ========================================================================= */
+
+/* Paper theme (public-facing, responder) */
+[data-theme="paper"] {
+  --surface-bg: var(--color-paper-100);
+  --surface-card: #ffffff;
+  --surface-text: var(--color-ink-900);
+  --surface-text-secondary: var(--color-ink-400);
+  --surface-border: var(--color-paper-300);
+  background-color: var(--surface-bg);
+  color: var(--surface-text);
+}
+
+/* Ink theme (command center, digital twin) */
+[data-theme="ink"] {
+  --surface-bg: var(--color-ink-900);
+  --surface-card: var(--color-ink-800);
+  --surface-text: var(--color-ink-50);
+  --surface-text-secondary: var(--color-ink-200);
+  --surface-border: var(--color-ink-600);
+  background-color: var(--surface-bg);
+  color: var(--surface-text);
+}
