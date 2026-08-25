@@ -11,7 +11,9 @@ const withPWA = require("next-pwa")({
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@jeevan-ai/ui", "@jeevan-ai/types"],
-  output: "standalone",
+  // Vercel breaks if output is set to "standalone" because it handles output tracing automatically.
+  // We only need "standalone" for our custom Docker build.
+  output: process.env.VERCEL ? undefined : "standalone",
   turbopack: {},
 };
 
