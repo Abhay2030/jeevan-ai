@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Stethoscope } from "lucide-react";
-import { Button, Card, CardContent, SOSButton } from "@jeevan-ai/ui";
+import { Button, SOSButton } from "@jeevan-ai/ui";
 import { apiFetch } from "../../lib/api";
 
 interface ChatMessage {
@@ -46,7 +46,7 @@ export default function PublicTriageHome() {
 
     try {
       // POST to the unauthenticated Triage endpoint
-      const res = await apiFetch<any>("/triage/chat", {
+      const res = await apiFetch<{ response: string; action?: string }>("/triage/chat", {
         method: "POST",
         body: JSON.stringify({ message: userMsg.text }),
       });

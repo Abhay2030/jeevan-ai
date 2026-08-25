@@ -24,8 +24,8 @@ export default function CommandCenterDashboard() {
   const { user } = useAuth();
   
   // Real-time WS feed for incidents
-  const { lastMessage, isConnected } = useWebsocket<any>("/ws/incidents");
-  const [liveIncidents, setLiveIncidents] = useState<any[]>([]);
+  const { lastMessage, isConnected } = useWebsocket<unknown>("/ws/incidents");
+  const [liveIncidents, setLiveIncidents] = useState<unknown[]>([]);
 
   // Predictive Analytics State
   const [densityMetrics, setDensityMetrics] = useState<CrowdDensityPrediction[]>([]);
@@ -35,6 +35,7 @@ export default function CommandCenterDashboard() {
   useEffect(() => {
     // Append new WS messages to the feed
     if (lastMessage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLiveIncidents((prev) => [lastMessage, ...prev].slice(0, 50)); // Keep last 50
     }
   }, [lastMessage]);
