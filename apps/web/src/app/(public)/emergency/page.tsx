@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Siren, Hospital, Mic, HeartPulse, Droplets, Users,
-  ShieldAlert, Accessibility, Phone, ChevronRight,
+  ShieldAlert, Phone, ChevronRight,
   MapPin, Clock, Shield
 } from "lucide-react";
 
@@ -33,7 +33,7 @@ export default function EmergencyHub() {
             const city = data.address.city || data.address.town || data.address.village || data.address.county || "Unknown City";
             const state = data.address.state || "";
             // Some states might be long, so we try to get a clean string
-            let locString = `${city}${state ? `, ${state}` : ""}`;
+            const locString = `${city}${state ? `, ${state}` : ""}`;
             // If the string is too long for mobile, we could format it, but this is fine.
             setLocationName(locString);
           } catch (error) {
@@ -45,6 +45,7 @@ export default function EmergencyHub() {
         }
       );
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocationName("Ujjain, MP");
     }
   }, []);
