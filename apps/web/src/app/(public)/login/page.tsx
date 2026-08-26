@@ -31,8 +31,12 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-    } catch (err: any) {
-      setError(err.message || "Invalid login credentials.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Invalid login credentials.");
+      }
       setIsLoading(false);
     }
   };

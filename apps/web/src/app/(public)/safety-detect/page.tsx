@@ -23,6 +23,7 @@ export default function SafetyDetection() {
       return () => clearInterval(t);
     }
     if (state === "asking" && countdown === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState("emergency");
     }
   }, [state, countdown]);

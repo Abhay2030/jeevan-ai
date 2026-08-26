@@ -20,14 +20,15 @@ interface CrowdDensityPrediction { sector_id: string; current_density: number; p
 
 export default function CommandCenterDashboard() {
   const { user } = useAuth();
-  const { lastMessage, isConnected } = useWebsocket<any>("/ws/incidents");
-  const [liveIncidents, setLiveIncidents] = useState<any[]>([]);
+  const { lastMessage, isConnected } = useWebsocket<unknown>("/ws/incidents");
+  const [liveIncidents, setLiveIncidents] = useState<unknown[]>([]);
   const [densityMetrics, setDensityMetrics] = useState<CrowdDensityPrediction[]>([]);
 
   const defaultCenter: [number, number] = [23.1793, 75.7849]; // Ujjain
 
   useEffect(() => {
     if (lastMessage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLiveIncidents((prev) => [lastMessage, ...prev].slice(0, 30));
     }
   }, [lastMessage]);

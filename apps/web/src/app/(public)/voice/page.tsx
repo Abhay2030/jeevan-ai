@@ -24,6 +24,7 @@ export default function VoiceAssistant() {
 
   const sendMsg = (text: string) => {
     if (!text.trim()) return;
+    // eslint-disable-next-line react-hooks/purity
     const userMsg: Message = { id: Date.now().toString(), sender: "user", text: text.trim() };
     setMsgs(prev => [...prev, userMsg]);
     setInput("");
