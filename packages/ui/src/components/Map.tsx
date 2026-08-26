@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+// @ts-ignore
 import MapGL, { Marker, NavigationControl, FullscreenControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -30,7 +31,7 @@ export function Map({
   theme = "dark",
 }: MapProps) {
   // Try to use a Mapbox token, otherwise fallback gracefully
-  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const mapboxToken = typeof process !== "undefined" ? process.env.NEXT_PUBLIC_MAPBOX_TOKEN : "";
 
   if (!mapboxToken) {
     return (
@@ -82,7 +83,7 @@ export function Map({
             longitude={point.longitude}
             latitude={point.latitude}
             anchor="bottom"
-            onClick={(e) => {
+            onClick={(e: any) => {
               e.originalEvent.stopPropagation();
               if (onPointClick) onPointClick(point.id);
             }}

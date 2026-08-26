@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/mapbox-gl": "^3.5.0",
+    "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "typescript": "^5"
