@@ -41,12 +41,12 @@ export default function EmergencyHub() {
           }
         },
         (error) => {
-          setLocationName("Ujjain, MP"); // fallback if denied
+          setLocationName("Nashik, MH"); // fallback if denied
         }
       );
     } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocationName("Ujjain, MP");
+      setLocationName("Nashik, MH");
     }
   }, []);
 

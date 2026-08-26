@@ -16,7 +16,7 @@ export default function DigitalTwin() {
   const [simulating, setSimulating] = useState(false);
   const [results, setResults] = useState<boolean>(false);
 
-  const defaultCenter: [number, number] = [23.1793, 75.7849]; // Ujjain
+  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik
 
   const handleSimulate = () => {
     setSimulating(true);

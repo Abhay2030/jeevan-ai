@@ -7,16 +7,16 @@ import { ArrowLeft, Users, MapPin, Battery, Clock, Shield, CheckCircle2, AlertTr
 interface FamilyMember { name: string; status: "safe" | "emergency" | "offline"; location: string; battery: number; lastSeen: string; avatar: string; }
 
 const family: FamilyMember[] = [
-  { name: "Papa", status: "safe", location: "Home — Freeganj, Ujjain", battery: 78, lastSeen: "2 min ago", avatar: "👨" },
-  { name: "Mummy", status: "safe", location: "Ram Ghat Area", battery: 45, lastSeen: "5 min ago", avatar: "👩" },
-  { name: "Dadi", status: "offline", location: "Last: Home — Freeganj", battery: 12, lastSeen: "35 min ago", avatar: "👵" },
-  { name: "Bhai", status: "safe", location: "Mahakaleshwar Temple", battery: 92, lastSeen: "Just now", avatar: "👦" },
+  { name: "Papa", status: "safe", location: "Home — Panchavati, Nashik", battery: 78, lastSeen: "2 min ago", avatar: "👨" },
+  { name: "Mummy", status: "safe", location: "Ramkund Ghat Area", battery: 45, lastSeen: "5 min ago", avatar: "👩" },
+  { name: "Dadi", status: "offline", location: "Last: Home — Panchavati", battery: 12, lastSeen: "35 min ago", avatar: "👵" },
+  { name: "Bhai", status: "safe", location: "Trimbakeshwar Temple", battery: 92, lastSeen: "Just now", avatar: "👦" },
 ];
 
 const timeline = [
-  { time: "10:15 AM", text: "Mummy arrived at Ram Ghat Area", type: "info" },
+  { time: "10:15 AM", text: "Mummy arrived at Ramkund Ghat Area", type: "info" },
   { time: "10:02 AM", text: "Dadi's phone went offline (low battery)", type: "warning" },
-  { time: "09:45 AM", text: "Bhai checked in at Mahakaleshwar Temple", type: "info" },
+  { time: "09:45 AM", text: "Bhai checked in at Trimbakeshwar Temple", type: "info" },
   { time: "09:30 AM", text: "All family members marked safe", type: "success" },
 ];
 

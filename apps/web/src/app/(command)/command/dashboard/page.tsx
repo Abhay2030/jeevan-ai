@@ -24,7 +24,7 @@ export default function CommandCenterDashboard() {
   const [liveIncidents, setLiveIncidents] = useState<unknown[]>([]);
   const [densityMetrics, setDensityMetrics] = useState<CrowdDensityPrediction[]>([]);
 
-  const defaultCenter: [number, number] = [23.1793, 75.7849]; // Ujjain
+  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik
 
   useEffect(() => {
     if (lastMessage) {

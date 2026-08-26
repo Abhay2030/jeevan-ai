@@ -16,11 +16,11 @@ interface HospitalData {
 }
 
 const mockHospitals: HospitalData[] = [
-  { id: "1", name: "Maharaja Yeshwantrao Hospital", distance: "2.4 km", eta: "8 min", rating: 4.5, emergency: true, icu: 3, icuTotal: 12, bloodBank: true, specializations: ["Trauma", "Cardiology", "Neurology"], address: "Lashkar Area, Ujjain", aiRecommended: true },
-  { id: "2", name: "District Hospital Ujjain", distance: "3.1 km", eta: "12 min", rating: 4.2, emergency: true, icu: 1, icuTotal: 8, bloodBank: true, specializations: ["General", "Orthopedics"], address: "Freeganj, Ujjain" },
-  { id: "3", name: "CHL Hospital", distance: "4.8 km", eta: "15 min", rating: 4.7, emergency: true, icu: 5, icuTotal: 10, bloodBank: false, specializations: ["Cardiology", "Pediatrics", "Oncology"], address: "Dewas Road, Ujjain" },
-  { id: "4", name: "Ujjain Charitable Hospital", distance: "1.9 km", eta: "6 min", rating: 3.9, emergency: true, icu: 0, icuTotal: 4, bloodBank: false, specializations: ["General", "ENT"], address: "Tower Chowk, Ujjain" },
-  { id: "5", name: "Shree Krishna Hospital", distance: "5.5 km", eta: "18 min", rating: 4.3, emergency: true, icu: 2, icuTotal: 6, bloodBank: true, specializations: ["Trauma", "Burns"], address: "Agar Road, Ujjain" },
+  { id: "1", name: "Civil Hospital Nashik", distance: "2.4 km", eta: "8 min", rating: 4.5, emergency: true, icu: 3, icuTotal: 12, bloodBank: true, specializations: ["Trauma", "Cardiology", "Neurology"], address: "Trimbak Road, Nashik", aiRecommended: true },
+  { id: "2", name: "District Hospital Nashik", distance: "3.1 km", eta: "12 min", rating: 4.2, emergency: true, icu: 1, icuTotal: 8, bloodBank: true, specializations: ["General", "Orthopedics"], address: "CBS, Nashik" },
+  { id: "3", name: "Apollo Hospitals Nashik", distance: "4.8 km", eta: "15 min", rating: 4.7, emergency: true, icu: 5, icuTotal: 10, bloodBank: false, specializations: ["Cardiology", "Pediatrics", "Oncology"], address: "Panchavati, Nashik" },
+  { id: "4", name: "Sahyadri Super Speciality Hospital", distance: "1.9 km", eta: "6 min", rating: 3.9, emergency: true, icu: 0, icuTotal: 4, bloodBank: false, specializations: ["General", "ENT"], address: "Wadala Naka, Nashik" },
+  { id: "5", name: "Wockhardt Hospital", distance: "5.5 km", eta: "18 min", rating: 4.3, emergency: true, icu: 2, icuTotal: 6, bloodBank: true, specializations: ["Trauma", "Burns"], address: "Mumbai Naka, Nashik" },
 ];
 
 function HospitalCard({ h }: { h: HospitalData }) {

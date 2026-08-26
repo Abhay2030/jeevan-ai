@@ -16,9 +16,9 @@ const mockDonors: Donor[] = [
 
 interface BloodRequest { group: string; hospital: string; urgency: string; distance: string; timeLeft: string; }
 const mockRequests: BloodRequest[] = [
-  { group: "O+", hospital: "MYH Ujjain", urgency: "CRITICAL", distance: "2.4 km", timeLeft: "45 min" },
+  { group: "O+", hospital: "Civil Hospital Nashik", urgency: "CRITICAL", distance: "2.4 km", timeLeft: "45 min" },
   { group: "AB-", hospital: "District Hospital", urgency: "URGENT", distance: "3.1 km", timeLeft: "2 hrs" },
-  { group: "B+", hospital: "CHL Hospital", urgency: "NEEDED", distance: "4.8 km", timeLeft: "6 hrs" },
+  { group: "B+", hospital: "Apollo Hospitals Nashik", urgency: "NEEDED", distance: "4.8 km", timeLeft: "6 hrs" },
 ];
 
 export default function BloodNetwork() {

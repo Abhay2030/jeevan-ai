@@ -39,7 +39,7 @@ async def get_crowd_density(user: CommandOrHigher) -> list[CrowdDensityPredictio
     """
     Get predictive crowd density analytics for Command Center layout.
     """
-    # Mock data representing ML model outputs for Ujjain sectors
+    # Mock data representing ML model outputs for Nashik sectors
     return [
         CrowdDensityPrediction(
             sector_id="SECTOR_NORTH_GHAT",

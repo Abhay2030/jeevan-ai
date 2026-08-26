@@ -9,9 +9,9 @@ interface Alert {
 }
 
 const mockAlerts: Alert[] = [
-  { id: "1", type: "WEATHER", title: "Extreme Heatwave Warning", severity: "HIGH", status: "ACTIVE", time: "14:30 UTC", affected: "Ujjain District (All Sectors)", icon: ThermometerSun },
-  { id: "2", type: "CROWD", title: "Stampede Risk Escalation", severity: "CRITICAL", status: "DRAFT", time: "Pending Broadcast", affected: "Sector C - Ram Ghat", icon: ShieldAlert },
-  { id: "3", type: "INFRA", title: "Flash Flood Alert", severity: "MEDIUM", status: "RESOLVED", time: "Yesterday, 08:00 UTC", affected: "Low-lying areas (Kshipra River)", icon: CloudLightning },
+  { id: "1", type: "WEATHER", title: "Extreme Heatwave Warning", severity: "HIGH", status: "ACTIVE", time: "14:30 UTC", affected: "Nashik District (All Sectors)", icon: ThermometerSun },
+  { id: "2", type: "CROWD", title: "Stampede Risk Escalation", severity: "CRITICAL", status: "DRAFT", time: "Pending Broadcast", affected: "Ramkund Zone & Godavari Ghats", icon: ShieldAlert },
+  { id: "3", type: "INFRA", title: "Flash Flood Alert", severity: "MEDIUM", status: "RESOLVED", time: "Yesterday, 08:00 UTC", affected: "Low-lying areas (Godavari River)", icon: CloudLightning },
 ];
 
 export default function DisasterAlerts() {
@@ -102,8 +102,8 @@ export default function DisasterAlerts() {
                 <div className="p-4 rounded-xl bg-ink-900 border border-ink-800 text-ink-200 text-sm leading-relaxed">
                   ⚠️ {selected.title.toUpperCase()} ⚠️<br/><br/>
                   {selected.id === "1" ? "Temperatures are expected to exceed 42°C today. Avoid direct sunlight between 11 AM and 4 PM. Stay hydrated. Free water and medical camps are available at all major sectors." : 
-                   selected.id === "2" ? "High crowd density detected at Ram Ghat. Do not proceed to this area. Follow police instructions and use alternate routes via Sector B." :
-                   "A flash flood warning has been issued for low-lying areas near the Kshipra River. Move to higher ground immediately."}
+                   selected.id === "2" ? "High crowd density detected at Ramkund. Do not proceed to this area. Follow police instructions and use alternate routes via Panchavati Corridor." :
+                   "A flash flood warning has been issued for low-lying areas near the Godavari River. Move to higher ground immediately."}
                 </div>
               </div>
 

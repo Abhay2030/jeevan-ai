@@ -30,7 +30,7 @@ export default function SOSPage() {
 
     setTimeout(() => {
       setPhase("sending");
-      setTimeline(prev => [...prev, { time: now(), label: "Location Captured — 23.1793°N, 75.7849°E", icon: MapPin, done: true }]);
+      setTimeline(prev => [...prev, { time: now(), label: "Location Captured — 20.0059°N, 73.7903°E", icon: MapPin, done: true }]);
     }, 1200);
 
     setTimeout(() => {
@@ -44,7 +44,7 @@ export default function SOSPage() {
 
     setTimeout(() => {
       setPhase("tracking");
-      setTimeline(prev => [...prev, { time: now(), label: "Hospital Pre-Notified — MYH Ujjain", icon: Hospital, done: true }]);
+      setTimeline(prev => [...prev, { time: now(), label: "Hospital Pre-Notified — Civil Hospital Nashik", icon: Hospital, done: true }]);
     }, 4500);
   }, []);
 
