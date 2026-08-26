@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Siren, Hospital, Mic, HeartPulse, Droplets, Users,
@@ -19,6 +20,35 @@ const services = [
 ];
 
 export default function EmergencyHub() {
+  const [locationName, setLocationName] = useState("Locating...");
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await res.json();
+            const city = data.address.city || data.address.town || data.address.village || data.address.county || "Unknown City";
+            const state = data.address.state || "";
+            // Some states might be long, so we try to get a clean string
+            let locString = `${city}${state ? `, ${state}` : ""}`;
+            // If the string is too long for mobile, we could format it, but this is fine.
+            setLocationName(locString);
+          } catch (error) {
+            setLocationName("Location found");
+          }
+        },
+        (error) => {
+          setLocationName("Ujjain, MP"); // fallback if denied
+        }
+      );
+    } else {
+      setLocationName("Ujjain, MP");
+    }
+  }, []);
+
   return (
     <div className="min-h-[100dvh] flex flex-col" data-theme="paper">
       {/* Top bar */}
@@ -31,7 +61,7 @@ export default function EmergencyHub() {
         </Link>
         <div className="flex items-center gap-1.5 text-xs text-ink-300">
           <MapPin className="w-3.5 h-3.5 text-primary-500" />
-          <span>Ujjain, MP</span>
+          <span className="truncate max-w-[120px]">{locationName}</span>
         </div>
       </header>
 
