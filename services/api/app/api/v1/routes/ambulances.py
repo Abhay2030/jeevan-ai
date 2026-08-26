@@ -3,9 +3,8 @@ JEEVAN AI — Ambulance API Endpoints
 """
 
 from typing import Annotated
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from geoalchemy2.shape import to_shape
 from sqlalchemy import select
 
@@ -26,7 +25,7 @@ async def get_live_ambulances(
     user: CommandOrHigher
 ) -> list[AmbulanceResponse]:
     """Get real-time tracking data for all active ambulances."""
-    
+
     # In a real app, this might query Redis for ultra-low latency,
     # but querying the DB is fine if last_ping is updated frequently.
     stmt = select(Ambulance).where(Ambulance.status != "OFFLINE")

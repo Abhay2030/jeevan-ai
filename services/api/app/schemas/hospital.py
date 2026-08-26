@@ -11,12 +11,12 @@ class HospitalBase(BaseModel):
     name: str = Field(..., max_length=255)
     address: str = Field(..., max_length=500)
     phone_number: str = Field(..., max_length=20)
-    
+
     has_emergency: bool = True
     has_icu: bool = False
     has_blood_bank: bool = False
     specialties: str | None = None
-    
+
     total_beds: int = 0
     available_beds: int = 0
     total_icu: int = 0

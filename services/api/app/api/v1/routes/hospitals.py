@@ -2,13 +2,10 @@
 JEEVAN AI — Hospital API Endpoints
 """
 
-from typing import Annotated
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Query
 from geoalchemy2.functions import ST_Distance, ST_DWithin
-from sqlalchemy import cast, select
-from sqlalchemy.types import Float
+from sqlalchemy import select
 
 from app.api.dependencies import CurrentUser, SessionDep
 from app.models.hospital import Hospital
@@ -28,10 +25,10 @@ async def get_nearby_hospitals(
     require_blood: bool = Query(False, description="Filter by Blood Bank availability")
 ) -> list[HospitalResponse]:
     """Find nearby hospitals using PostGIS spatial queries."""
-    
+
     # Convert lat/lng to PostGIS geography point
     user_location = f"SRID=4326;POINT({lng} {lat})"
-    
+
     # Base query: ST_DWithin for efficient radius search (distance in meters)
     stmt = select(
         Hospital,
@@ -42,9 +39,9 @@ async def get_nearby_hospitals(
 
     # Apply filters
     if require_icu:
-        stmt = stmt.where(Hospital.has_icu == True, Hospital.available_icu > 0)
+        stmt = stmt.where(Hospital.has_icu, Hospital.available_icu > 0)
     if require_blood:
-        stmt = stmt.where(Hospital.has_blood_bank == True)
+        stmt = stmt.where(Hospital.has_blood_bank)
 
     # Order by nearest
     stmt = stmt.order_by("distance_meters")
@@ -56,7 +53,7 @@ async def get_nearby_hospitals(
     for row in rows:
         hospital_obj = row.Hospital
         distance_meters = row.distance_meters
-        
+
         # We need to extract lat/long from the WKBElement
         # A simple hack for now is to just return a dummy if we don't parse WKB here
         # But we'll parse it using geoalchemy2's shape if we wanted.

@@ -13,16 +13,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.routes.ambulances import router as ambulances_router
 from app.api.v1.routes.analytics import router as analytics_router
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.health import router as health_router
+from app.api.v1.routes.hospitals import router as hospitals_router
 from app.api.v1.routes.incidents import router as incidents_router
+from app.api.v1.routes.sos import router as sos_router
 from app.api.v1.routes.triage import router as triage_router
 from app.api.v1.routes.users import router as users_router
 from app.api.v1.routes.ws import router as ws_router
-from app.api.v1.routes.sos import router as sos_router
-from app.api.v1.routes.hospitals import router as hospitals_router
-from app.api.v1.routes.ambulances import router as ambulances_router
 from app.core.config import settings
 from app.core.pubsub import pubsub_manager
 from app.services.simulator import simulator

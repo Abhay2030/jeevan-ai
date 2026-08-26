@@ -21,7 +21,11 @@ class Ambulance(Base):
     driver_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
 
     status = Column(
-        Enum("AVAILABLE", "DISPATCHED", "EN_ROUTE", "AT_SCENE", "RETURNING", "OFFLINE", name="ambulance_status"),
+        Enum(
+            "AVAILABLE", "DISPATCHED", "EN_ROUTE",
+            "AT_SCENE", "RETURNING", "OFFLINE",
+            name="ambulance_status"
+        ),
         nullable=False,
         default="AVAILABLE"
     )
@@ -31,7 +35,7 @@ class Ambulance(Base):
         Geometry(geometry_type="POINT", srid=4326, spatial_index=True),
         nullable=True
     )
-    
+
     current_speed_kmh = Column(Integer, default=0)
     current_incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=True)
 

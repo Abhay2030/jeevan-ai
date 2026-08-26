@@ -2,9 +2,8 @@
 JEEVAN AI — Critical SOS API Endpoint
 """
 
-from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, status
 from geoalchemy2.functions import ST_Distance, ST_DWithin
 from sqlalchemy import select
 
@@ -38,9 +37,9 @@ async def trigger_emergency_sos(
     4. Triggers background family notification
     5. Broadcasts via WebSocket to Command Center
     """
-    
+
     wkt_location = f"SRID=4326;POINT({data.location.longitude} {data.location.latitude})"
-    
+
     # 1. Create Incident
     incident = Incident(
         title=data.title,
@@ -73,7 +72,10 @@ async def trigger_emergency_sos(
         incident.status = "DISPATCHED"
         await session.commit()
         await session.refresh(incident)
-        print(f"[SOS Workflow] Assigned Ambulance {nearest_ambulance.vehicle_number} to Incident {incident.id}")
+        print(
+            f"[SOS Workflow] Assigned Ambulance {nearest_ambulance.vehicle_number} "
+            f"to Incident {incident.id}"
+        )
 
     # 4. Background tasks (Family + AI Prediction engine hooks)
     background_tasks.add_task(notify_family_background, str(current_user.id), str(incident.id))

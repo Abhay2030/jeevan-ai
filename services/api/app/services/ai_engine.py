@@ -36,7 +36,7 @@ class AIEngine:
 
         raw_score = base_risk + crowd_factor + weather_factor + incident_factor
         score = min(100, max(0, int(raw_score)))
-        
+
         confidence = random.randint(82, 95)  # Simulated model confidence
 
         return {
@@ -52,7 +52,7 @@ class AIEngine:
         """
         base_response_time = 4.2  # minutes
         projected_time = base_response_time * crowd_multiplier * (1 + (temp - 30) * 0.02)
-        
+
         base_hospital_load = 65  # percent
         projected_load = min(100, base_hospital_load * crowd_multiplier * 1.1)
 

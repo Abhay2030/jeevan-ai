@@ -20,9 +20,18 @@ class FleetSimulator:
         self.running = False
         self._task = None
         self.mock_ambulances = [
-            {"id": str(uuid4()), "vehicle_number": "MP-13-ER-001", "lat": 23.1793, "lng": 75.7849, "status": "AVAILABLE"},
-            {"id": str(uuid4()), "vehicle_number": "MP-13-ER-002", "lat": 23.1812, "lng": 75.7820, "status": "EN_ROUTE"},
-            {"id": str(uuid4()), "vehicle_number": "MP-13-ER-003", "lat": 23.1750, "lng": 75.7900, "status": "AT_SCENE"},
+            {
+                "id": str(uuid4()), "vehicle_number": "MP-13-ER-001",
+                "lat": 23.1793, "lng": 75.7849, "status": "AVAILABLE"
+            },
+            {
+                "id": str(uuid4()), "vehicle_number": "MP-13-ER-002",
+                "lat": 23.1812, "lng": 75.7820, "status": "EN_ROUTE"
+            },
+            {
+                "id": str(uuid4()), "vehicle_number": "MP-13-ER-003",
+                "lat": 23.1750, "lng": 75.7900, "status": "AT_SCENE"
+            },
         ]
 
     async def start(self):
@@ -45,7 +54,7 @@ class FleetSimulator:
                 if amb["status"] in ["EN_ROUTE", "AVAILABLE", "RETURNING"]:
                     amb["lat"] += random.uniform(-0.001, 0.001)
                     amb["lng"] += random.uniform(-0.001, 0.001)
-                
+
                 # Publish simulated telemetry
                 await pubsub_manager.publish(
                     "ambulances:live",
@@ -58,7 +67,7 @@ class FleetSimulator:
                         "is_simulated": True
                     })
                 )
-            
+
             await asyncio.sleep(2)  # 2-second telemetry ticks
 
 
