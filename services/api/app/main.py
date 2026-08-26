@@ -20,8 +20,12 @@ from app.api.v1.routes.incidents import router as incidents_router
 from app.api.v1.routes.triage import router as triage_router
 from app.api.v1.routes.users import router as users_router
 from app.api.v1.routes.ws import router as ws_router
+from app.api.v1.routes.sos import router as sos_router
+from app.api.v1.routes.hospitals import router as hospitals_router
+from app.api.v1.routes.ambulances import router as ambulances_router
 from app.core.config import settings
 from app.core.pubsub import pubsub_manager
+from app.services.simulator import simulator
 
 
 @asynccontextmanager
@@ -29,8 +33,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Application lifespan handler for startup/shutdown events."""
     # Startup
     await pubsub_manager.connect()
+    await simulator.start()
     yield
     # Shutdown
+    await simulator.stop()
     await pubsub_manager.close()
 
 
@@ -61,3 +67,6 @@ app.include_router(incidents_router, prefix="/api/v1")
 app.include_router(ws_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(triage_router, prefix="/api/v1")
+app.include_router(sos_router, prefix="/api/v1")
+app.include_router(hospitals_router, prefix="/api/v1")
+app.include_router(ambulances_router, prefix="/api/v1")

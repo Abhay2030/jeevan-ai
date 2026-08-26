@@ -40,9 +40,13 @@ class PubSubManager:
 
     async def publish_incident(self, message: dict[str, Any]) -> None:
         """Publish an incident update to the channel."""
+        await self.publish(self.channel, json.dumps(message))
+
+    async def publish(self, channel: str, message: str) -> None:
+        """Generic publish method."""
         if self.redis:
             try:
-                await self.redis.publish(self.channel, json.dumps(message))
+                await self.redis.publish(channel, message)
             except Exception as e:
                 logger.error(f"Failed to publish to Redis: {e}")
 

@@ -13,6 +13,7 @@ from alembic import context
 
 from app.core.config import settings
 from app.db.base import Base
+import app.models  # noqa: F401 - ensure models are evaluated and registered to Base.metadata
 
 # Alembic Config object
 config = context.config
