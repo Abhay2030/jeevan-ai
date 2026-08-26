@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, Map as MapIcon, BarChart3, Activity, ArrowRight } from "lucide-react";
 
-const DynamicMap = dynamic(() => import("@jeevan-ai/ui/src/components/Map").then((mod) => mod.Map), {
+const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center bg-ink-900 skeleton">Loading Simulator Engine...</div>,
 });

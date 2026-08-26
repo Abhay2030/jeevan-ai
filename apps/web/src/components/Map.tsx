@@ -2,7 +2,7 @@
 
 import * as React from "react";
 // @ts-ignore
-import MapGL, { Marker, NavigationControl, FullscreenControl } from "react-map-gl";
+import MapGL, { Marker, NavigationControl, FullscreenControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export interface MapPoint {

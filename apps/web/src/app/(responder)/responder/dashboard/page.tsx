@@ -7,7 +7,7 @@ import { apiFetch } from "../../../../lib/api";
 import { AlertTriangle, MapPin, Navigation, Clock, CheckCircle2, Shield, Search, ChevronRight, Activity, Phone } from "lucide-react";
 
 // Dynamically import the Map component to avoid SSR issues with Leaflet
-const DynamicMap = dynamic(() => import("@jeevan-ai/ui/src/components/Map").then((mod) => mod.Map), {
+const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center bg-paper-200 skeleton">Loading Live Map...</div>,
 });

@@ -11,7 +11,7 @@ import {
   CheckCircle2, XCircle
 } from "lucide-react";
 
-const DynamicMap = dynamic(() => import("@jeevan-ai/ui/src/components/Map").then((mod) => mod.Map), {
+const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center bg-ink-900 skeleton">Loading Global Grid...</div>,
 });
