@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@jeevan-ai/ui";
+import Link from "next/link";
+import { Shield, ArrowRight, Lock, User, Loader2 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function LoginPage() {
@@ -14,13 +15,12 @@ export default function LoginPage() {
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
 
-  // If already logged in, redirect based on role
   React.useEffect(() => {
     if (user) {
       if (user.role === "RESPONDER") router.push("/responder/dashboard");
       else if (user.role === "COMMAND") router.push("/command/dashboard");
       else if (user.role === "ADMIN") router.push("/admin/users");
-      else router.push("/emergency"); // PUBLIC fallback
+      else router.push("/emergency");
     }
   }, [user, router]);
 
@@ -31,82 +31,120 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      // The useEffect will handle the redirect once user state updates
-    } catch (err: unknown) {
-      setError((err as Error).message || "Invalid login credentials.");
+    } catch (err: any) {
+      setError(err.message || "Invalid login credentials.");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center p-6 bg-surface-bg min-h-screen" data-theme="paper">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-ink-900 mb-2">
+    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-surface-bg" data-theme="paper">
+      
+      {/* Left Form Side */}
+      <div className="w-full md:w-1/2 lg:w-[480px] flex flex-col justify-between p-6 md:p-12 z-10 bg-surface-bg shadow-2xl relative">
+        <Link href="/" className="flex items-center gap-2 group w-max">
+          <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center shadow-md group-hover:shadow-glow-primary transition-shadow">
+            <Shield className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-xl font-display font-bold tracking-tight text-ink-900">
             JEEVAN <span className="text-primary-600">AI</span>
-          </h1>
-          <p className="text-ink-500 font-body">Secure Access Gateway</p>
-        </div>
+          </span>
+        </Link>
 
-        <Card className="border-0 shadow-xl shadow-ink-900/5 ring-1 ring-ink-900/10">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center text-ink-900">Sign In</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="p-3 text-sm text-alert-700 bg-alert-50 rounded-md border border-alert-200" role="alert">
-                  {error}
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-ink-900" htmlFor="email">
-                  Email Address
-                </label>
+        <div className="w-full max-w-sm mx-auto my-12 animate-fade-in-up">
+          <div className="mb-10 text-center md:text-left">
+            <h1 className="text-3xl font-display font-bold text-ink-900 mb-2">Welcome Back</h1>
+            <p className="text-sm text-ink-400">Secure Access Gateway for official personnel.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="p-3 text-sm text-alert-700 bg-alert-50 border border-alert-200 rounded-xl animate-scale-in flex items-center gap-2">
+                <Shield className="w-4 h-4 shrink-0" /> {error}
+              </div>
+            )}
+            
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink-500 uppercase tracking-wide ml-1" htmlFor="email">Email / ID</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-300" />
                 <input
                   id="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex h-11 w-full rounded-md border border-paper-300 bg-transparent px-3 py-2 text-sm placeholder:text-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="name@example.com"
+                  className="w-full h-12 pl-10 pr-4 rounded-xl border border-paper-300 bg-paper-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  placeholder="name@jeevan.gov.in"
                 />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-ink-900" htmlFor="password">
-                  Password
-                </label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink-500 uppercase tracking-wide ml-1" htmlFor="password">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-300" />
                 <input
                   id="password"
                   type="password"
-                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="flex h-11 w-full rounded-md border border-paper-300 bg-transparent px-3 py-2 text-sm placeholder:text-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full h-12 pl-10 pr-4 rounded-xl border border-paper-300 bg-paper-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                   placeholder="••••••••"
                 />
               </div>
+            </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-base font-semibold"
-                disabled={isLoading}
-              >
-                {isLoading ? "Authenticating..." : "Sign In"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-        
-        <p className="mt-8 text-center text-sm text-ink-500">
-          Need emergency assistance? <a href="/emergency" className="text-primary-600 font-semibold hover:underline">Get Help Now</a>
+            <button 
+              type="submit" 
+              disabled={isLoading || !email || !password}
+              className="w-full h-12 rounded-xl bg-primary-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20 hover:bg-primary-700 hover:shadow-glow-primary transition-all disabled:opacity-50 mt-4"
+            >
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Lock className="w-4 h-4" /> Secure Sign In</>}
+            </button>
+          </form>
+
+          <div className="mt-10 pt-6 border-t border-paper-200">
+            <p className="text-xs text-ink-400 text-center mb-4">Are you a citizen looking for help?</p>
+            <Link href="/emergency" className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-alert-50 text-alert-700 font-semibold hover:bg-alert-100 transition-colors border border-alert-200">
+              Get Emergency Help <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+
+        <p className="text-xs text-ink-300 text-center md:text-left">
+          &copy; 2027 JEEVAN AI Platform.
         </p>
       </div>
+
+      {/* Right Illustration Side */}
+      <div className="hidden md:flex flex-1 gradient-hero relative overflow-hidden items-center justify-center p-12">
+        {/* Animated Background Mesh */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, #0d9488 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+        
+        <div className="max-w-lg text-center relative z-10 animate-fade-in-up delay-200">
+          <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl animate-float">
+            <Shield className="w-16 h-16 text-primary-600" />
+          </div>
+          <h2 className="text-4xl font-display font-bold text-ink-900 mb-4">Secure Network</h2>
+          <p className="text-lg text-ink-500 leading-relaxed">
+            Authorized personnel access only. Every action on this platform helps save lives. Proceed with operational awareness.
+          </p>
+
+          <div className="mt-12 grid grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-white/40 backdrop-blur-sm border border-white/50 text-left">
+              <h3 className="font-bold text-ink-900 mb-1">Command</h3>
+              <p className="text-xs text-ink-500">Access Digital Twin & Intelligence</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-white/40 backdrop-blur-sm border border-white/50 text-left">
+              <h3 className="font-bold text-ink-900 mb-1">Responder</h3>
+              <p className="text-xs text-ink-500">Access Live Tactical Feeds</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
