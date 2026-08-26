@@ -1,0 +1,9 @@
+
+D:\My Projects\JEEVAN AI – India's Predictive Public Health & Emergency Response Platform for Large Gatherings\apps\web\src\components\Map.tsx
+   4:1   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  49:36  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                      react/no-unescaped-entities
+  49:45  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                      react/no-unescaped-entities
+  86:26  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+✖ 4 problems (4 errors, 0 warnings)
+
