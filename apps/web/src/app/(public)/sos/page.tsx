@@ -84,9 +84,10 @@ export default function SOSPage() {
         localStorage.removeItem("offline_sos_queue");
         setTimeline(prev => [...prev, { time: now(), label: "Connection Restored — Syncing...", icon: Wifi, done: true }]);
         // Add a slight delay for realism before proceeding
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           proceedWithSOS();
         }, 1000);
+        return () => clearTimeout(timer);
       }
     }
   }, [isOnline, phase, proceedWithSOS]);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight } from "lucide-react";
 
@@ -33,7 +33,7 @@ export default function DigitalTwin() {
     { id: "road_closure", icon: AlertTriangle, title: "Main Arterial Closure", desc: "Simulate Dewas Road blockage and reroute impact" },
   ];
 
-  const generateMockHeatmapData = () => {
+  const generateMockHeatmapData = useCallback(() => {
     if (scenario !== "crowd_surge") return null;
     
     const centerLat = 20.0059;
@@ -68,9 +68,9 @@ export default function DigitalTwin() {
       type: "FeatureCollection",
       features
     };
-  };
+  }, [scenario]);
 
-  const heatmapData = results ? generateMockHeatmapData() : null;
+  const heatmapData = useMemo(() => results ? generateMockHeatmapData() : null, [results, generateMockHeatmapData]);
 
   return (
     <div className="flex-1 flex h-full overflow-hidden relative" data-theme="ink">
