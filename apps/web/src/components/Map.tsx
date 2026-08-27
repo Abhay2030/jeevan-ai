@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import MapGL, { Marker, NavigationControl, FullscreenControl, Source, Layer } from "react-map-gl/mapbox";
-import type { FillExtrusionLayer, HeatmapLayer } from "react-map-gl/mapbox";
+import type { FillExtrusionLayer, HeatmapLayer } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export interface MapPoint {

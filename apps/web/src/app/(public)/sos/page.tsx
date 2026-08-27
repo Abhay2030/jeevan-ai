@@ -16,13 +16,12 @@ interface TimelineItem {
   icon: React.ElementType;
   done: boolean;
 }
+const now = () => new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
 export default function SOSPage() {
   const [phase, setPhase] = useState<Phase>("ready");
   const [eta, setEta] = useState(4);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
-
-  const now = () => new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
   const [isOnline, setIsOnline] = useState(true);
 
