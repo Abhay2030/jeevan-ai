@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, Map as MapIcon, BarChart3, Activity, ArrowRight } from "lucide-react";
+import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight } from "lucide-react";
 
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,

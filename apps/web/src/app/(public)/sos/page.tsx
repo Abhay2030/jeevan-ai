@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
-  Siren, MapPin, Phone, Users, Hospital, Clock,
+  Siren, MapPin, Phone, Users, Hospital,
   CheckCircle2, ArrowLeft, Navigation, Shield,
   Loader2, ChevronRight, WifiOff, Wifi
 } from "lucide-react";
