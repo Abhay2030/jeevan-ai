@@ -1,172 +1,255 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft, HeartPulse, Droplets, Flame, Wind,
-  Brain, Bone, Car, ChevronRight, AlertTriangle,
-  CheckCircle2, ArrowRight, Shield
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Shield, HeartPulse, Activity, Search, Volume2, Droplets, ThermometerSun, AlertCircle, Phone, CheckCircle2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-interface Guide {
-  id: string; title: string; icon: React.ElementType; color: string;
-  severity: string; steps: { title: string; desc: string; warning?: string }[];
+interface FirstAidStep {
+  text: string;
+  detail?: string;
+  critical?: boolean;
 }
 
-const guides: Guide[] = [
-  { id: "bleeding", title: "Severe Bleeding", icon: Droplets, color: "bg-alert-600", severity: "CRITICAL",
+interface FirstAidGuide {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  color: string;
+  description: string;
+  steps: FirstAidStep[];
+}
+
+const GUIDES: FirstAidGuide[] = [
+  {
+    id: "heatstroke",
+    title: "Heatstroke",
+    icon: ThermometerSun,
+    color: "text-alert-600 bg-alert-50 border-alert-200",
+    description: "Critical emergency caused by extreme heat.",
     steps: [
-      { title: "Apply Direct Pressure", desc: "Use a clean cloth or bandage. Press firmly on the wound with both hands." },
-      { title: "Don't Remove the Cloth", desc: "If blood soaks through, add more layers on top. Never remove the first cloth.", warning: "Do NOT apply a tourniquet unless trained" },
-      { title: "Elevate If Possible", desc: "If the wound is on a limb, raise it above heart level while maintaining pressure." },
-      { title: "Keep Patient Calm & Warm", desc: "Cover them with a blanket. Talk reassuringly. Monitor their breathing." },
-      { title: "Wait for Help", desc: "Continue pressure until emergency responders arrive. Do not leave the patient alone." },
-    ]},
-  { id: "burns", title: "Burns", icon: Flame, color: "bg-accent-600", severity: "HIGH",
+      { text: "Move to a cool, shaded area immediately.", critical: true },
+      { text: "Remove excess clothing.", detail: "Loosen tight clothing to help cooling." },
+      { text: "Cool the person rapidly.", detail: "Apply cold water, ice packs (neck, armpits, groin), or use a fan." },
+      { text: "Do NOT give fluids if they are unconscious or vomiting.", critical: true },
+    ]
+  },
+  {
+    id: "cpr",
+    title: "CPR (No Pulse)",
+    icon: HeartPulse,
+    color: "text-primary-600 bg-primary-50 border-primary-200",
+    description: "For someone who is unresponsive and not breathing.",
     steps: [
-      { title: "Cool the Burn", desc: "Run cool (not cold) water over the burn for at least 20 minutes.", warning: "Do NOT use ice, butter, or toothpaste" },
-      { title: "Remove Clothing Carefully", desc: "Remove clothing near the burn unless it's stuck to the skin." },
-      { title: "Cover with Clean Cloth", desc: "Use a sterile non-stick bandage or clean cloth. Do not pop blisters." },
-      { title: "Monitor for Shock", desc: "Watch for pale skin, rapid breathing, or confusion. Keep patient warm." },
-    ]},
-  { id: "choking", title: "Choking", icon: Wind, color: "bg-primary-700", severity: "CRITICAL",
+      { text: "Check responsiveness and breathing.", critical: true },
+      { text: "Place hands in center of chest.", detail: "Interlock your fingers." },
+      { text: "Push hard and fast.", detail: "Aim for 100-120 compressions per minute. Push at least 2 inches deep." },
+      { text: "Do not stop until help arrives or they wake up.", critical: true },
+    ]
+  },
+  {
+    id: "choking",
+    title: "Choking",
+    icon: AlertCircle,
+    color: "text-accent-600 bg-accent-50 border-accent-200",
+    description: "Person cannot breathe, cough, or speak.",
     steps: [
-      { title: "Ask 'Are You Choking?'", desc: "If they can cough forcefully, encourage them to keep coughing." },
-      { title: "5 Back Blows", desc: "Stand behind them. Give 5 sharp blows between the shoulder blades with the heel of your hand." },
-      { title: "5 Abdominal Thrusts", desc: "Make a fist above the navel. Grasp with the other hand and thrust inward and upward.", warning: "For pregnant women or obese patients, use chest thrusts instead" },
-      { title: "Repeat Until Clear", desc: "Alternate between 5 back blows and 5 abdominal thrusts until the object is expelled." },
-    ]},
-  { id: "fainting", title: "Fainting", icon: Brain, color: "bg-purple-600", severity: "MEDIUM",
+      { text: "Give 5 back blows.", detail: "Stand behind, lean them forward, hit firmly between shoulder blades." },
+      { text: "Give 5 abdominal thrusts (Heimlich).", detail: "Make a fist above navel, pull inward and upward." },
+      { text: "Alternate until object is dislodged.", critical: true },
+    ]
+  },
+  {
+    id: "bleeding",
+    title: "Severe Bleeding",
+    icon: Droplets,
+    color: "text-alert-700 bg-alert-100 border-alert-300",
+    description: "Heavy bleeding that won't stop.",
     steps: [
-      { title: "Lay Them Down", desc: "Place the person on their back. Raise their legs about 12 inches." },
-      { title: "Check Breathing", desc: "Ensure their airway is clear. Loosen any tight clothing." },
-      { title: "Cool Them Down", desc: "Apply a cool, damp cloth to the forehead. Fan them gently." },
-      { title: "Recovery Position", desc: "When they regain consciousness, have them sit up slowly. Give them water." },
-    ]},
-  { id: "fractures", title: "Fractures", icon: Bone, color: "bg-ink-600", severity: "HIGH",
-    steps: [
-      { title: "Don't Move the Limb", desc: "Immobilize the injured area. Do not attempt to straighten the bone.", warning: "Moving could cause further damage to nerves and blood vessels" },
-      { title: "Apply Ice (Wrapped)", desc: "Apply ice wrapped in cloth for 20 minutes to reduce swelling." },
-      { title: "Improvise a Splint", desc: "Use a rigid material (stick, rolled newspaper) to support the limb. Tie gently above and below." },
-      { title: "Treat for Shock", desc: "Keep them warm and calm. Elevate legs if possible without disturbing the injury." },
-    ]},
-  { id: "road-accident", title: "Road Accidents", icon: Car, color: "bg-alert-700", severity: "CRITICAL",
-    steps: [
-      { title: "Ensure Your Safety First", desc: "Check for traffic. Turn on hazard lights. Place warning triangles if available.", warning: "Do NOT move the victim unless there is immediate danger (fire, traffic)" },
-      { title: "Call 112 Immediately", desc: "Report exact location, number of injured, and visible injuries." },
-      { title: "Control Bleeding", desc: "Apply pressure to any visible bleeding wounds. Do not remove objects embedded in wounds." },
-      { title: "Keep Airway Open", desc: "Tilt head back gently to open airway. Check for breathing." },
-      { title: "Keep Patient Still", desc: "Do not move their neck or spine. Talk to them reassuringly until help arrives." },
-    ]},
+      { text: "Apply direct pressure.", detail: "Use a clean cloth or hands directly on the wound.", critical: true },
+      { text: "Maintain constant pressure.", detail: "Do not peek to check the wound." },
+      { text: "Elevate the injured area if possible above the heart." },
+    ]
+  },
 ];
 
-export default function FirstAidGuide() {
-  const [selected, setSelected] = useState<Guide | null>(null);
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+export default function FirstAidPage() {
+  const [activeGuide, setActiveGuide] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+  const [speakingStep, setSpeakingStep] = useState<number | null>(null);
 
-  const toggleStep = (i: number) => {
-    setCompletedSteps(prev => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i); else next.add(i);
-      return next;
-    });
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      synthRef.current = window.speechSynthesis;
+    }
+    return () => {
+      if (synthRef.current) synthRef.current.cancel();
+    };
+  }, []);
+
+  const playVoice = (text: string, index: number) => {
+    if (!synthRef.current) return;
+    
+    // Stop any existing speech
+    synthRef.current.cancel();
+    
+    // If clicking the currently playing step, just stop it
+    if (speakingStep === index) {
+      setSpeakingStep(null);
+      return;
+    }
+
+    setSpeakingStep(index);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-IN";
+    utterance.rate = 0.9;
+    
+    utterance.onend = () => setSpeakingStep(null);
+    utterance.onerror = () => setSpeakingStep(null);
+    
+    synthRef.current.speak(utterance);
   };
 
-  if (selected) {
-    return (
-      <div className="min-h-[100dvh] flex flex-col" data-theme="paper">
-        <header className="glass sticky top-0 z-30 px-4 py-3 flex items-center gap-3">
-          <button onClick={() => { setSelected(null); setCompletedSteps(new Set()); }} className="w-9 h-9 rounded-xl bg-paper-200 flex items-center justify-center">
-            <ArrowLeft className="w-5 h-5 text-ink-500" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-base font-display font-bold text-ink-900">{selected.title}</h1>
-            <p className="text-xs text-ink-300">{completedSteps.size}/{selected.steps.length} steps completed</p>
-          </div>
-          <div className={`px-2 py-1 rounded-md text-xs font-bold text-white ${selected.severity === "CRITICAL" ? "bg-alert-600" : selected.severity === "HIGH" ? "bg-accent-600" : "bg-primary-600"}`}>
-            {selected.severity}
-          </div>
-        </header>
+  const filteredGuides = GUIDES.filter(g => 
+    g.title.toLowerCase().includes(search.toLowerCase()) || 
+    g.description.toLowerCase().includes(search.toLowerCase())
+  );
 
-        {/* Progress bar */}
-        <div className="h-1 bg-paper-200">
-          <div className="h-1 bg-primary-500 transition-all duration-500" style={{ width: `${(completedSteps.size / selected.steps.length) * 100}%` }} />
-        </div>
-
-        <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
-          <div className="space-y-4">
-            {selected.steps.map((step, i) => (
-              <button
-                key={i}
-                onClick={() => toggleStep(i)}
-                className={`w-full text-left card-elevated p-5 flex gap-4 transition-all ${completedSteps.has(i) ? "ring-2 ring-success-300 bg-success-50/30" : ""}`}
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-display font-bold text-lg ${completedSteps.has(i) ? "bg-success-500 text-white" : "bg-primary-100 text-primary-600"}`}>
-                  {completedSteps.has(i) ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
-                </div>
-                <div className="flex-1">
-                  <h3 className={`font-display font-bold text-sm ${completedSteps.has(i) ? "text-success-700 line-through" : "text-ink-900"}`}>{step.title}</h3>
-                  <p className="text-sm text-ink-300 mt-1 leading-relaxed">{step.desc}</p>
-                  {step.warning && (
-                    <div className="mt-3 flex items-start gap-2 p-2.5 rounded-lg bg-accent-50 border border-accent-200">
-                      <AlertTriangle className="w-4 h-4 text-accent-600 shrink-0 mt-0.5" />
-                      <p className="text-xs text-accent-700 font-medium">{step.warning}</p>
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {completedSteps.size === selected.steps.length && (
-            <div className="mt-8 card-elevated p-6 text-center bg-success-50 border-success-200 animate-scale-in">
-              <CheckCircle2 className="w-10 h-10 text-success-500 mx-auto mb-3" />
-              <h3 className="font-display font-bold text-success-800 mb-1">All Steps Completed</h3>
-              <p className="text-sm text-success-600">Continue monitoring until professional help arrives.</p>
-            </div>
-          )}
-        </main>
-      </div>
-    );
-  }
+  const guide = GUIDES.find(g => g.id === activeGuide);
 
   return (
-    <div className="min-h-[100dvh] flex flex-col" data-theme="paper">
-      <header className="glass sticky top-0 z-30 px-4 py-3 flex items-center gap-3">
-        <Link href="/emergency" className="w-9 h-9 rounded-xl bg-paper-200 flex items-center justify-center">
-          <ArrowLeft className="w-5 h-5 text-ink-500" />
-        </Link>
-        <div>
-          <h1 className="text-lg font-display font-bold text-ink-900">First Aid Guide</h1>
-          <p className="text-xs text-ink-300">Help Until Help Arrives</p>
+    <div className="min-h-[100dvh] flex flex-col bg-surface-bg" data-theme="paper">
+      <header className="glass sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b border-surface-border">
+        <button 
+          onClick={() => {
+            if (activeGuide) {
+              setActiveGuide(null);
+              if (synthRef.current) synthRef.current.cancel();
+              setSpeakingStep(null);
+            } else {
+              window.history.back();
+            }
+          }} 
+          className="w-9 h-9 rounded-xl bg-paper-200 border border-paper-300 flex items-center justify-center text-ink-600 hover:bg-paper-300 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <span className="font-display font-bold text-ink-900 text-sm">First Aid Guide</span>
+        <div className="w-9 h-9 flex items-center justify-center">
+          <Activity className="w-5 h-5 text-primary-600" />
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
-        <div className="card-elevated p-4 mb-6 flex items-center gap-3 bg-accent-50 border-accent-200">
-          <AlertTriangle className="w-5 h-5 text-accent-600 shrink-0" />
-          <p className="text-xs text-accent-700 font-medium">These guides supplement — not replace — professional medical care. Always call 112 first.</p>
-        </div>
-
-        <div className="space-y-3">
-          {guides.map(g => (
-            <button
-              key={g.id}
-              onClick={() => setSelected(g)}
-              className="w-full card-elevated p-4 flex items-center gap-4 group card-interactive text-left"
+      <main className="flex-1 px-4 py-5 max-w-2xl mx-auto w-full relative">
+        <AnimatePresence mode="wait">
+          {!activeGuide ? (
+            <motion.div 
+              key="list"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4"
             >
-              <div className={`w-11 h-11 rounded-xl ${g.color} flex items-center justify-center shadow-md`}>
-                <g.icon className="w-5 h-5 text-white" />
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
+                <input
+                  type="text"
+                  placeholder="Search symptoms (e.g. bleeding, chest pain)"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-paper-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
+                />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-display font-bold text-ink-900 text-sm">{g.title}</h3>
-                <p className="text-xs text-ink-300 mt-0.5">{g.steps.length} steps • {g.severity}</p>
+
+              {/* Guide List */}
+              <div className="grid gap-3">
+                {filteredGuides.map((g, i) => (
+                  <button
+                    key={g.id}
+                    onClick={() => setActiveGuide(g.id)}
+                    className="card-elevated p-4 flex items-center gap-4 text-left group hover:border-primary-300 animate-slide-in-bottom"
+                    style={{ animationDelay: `${i * 50}ms` }}
+                  >
+                    <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 ${g.color}`}>
+                      <g.icon className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display font-bold text-ink-900 mb-0.5">{g.title}</h3>
+                      <p className="text-xs text-ink-500 line-clamp-1">{g.description}</p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-ink-300 group-hover:text-primary-500 transition-colors" />
+                  </button>
+                ))}
+                {filteredGuides.length === 0 && (
+                  <div className="text-center py-10 text-ink-500 text-sm">
+                    No guides found matching &quot;{search}&quot;
+                  </div>
+                )}
               </div>
-              <ChevronRight className="w-5 h-5 text-ink-200 group-hover:text-primary-500 transition-colors" />
-            </button>
-          ))}
-        </div>
+            </motion.div>
+          ) : guide ? (
+            <motion.div
+              key="detail"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="space-y-4 pb-24" // Extra padding for bottom CTA
+            >
+              <div className={`p-5 rounded-2xl border ${guide.color} mb-6`}>
+                <guide.icon className="w-8 h-8 mb-3" />
+                <h2 className="text-2xl font-display font-bold mb-2">{guide.title}</h2>
+                <p className="text-sm opacity-90">{guide.description}</p>
+              </div>
+
+              <div className="space-y-3">
+                {guide.steps.map((step, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`card-elevated p-4 border-l-4 relative overflow-hidden transition-all duration-300 ${speakingStep === idx ? "border-l-primary-500 shadow-lg scale-[1.02]" : step.critical ? "border-l-alert-500" : "border-l-paper-300"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${speakingStep === idx ? "bg-primary-500 text-white" : "bg-paper-200 text-ink-600"}`}>
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 pt-0.5">
+                        <p className={`text-sm font-semibold mb-1 ${step.critical ? "text-alert-700" : "text-ink-900"}`}>
+                          {step.text}
+                        </p>
+                        {step.detail && (
+                          <p className="text-xs text-ink-500">{step.detail}</p>
+                        )}
+                      </div>
+                      <button 
+                        onClick={() => playVoice(`${step.text}. ${step.detail || ""}`, idx)}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${speakingStep === idx ? "bg-primary-100 text-primary-600" : "bg-paper-100 text-ink-400 hover:bg-paper-200 hover:text-primary-500"}`}
+                        aria-label="Play step instructions"
+                      >
+                        <Volume2 className={`w-4 h-4 ${speakingStep === idx ? "animate-pulse" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </main>
+
+      {/* Floating SOS CTA in detail view */}
+      {activeGuide && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 glass border-t border-paper-200 animate-slide-in-bottom">
+          <div className="max-w-2xl mx-auto flex gap-3">
+             <Link href="/sos" className="flex-1 h-12 rounded-xl bg-alert-600 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg hover:bg-alert-700 transition-colors">
+               <Shield className="w-4 h-4" /> Emergency SOS
+             </Link>
+             <a href="tel:108" className="w-12 h-12 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center shadow-sm">
+               <Phone className="w-5 h-5" />
+             </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
