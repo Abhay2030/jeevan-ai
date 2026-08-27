@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import MapGL, { Marker, NavigationControl, FullscreenControl, Source, Layer } from "react-map-gl/mapbox";
-import type { FillExtrusionLayer, HeatmapLayer } from "react-map-gl";
+import type { FillExtrusionLayer, HeatmapLayer } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export interface MapPoint {
@@ -42,6 +42,7 @@ const buildingLayer: FillExtrusionLayer = {
 const heatmapLayer: HeatmapLayer = {
   id: "crowd-heat",
   type: "heatmap",
+  source: "crowd-heat-source",
   maxzoom: 18,
   paint: {
     "heatmap-weight": ["interpolate", ["linear"], ["get", "density"], 0, 0, 100, 1],
@@ -121,7 +122,7 @@ export function Map({
 
         {/* Dynamic Crowd Density Heatmap Layer */}
         {heatmapData && (
-          <Source type="geojson" data={heatmapData}>
+          <Source id="crowd-heat-source" type="geojson" data={heatmapData}>
             <Layer {...heatmapLayer} />
           </Source>
         )}
