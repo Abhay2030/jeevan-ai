@@ -23,14 +23,14 @@ export default function SOSPage() {
   const [eta, setEta] = useState(4);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
 
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() => {
+    if (typeof navigator !== "undefined") {
+      return navigator.onLine;
+    }
+    return true;
+  });
 
   useEffect(() => {
-    // Check initial state, defensively check for window/navigator (Next.js SSR)
-    if (typeof navigator !== "undefined") {
-      setIsOnline(navigator.onLine);
-    }
-    
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     
@@ -82,12 +82,21 @@ export default function SOSPage() {
       const queued = localStorage.getItem("offline_sos_queue");
       if (queued) {
         localStorage.removeItem("offline_sos_queue");
-        setTimeline(prev => [...prev, { time: now(), label: "Connection Restored — Syncing...", icon: Wifi, done: true }]);
+        
+        // Defer state updates to avoid synchronous setState inside effect
+        const initTimer = setTimeout(() => {
+          setTimeline(prev => [...prev, { time: now(), label: "Connection Restored — Syncing...", icon: Wifi, done: true }]);
+        }, 0);
+        
         // Add a slight delay for realism before proceeding
         const timer = setTimeout(() => {
           proceedWithSOS();
         }, 1000);
-        return () => clearTimeout(timer);
+        
+        return () => {
+          clearTimeout(initTimer);
+          clearTimeout(timer);
+        };
       }
     }
   }, [isOnline, phase, proceedWithSOS]);
