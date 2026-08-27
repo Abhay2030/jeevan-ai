@@ -2,7 +2,7 @@
   "name": "JEEVAN AI Responder",
   "short_name": "JEEVAN",
   "description": "Predictive Public Health & Emergency Response Platform",
-  "start_url": "/responder/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0d9488",

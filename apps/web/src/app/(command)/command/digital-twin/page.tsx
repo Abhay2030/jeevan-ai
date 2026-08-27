@@ -33,6 +33,45 @@ export default function DigitalTwin() {
     { id: "road_closure", icon: AlertTriangle, title: "Main Arterial Closure", desc: "Simulate Dewas Road blockage and reroute impact" },
   ];
 
+  const generateMockHeatmapData = () => {
+    if (scenario !== "crowd_surge") return null;
+    
+    const centerLat = 20.0059;
+    const centerLng = 73.7903;
+    
+    const features = [];
+    // Generate ~500 points with higher density near the center
+    for (let i = 0; i < 500; i++) {
+      // Simple normal distribution approximation
+      const u1 = Math.random();
+      const u2 = Math.random();
+      const z0 = Math.sqrt(-2.0 * Math.log(u1 || 0.001)) * Math.cos(2.0 * Math.PI * u2);
+      const z1 = Math.sqrt(-2.0 * Math.log(u1 || 0.001)) * Math.sin(2.0 * Math.PI * u2);
+      
+      const latOffset = (z0 * 0.015);
+      const lngOffset = (z1 * 0.015);
+      
+      const distance = Math.sqrt(latOffset*latOffset + lngOffset*lngOffset);
+      const density = Math.max(10, 100 - (distance * 4000));
+      
+      features.push({
+        type: "Feature",
+        properties: { density },
+        geometry: {
+          type: "Point",
+          coordinates: [centerLng + lngOffset, centerLat + latOffset]
+        }
+      });
+    }
+    
+    return {
+      type: "FeatureCollection",
+      features
+    };
+  };
+
+  const heatmapData = results ? generateMockHeatmapData() : null;
+
   return (
     <div className="flex-1 flex h-full overflow-hidden relative" data-theme="ink">
       
@@ -89,13 +128,10 @@ export default function DigitalTwin() {
         
         {/* Map Layer */}
         <div className="absolute inset-0 grayscale invert contrast-125 hue-rotate-180 brightness-75">
-          <DynamicMap center={defaultCenter} zoom={13} className="h-full w-full" />
+          <DynamicMap center={defaultCenter} zoom={13} className="h-full w-full" heatmapData={heatmapData} />
         </div>
 
-        {/* Visual Overlay (Mock Heatmap) */}
-        {results && scenario === "crowd_surge" && (
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-alert-500/40 via-accent-500/20 to-transparent mix-blend-screen animate-fade-in pointer-events-none" />
-        )}
+        {/* Visual Overlay for Road Closure */}
         {results && scenario === "road_closure" && (
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-alert-500/40 via-transparent to-transparent mix-blend-screen animate-fade-in pointer-events-none" />
         )}

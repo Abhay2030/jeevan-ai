@@ -2,8 +2,8 @@
 "use client";
 
 import * as React from "react";
-// @ts-ignore
-import MapGL, { Marker, NavigationControl, FullscreenControl } from "react-map-gl/mapbox";
+import MapGL, { Marker, NavigationControl, FullscreenControl, Source, Layer } from "react-map-gl/mapbox";
+import type { FillExtrusionLayer, HeatmapLayer } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export interface MapPoint {
@@ -21,7 +21,46 @@ export interface MapProps {
   onPointClick?: (id: string) => void;
   className?: string;
   theme?: "light" | "dark";
+  heatmapData?: any; // GeoJSON FeatureCollection
 }
+
+const buildingLayer: FillExtrusionLayer = {
+  id: "3d-buildings",
+  source: "composite",
+  "source-layer": "building",
+  filter: ["==", "extrude", "true"],
+  type: "fill-extrusion",
+  minzoom: 15,
+  paint: {
+    "fill-extrusion-color": "#2c3040", // slightly lighter ink for visibility
+    "fill-extrusion-height": ["get", "height"],
+    "fill-extrusion-base": ["get", "min_height"],
+    "fill-extrusion-opacity": 0.8
+  }
+};
+
+const heatmapLayer: HeatmapLayer = {
+  id: "crowd-heat",
+  type: "heatmap",
+  maxzoom: 18,
+  paint: {
+    "heatmap-weight": ["interpolate", ["linear"], ["get", "density"], 0, 0, 100, 1],
+    "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 11, 1, 18, 3],
+    "heatmap-color": [
+      "interpolate",
+      ["linear"],
+      ["heatmap-density"],
+      0, "rgba(0,0,0,0)",
+      0.2, "rgba(234,179,8,0.2)",  // yellow
+      0.4, "rgba(249,115,22,0.4)", // orange
+      0.6, "rgba(239,68,68,0.6)",  // red
+      0.8, "rgba(220,38,38,0.8)",  // darker red
+      1, "rgba(153,27,27,1)"       // deepest red
+    ],
+    "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 11, 15, 18, 40],
+    "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], 14, 0.9, 18, 0.4]
+  }
+};
 
 export function Map({
   center,
@@ -30,6 +69,7 @@ export function Map({
   onPointClick,
   className = "",
   theme = "dark",
+  heatmapData = null,
 }: MapProps) {
   // Try to use a Mapbox token, otherwise fallback gracefully
   const mapboxToken = typeof process !== "undefined" ? process.env.NEXT_PUBLIC_MAPBOX_TOKEN : "";
@@ -76,7 +116,15 @@ export function Map({
         <NavigationControl position="bottom-right" />
         <FullscreenControl position="bottom-right" />
 
-        {/* Note: In a real implementation you would add a Source and Layer here to extrusion buildings */}
+        {/* 3D Buildings Layer */}
+        <Layer {...buildingLayer} />
+
+        {/* Dynamic Crowd Density Heatmap Layer */}
+        {heatmapData && (
+          <Source type="geojson" data={heatmapData}>
+            <Layer {...heatmapLayer} />
+          </Source>
+        )}
 
         {points.map((point) => (
           <Marker

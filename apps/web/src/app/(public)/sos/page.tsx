@@ -5,10 +5,10 @@ import Link from "next/link";
 import {
   Siren, MapPin, Phone, Users, Hospital, Clock,
   CheckCircle2, ArrowLeft, Navigation, Shield,
-  Loader2, ChevronRight
+  Loader2, ChevronRight, WifiOff, Wifi
 } from "lucide-react";
 
-type Phase = "ready" | "locating" | "sending" | "dispatched" | "tracking";
+type Phase = "ready" | "locating" | "sending" | "dispatched" | "tracking" | "queued_offline";
 
 interface TimelineItem {
   time: string;
@@ -24,29 +24,73 @@ export default function SOSPage() {
 
   const now = () => new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
+  const [isOnline, setIsOnline] = useState(true);
+
+  useEffect(() => {
+    // Check initial state, defensively check for window/navigator (Next.js SSR)
+    if (typeof navigator !== "undefined") {
+      setIsOnline(navigator.onLine);
+    }
+    
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const proceedWithSOS = useCallback(() => {
+    setPhase("sending");
+    setTimeline(prev => [...prev, { time: now(), label: "Alerting Services & Family...", icon: Users, done: true }]);
+
+    setTimeout(() => {
+      setPhase("dispatched");
+      setTimeline(prev => [...prev, { time: now(), label: "Responder Dispatched — Unit R-17", icon: Navigation, done: true }]);
+    }, 2000);
+
+    setTimeout(() => {
+      setPhase("tracking");
+      setTimeline(prev => [...prev, { time: now(), label: "Hospital Pre-Notified — Civil Hospital Nashik", icon: Hospital, done: true }]);
+    }, 3500);
+  }, []);
+
   const triggerSOS = useCallback(() => {
     setPhase("locating");
     setTimeline([{ time: now(), label: "SOS Triggered", icon: Siren, done: true }]);
 
     setTimeout(() => {
-      setPhase("sending");
       setTimeline(prev => [...prev, { time: now(), label: "Location Captured — 20.0059°N, 73.7903°E", icon: MapPin, done: true }]);
+      
+      // If offline, queue it!
+      if (!isOnline) {
+        setPhase("queued_offline");
+        localStorage.setItem("offline_sos_queue", "true");
+        setTimeline(prev => [...prev, { time: now(), label: "Offline Mode — SOS Queued Locally", icon: WifiOff, done: true }]);
+      } else {
+        proceedWithSOS();
+      }
     }, 1200);
+  }, [isOnline, proceedWithSOS]);
 
-    setTimeout(() => {
-      setTimeline(prev => [...prev, { time: now(), label: "Family Contacts Alerted", icon: Users, done: true }]);
-    }, 2200);
-
-    setTimeout(() => {
-      setPhase("dispatched");
-      setTimeline(prev => [...prev, { time: now(), label: "Responder Dispatched — Unit R-17", icon: Navigation, done: true }]);
-    }, 3200);
-
-    setTimeout(() => {
-      setPhase("tracking");
-      setTimeline(prev => [...prev, { time: now(), label: "Hospital Pre-Notified — Civil Hospital Nashik", icon: Hospital, done: true }]);
-    }, 4500);
-  }, []);
+  // Handle auto-sync when back online
+  useEffect(() => {
+    if (isOnline && phase === "queued_offline") {
+      const queued = localStorage.getItem("offline_sos_queue");
+      if (queued) {
+        localStorage.removeItem("offline_sos_queue");
+        setTimeline(prev => [...prev, { time: now(), label: "Connection Restored — Syncing...", icon: Wifi, done: true }]);
+        // Add a slight delay for realism before proceeding
+        setTimeout(() => {
+          proceedWithSOS();
+        }, 1000);
+      }
+    }
+  }, [isOnline, phase, proceedWithSOS]);
 
   useEffect(() => {
     if (phase === "tracking" && eta > 0) {
@@ -103,6 +147,7 @@ export default function SOSPage() {
           {phase === "tracking" ? <CheckCircle2 className="w-5 h-5" /> : <Loader2 className="w-5 h-5 animate-spin" />}
           <span className="font-display font-bold text-sm">
             {phase === "locating" && "Capturing Location..."}
+            {phase === "queued_offline" && "Offline - SOS Queued"}
             {phase === "sending" && "Alerting Services..."}
             {phase === "dispatched" && "Responder Dispatched"}
             {phase === "tracking" && "Help is On The Way"}
