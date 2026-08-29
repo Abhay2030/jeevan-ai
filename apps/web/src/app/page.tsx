@@ -95,16 +95,17 @@ function Footer() {
               <span className="font-display font-bold text-white">JEEVAN AI</span>
             </div>
             <p className="text-sm text-ink-300 leading-relaxed">
-              India&apos;s AI-powered Emergency Response &amp; Public Safety Platform.
+              Official AI-powered Emergency Response Platform for Nashik Kumbh Mela 2027.
             </p>
           </div>
           <div>
             <h4 className="font-display font-semibold text-white mb-4 text-sm">Platform</h4>
             <ul className="space-y-2.5 text-sm text-ink-300">
               <li><Link href="/emergency" className="hover:text-primary-400 transition-colors">Emergency Help</Link></li>
+              <li><Link href="/disaster" className="text-alert-400 hover:text-alert-300 font-bold transition-colors">Disaster Mode</Link></li>
+              <li><Link href="/volunteer" className="hover:text-primary-400 transition-colors">Volunteer Network</Link></li>
               <li><Link href="/hospitals" className="hover:text-primary-400 transition-colors">Find Hospital</Link></li>
               <li><Link href="/first-aid" className="hover:text-primary-400 transition-colors">First Aid Guide</Link></li>
-              <li><Link href="/blood" className="hover:text-primary-400 transition-colors">Blood Network</Link></li>
             </ul>
           </div>
           <div>
@@ -150,16 +151,16 @@ export default function HomePage() {
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center py-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-200 text-primary-700 text-sm font-medium mb-8 animate-fade-in-down">
             <Zap className="w-4 h-4" />
-            AI-Powered Emergency Response
+            Official Platform • Nashik Kumbh Mela 2027
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight text-ink-900 mb-6 animate-fade-in-up">
-            Every Second{" "}
-            <span className="text-gradient-hero">Matters.</span>
+            Kumbh Mela{" "}
+            <span className="text-gradient-hero">Safe & Secure.</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-ink-300 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up delay-200" style={{ animationFillMode: "both" }}>
-            India&apos;s predictive public health platform that sees the risk, predicts the need, and moves the help — before it&apos;s too late.
+            The AI-powered public health platform designed to protect 150M+ pilgrims. We see the risk, predict the need, and move the help — before it&apos;s too late.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-400" style={{ animationFillMode: "both" }}>
@@ -195,9 +196,9 @@ export default function HomePage() {
       {/* ══════ STATISTICS ══════ */}
       <section id="safety" className="py-20 px-4 bg-paper-50">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
-          <StatCounter value="< 4" suffix=" min" label="Avg Response Time" />
-          <StatCounter value="50K" suffix="+" label="Lives Protected" />
-          <StatCounter value="98" suffix="%" label="Uptime Guaranteed" />
+          <StatCounter value="150M" suffix="+" label="Expected Pilgrims" />
+          <StatCounter value="12" suffix="" label="Active Sectors" />
+          <StatCounter value="10K" suffix="+" label="Active Volunteers" />
           <StatCounter value="12" suffix="+" label="Languages Supported" />
         </div>
       </section>
@@ -220,7 +221,8 @@ export default function HomePage() {
             <FeatureCard icon={Brain} title="AI Triage Assistant" desc="Conversational medical assistant in Hindi, English, and Marathi. Guides you calmly through emergencies." />
             <FeatureCard icon={Heart} title="Blood Donor Network" desc="Urgent blood request matching. Find verified donors within minutes based on blood group and proximity." />
             <FeatureCard icon={Users} title="Family Safety Circle" desc="Real-time family status dashboard. Automatic emergency timelines and trusted contact alerts." />
-            <FeatureCard icon={Activity} title="Predictive Intelligence" desc="AI predicts medical hotspots before emergencies happen. Proactive resource deployment saves lives." />
+            <FeatureCard icon={Shield} title="Volunteer Network" desc="A verified network of 10,000+ local guardians ready to assist with crowds and first aid." />
+            <FeatureCard icon={Activity} title="Kumbh Pulse AI" desc="Live situational awareness dashboard predicting crowd surges and medical hotspots." />
           </div>
         </div>
       </section>
