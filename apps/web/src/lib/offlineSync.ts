@@ -49,7 +49,7 @@ export const enqueueRequest = async (url: string, method: string, payload: any) 
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
     try {
       const registration = await navigator.serviceWorker.ready;
-      // @ts-ignore - TS doesn't have SyncManager types by default
+      // @ts-expect-error - TS doesn't have SyncManager types by default
       await registration.sync.register('jeevan-sync');
     } catch (err) {
       console.warn('Background sync could not be registered', err);

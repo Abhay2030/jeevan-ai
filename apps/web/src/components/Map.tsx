@@ -4,7 +4,7 @@
 import * as React from "react";
 import MapGL, { Marker, NavigationControl, FullscreenControl, Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { FillExtrusionLayer, HeatmapLayer } from "maplibre-gl";
+import type { LayerProps } from "react-map-gl/maplibre";
 
 export interface MapPoint {
   id: string;
@@ -24,7 +24,7 @@ export interface MapProps {
   heatmapData?: any; // GeoJSON FeatureCollection
 }
 
-const buildingLayer: FillExtrusionLayer = {
+const buildingLayer: LayerProps = {
   id: "3d-buildings",
   source: "openmaptiles",
   "source-layer": "building",
@@ -39,7 +39,7 @@ const buildingLayer: FillExtrusionLayer = {
   }
 };
 
-const heatmapLayer: HeatmapLayer = {
+const heatmapLayer: LayerProps = {
   id: "crowd-heat",
   type: "heatmap",
   source: "crowd-heat-source",
