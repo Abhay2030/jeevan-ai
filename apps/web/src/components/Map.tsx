@@ -2,9 +2,9 @@
 "use client";
 
 import * as React from "react";
-import MapGL, { Marker, NavigationControl, FullscreenControl, Source, Layer } from "react-map-gl/mapbox";
-import type { FillExtrusionLayer, HeatmapLayer } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import MapGL, { Marker, NavigationControl, FullscreenControl, Source, Layer } from "react-map-gl/maplibre";
+import "maplibre-gl/dist/maplibre-gl.css";
+import type { FillExtrusionLayer, HeatmapLayer } from "maplibre-gl";
 
 export interface MapPoint {
   id: string;
@@ -26,13 +26,13 @@ export interface MapProps {
 
 const buildingLayer: FillExtrusionLayer = {
   id: "3d-buildings",
-  source: "composite",
+  source: "openmaptiles",
   "source-layer": "building",
   filter: ["==", "extrude", "true"],
   type: "fill-extrusion",
   minzoom: 15,
   paint: {
-    "fill-extrusion-color": "#2c3040", // slightly lighter ink for visibility
+    "fill-extrusion-color": "#2c3040", 
     "fill-extrusion-height": ["get", "height"],
     "fill-extrusion-base": ["get", "min_height"],
     "fill-extrusion-opacity": 0.8
@@ -72,37 +72,15 @@ export function Map({
   theme = "dark",
   heatmapData = null,
 }: MapProps) {
-  // Try to use a Mapbox token, otherwise fallback gracefully
-  const mapboxToken = typeof process !== "undefined" ? process.env.NEXT_PUBLIC_MAPBOX_TOKEN : "";
-
-  if (!mapboxToken) {
-    return (
-      <div className={`w-full h-full bg-ink-950 flex flex-col items-center justify-center p-8 text-center border border-ink-800 rounded-xl ${className}`}>
-        <div className="w-16 h-16 rounded-2xl bg-ink-900 border border-ink-800 flex items-center justify-center mb-4">
-          <svg className="w-8 h-8 text-ink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 className="text-white font-display font-bold text-xl mb-2">3D Map Engine Disabled</h3>
-        <p className="text-ink-400 text-sm max-w-sm mb-6">
-          To enable the premium 3D Digital Twin map engine, please add a free Mapbox access token to your environment variables.
-        </p>
-        <div className="bg-ink-900 p-3 rounded-lg border border-ink-800 font-mono text-xs text-ink-300 w-full max-w-sm text-left overflow-x-auto">
-          NEXT_PUBLIC_MAPBOX_TOKEN="pk.ey..."
-        </div>
-      </div>
-    );
-  }
-
-  // Use Mapbox's gorgeous dark and light core styles
-  const mapStyle = theme === "dark" 
-    ? "mapbox://styles/mapbox/dark-v11" 
-    : "mapbox://styles/mapbox/light-v11";
+  
+  // Free public CartoDB map style for MapLibre
+  const mapStyle = theme === "dark"
+    ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+    : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
   return (
     <div className={`w-full h-full relative z-0 rounded-xl overflow-hidden ${className}`}>
       <MapGL
-        mapboxAccessToken={mapboxToken}
         initialViewState={{
           longitude: center[1],
           latitude: center[0],
@@ -112,13 +90,9 @@ export function Map({
         }}
         mapStyle={mapStyle}
         style={{ width: "100%", height: "100%" }}
-        terrain={{ source: "mapbox-dem", exaggeration: 1.5 }}
       >
         <NavigationControl position="bottom-right" />
         <FullscreenControl position="bottom-right" />
-
-        {/* 3D Buildings Layer */}
-        <Layer {...buildingLayer} />
 
         {/* Dynamic Crowd Density Heatmap Layer */}
         {heatmapData && (
