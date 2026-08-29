@@ -1,7 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks
-from pydantic import BaseModel
 import asyncio
 import random
+
+from fastapi import APIRouter, File, UploadFile
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/vision", tags=["Vision AI"])
 
@@ -23,10 +24,10 @@ async def analyze_crowd_feed(request: CrowdAnalysisRequest):
     """
     # Simulate processing delay
     await asyncio.sleep(0.5)
-    
+
     density = random.randint(30, 95)
     count = int((density / 100) * 15000) # Mock base capacity
-    
+
     if density > 85:
         risk = "CRITICAL"
     elif density > 65:
@@ -35,7 +36,7 @@ async def analyze_crowd_feed(request: CrowdAnalysisRequest):
         risk = "MEDIUM"
     else:
         risk = "LOW"
-        
+
     return CrowdAnalysisResponse(
         density_percentage=density,
         estimated_count=count,
@@ -50,17 +51,18 @@ class FaceMatchResponse(BaseModel):
     last_seen_zone: str | None = None
 
 @router.post("/recognize-face", response_model=FaceMatchResponse)
-async def recognize_face(file: UploadFile = File(...)):
+async def recognize_face(file: UploadFile = File(...)):  # noqa: B008
     """
     Mock endpoint simulating a facial recognition pipeline.
-    In production, this uploads the image to AWS Rekognition or uses `face_recognition` library against a Postgres vector DB.
+    In production, this uploads the image to AWS Rekognition or uses
+    the `face_recognition` library against a Postgres vector DB.
     """
     # Simulate extraction and matching delay
     await asyncio.sleep(1.2)
-    
+
     # 30% chance of finding a match for demo purposes
     is_match = random.random() > 0.7
-    
+
     if is_match:
         return FaceMatchResponse(
             match_found=True,
