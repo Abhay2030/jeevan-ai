@@ -17,7 +17,10 @@ export const metadata: Metadata = {
     "Real-time public-health intelligence and emergency decision-support platform for large-scale gatherings. Powered by explainable AI with human-in-the-loop safety.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.png",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png" }
+    ],
     apple: "/favicon.png",
   },
   keywords: [
