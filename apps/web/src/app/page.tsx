@@ -14,8 +14,8 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md overflow-hidden group-hover:shadow-glow-primary transition-shadow">
-              <img src="/logo.png" alt="JEEVAN AI" className="w-full h-full object-contain p-1" />
+            <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-md overflow-hidden group-hover:shadow-glow-primary transition-shadow">
+              <img src="/logo.png" alt="JEEVAN AI" className="w-full h-full object-contain" />
             </div>
             <span className="text-lg font-display font-bold tracking-tight text-ink-900">
               JEEVAN <span className="text-primary-600">AI</span>

@@ -24,8 +24,8 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
       {/* Sidebar Navigation */}
       <aside className="w-16 lg:w-64 flex flex-col bg-ink-950 border-r border-surface-border z-20 shrink-0">
         <div className="h-14 flex items-center justify-center lg:justify-start lg:px-4 border-b border-surface-border">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden">
-            <img src="/logo.png" alt="JEEVAN AI" className="w-full h-full object-contain p-0.5" />
+          <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+            <img src="/logo.png" alt="JEEVAN AI" className="w-full h-full object-contain" />
           </div>
           <span className="hidden lg:block ml-3 font-display font-bold text-white tracking-wide">COMMAND</span>
         </div>
