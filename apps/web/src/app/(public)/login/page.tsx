@@ -47,8 +47,8 @@ export default function LoginPage() {
       {/* Left Form Side */}
       <div className="w-full md:w-1/2 lg:w-[480px] flex flex-col justify-between p-6 md:p-12 z-10 bg-surface-bg shadow-2xl relative">
         <Link href="/" className="flex items-center gap-2 group w-max">
-          <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center shadow-md group-hover:shadow-glow-primary transition-shadow">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-md overflow-hidden group-hover:shadow-glow-primary transition-shadow">
+            <img src="/logo.png" alt="JEEVAN AI" className="w-full h-full object-contain p-1" />
           </div>
           <span className="text-xl font-display font-bold tracking-tight text-ink-900">
             JEEVAN <span className="text-primary-600">AI</span>
@@ -128,8 +128,8 @@ export default function LoginPage() {
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, #0d9488 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
         
         <div className="max-w-lg text-center relative z-10 animate-fade-in-up delay-200">
-          <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl animate-float">
-            <Shield className="w-16 h-16 text-primary-600" />
+          <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-white backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl animate-float overflow-hidden p-2">
+            <img src="/logo.png" alt="JEEVAN AI" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-4xl font-display font-bold text-ink-900 mb-4">Secure Network</h2>
           <p className="text-lg text-ink-500 leading-relaxed">
