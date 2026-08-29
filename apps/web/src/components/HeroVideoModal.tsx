@@ -6,8 +6,8 @@ import { Play, X } from "lucide-react";
 export function HeroVideoModal() {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  // TODO: Replace this URL with the actual YouTube/Vimeo link
-  const videoUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"; 
+  // The video file is loaded directly from the public folder
+  const videoUrl = "/intro.mp4"; 
 
   // Close on Escape key
   React.useEffect(() => {
@@ -55,12 +55,15 @@ export function HeroVideoModal() {
             >
               <X className="w-5 h-5" />
             </button>
-            <iframe 
+            <video
               src={videoUrl}
-              className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+              className="w-full h-full object-cover bg-black"
+              controls
+              autoPlay
+              playsInline
+            >
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       )}
