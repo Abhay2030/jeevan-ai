@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, Radio, Navigation, ShieldAlert, WifiOff, Users, MapPin, Map, Info } from "lucide-react";
+import { AlertTriangle, Radio, Navigation, ShieldAlert, WifiOff, Users, MapPin, Map, Info, CheckCircle2 } from "lucide-react";
 
 export default function DisasterMode() {
   const [safeStatus, setSafeStatus] = useState<"pending" | "safe">("pending");
