@@ -16,14 +16,9 @@ export function HeroVideoModal() {
     };
     if (isOpen) {
       window.addEventListener("keydown", handleKeyDown);
-      // Prevent scrolling on body when modal is open
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
     }
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
@@ -48,7 +43,7 @@ export function HeroVideoModal() {
           />
           
           {/* Video Container */}
-          <div className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl shadow-primary-900/20 z-10 animate-scale-in">
+          <div className="relative w-full max-w-5xl aspect-video max-h-[85vh] bg-black rounded-2xl overflow-hidden shadow-2xl shadow-primary-900/20 z-10 animate-scale-in">
             <button 
               onClick={() => setIsOpen(false)}
               className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center rounded-full text-white transition-colors"
@@ -57,7 +52,7 @@ export function HeroVideoModal() {
             </button>
             <video
               src={videoUrl}
-              className="w-full h-full object-cover bg-black"
+              className="w-full h-full object-contain bg-black"
               controls
               autoPlay
               playsInline
