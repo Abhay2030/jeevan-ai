@@ -8,7 +8,8 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
-      "@next/next/no-location-assign-relative-destination": "off"
+      "@next/next/no-location-assign-relative-destination": "off",
+      "@next/next/no-img-element": "off"
     }
   },
   // Override default ignores of eslint-config-next.

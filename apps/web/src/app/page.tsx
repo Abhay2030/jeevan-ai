@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 /* ─── Tiny inline components (no separate files needed) ─── */
+import { HeroVideoModal } from "../components/HeroVideoModal";
 
 function Navbar() {
   return (
@@ -171,13 +172,7 @@ export default function HomePage() {
               <Siren className="w-5 h-5" />
               Get Emergency Help
             </Link>
-            <a
-              href="#how-it-works"
-              className="inline-flex items-center justify-center h-14 px-8 rounded-full border-2 border-ink-200 text-ink-600 font-display font-semibold text-lg hover:border-primary-400 hover:text-primary-700 transition-all gap-2"
-            >
-              See How It Works
-              <ChevronRight className="w-5 h-5" />
-            </a>
+            <HeroVideoModal />
           </div>
 
           {/* Trust badges */}
