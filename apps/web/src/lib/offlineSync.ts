@@ -7,7 +7,7 @@ interface JeevanDB extends DBSchema {
       id: string;
       url: string;
       method: string;
-      payload: any;
+      payload: unknown;
       timestamp: number;
       retryCount: number;
     };
@@ -29,7 +29,7 @@ export const initDB = () => {
   return dbPromise;
 };
 
-export const enqueueRequest = async (url: string, method: string, payload: any) => {
+export const enqueueRequest = async (url: string, method: string, payload: unknown) => {
   const db = await initDB();
   if (!db) return;
 
