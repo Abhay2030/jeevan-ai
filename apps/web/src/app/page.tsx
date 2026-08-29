@@ -125,11 +125,32 @@ function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-ink-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-ink-400">&copy; 2027 JEEVAN AI — Government of India Initiative</p>
-          <div className="flex items-center gap-1.5 text-xs text-ink-400">
-            <BadgeCheck className="w-4 h-4 text-primary-500" />
-            WCAG 2.1 AA Compliant
+        <div className="border-t border-ink-800 pt-10 mt-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Left side: Terms & Mission */}
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <h4 className="font-display font-semibold text-white text-sm">JEEVAN AI • Nashik Simhastha Kumbh Mela 2027</h4>
+                <p className="text-primary-400 font-medium text-sm">Protect Every Pilgrim. Predict Every Risk. Respond Before It&apos;s Too Late.</p>
+              </div>
+              <div className="text-xs text-ink-400 leading-relaxed max-w-lg space-y-2">
+                <p><strong className="text-ink-300">Website Terms Notice:</strong> All content, designs, source code, graphics, documentation, and branding used in JEEVAN AI are protected by applicable copyright laws.</p>
+                <p>The &quot;JEEVAN AI&quot; name, visual identity, and project materials are intended solely for this project and may not be reproduced or used for commercial purposes without permission from Abhay Sachin Donde.</p>
+              </div>
+            </div>
+
+            {/* Right side: Copyright & Credits */}
+            <div className="flex flex-col lg:items-end justify-between space-y-6 lg:space-y-0">
+              <div className="flex items-center gap-1.5 text-xs text-ink-400">
+                <BadgeCheck className="w-4 h-4 text-primary-500" />
+                WCAG 2.1 AA Compliant
+              </div>
+              <div className="text-left lg:text-right space-y-1.5">
+                <p className="text-sm text-ink-300 font-medium">Built with ❤️ in India by Abhay Sachin Donde</p>
+                <p className="text-xs text-ink-500">&copy; 2026 JEEVAN AI. Designed and Developed by Abhay Sachin Donde.</p>
+                <p className="text-xs text-ink-500">Copyright &copy; 2026 Abhay Sachin Donde. All Rights Reserved.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
