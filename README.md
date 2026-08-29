@@ -541,3 +541,18 @@ This project is currently being developed for **Kumbhathon Innovation S.P.R.I.N.
 JEEVAN AI is more than an emergency application.
 
 It is a vision for a safer, smarter, and more connected Kumbh—where Artificial Intelligence, real-time mapping, and public health intelligence work together to help protect millions of pilgrims during one of the world's largest religious gatherings.
+
+
+JEEVAN AI Proprietary License
+
+Copyright © 2026 Abhay Sachin Donde
+
+All Rights Reserved.
+
+Permission is granted to view this repository for educational, evaluation, and demonstration purposes only.
+
+No part of this project—including source code, documentation, UI/UX designs, branding, logos, graphics, or other materials—may be copied, modified, distributed, sublicensed, or used commercially without prior written permission from the copyright holder.
+
+This project was created as an original concept for Kumbhathon Innovation S.P.R.I.N.T. 2026 and Nashik–Trimbakeshwar Simhastha Kumbh Mela 2027.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
