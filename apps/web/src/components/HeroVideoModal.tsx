@@ -1,10 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { Play, X } from "lucide-react";
 
 export function HeroVideoModal() {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // The video file is loaded directly from the public folder
   const videoUrl = "/intro.mp4"; 
@@ -34,8 +40,8 @@ export function HeroVideoModal() {
         Watch Introduction
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+      {mounted && isOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
           {/* Dark backdrop */}
           <div 
             className="absolute inset-0 bg-ink-950/90 backdrop-blur-md cursor-pointer"
@@ -43,7 +49,7 @@ export function HeroVideoModal() {
           />
           
           {/* Video Container */}
-          <div className="relative w-full max-w-5xl aspect-video max-h-[85vh] bg-black rounded-2xl overflow-hidden shadow-2xl shadow-primary-900/20 z-10 animate-scale-in">
+          <div className="relative w-full max-w-4xl aspect-video max-h-[85vh] bg-black rounded-2xl overflow-hidden shadow-2xl shadow-primary-900/20 z-10 animate-scale-in">
             <button 
               onClick={() => setIsOpen(false)}
               className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center rounded-full text-white transition-colors"
@@ -60,7 +66,8 @@ export function HeroVideoModal() {
               Your browser does not support the video tag.
             </video>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
