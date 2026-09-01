@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, ArrowLeft, Shield, Globe, AlertTriangle, MapPin, Clock, CheckCircle2, Activity, Send, MessageCircle } from "lucide-react";
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, ArrowLeft, Shield, Globe, MapPin, CheckCircle2, Activity, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type CallPhase = "idle" | "ringing" | "connected" | "ended";
@@ -17,6 +17,7 @@ interface ChatMessage {
 }
 
 const LANG_LABELS: Record<Language, string> = { hi: "हिंदी", mr: "मराठी", en: "English" };
+const LANG_CODES: Record<Language, string> = { hi: "hi-IN", mr: "mr-IN", en: "en-IN" };
 
 const VOICE_AGENT_WS = process.env.NEXT_PUBLIC_VOICE_AGENT_WS || "ws://localhost:8001/api/v1/ws/voice-call";
 
@@ -34,12 +35,15 @@ export default function VoiceCallPage() {
   const [ticketId, setTicketId] = useState("");
   const [callState, setCallState] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const msgIdRef = useRef(0);
+  const recognitionRef = useRef<any>(null);
+  const isAgentSpeakingRef = useRef(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,9 +52,61 @@ export default function VoiceCallPage() {
   useEffect(() => {
     if (phase === "connected") {
       timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
+      initSpeechRecognition();
     }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      stopSpeechRecognition();
+      window.speechSynthesis.cancel();
+    };
   }, [phase]);
+
+  // Restart recognition if language changes or unmuted
+  useEffect(() => {
+    if (phase === "connected") {
+      stopSpeechRecognition();
+      if (!isMuted) {
+        initSpeechRecognition();
+      }
+    }
+  }, [language, isMuted]);
+
+  const initSpeechRecognition = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = LANG_CODES[language];
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => {
+      setIsListening(false);
+      // Auto-restart if we are connected, not muted, and the agent isn't currently speaking
+      if (phase === "connected" && !isMuted && !isAgentSpeakingRef.current) {
+        try { recognition.start(); } catch {}
+      }
+    };
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      if (transcript.trim()) {
+        handleSend(transcript);
+      }
+    };
+
+    recognitionRef.current = recognition;
+    if (!isAgentSpeakingRef.current && !isMuted) {
+      try { recognition.start(); } catch {}
+    }
+  };
+
+  const stopSpeechRecognition = () => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
+    setIsListening(false);
+  };
 
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
@@ -58,6 +114,34 @@ export default function VoiceCallPage() {
     msgIdRef.current++;
     setMessages(prev => [...prev, { id: msgIdRef.current, role, text, timestamp: new Date() }]);
   }, []);
+
+  const speakText = useCallback((text: string) => {
+    if (!isSpeakerOn) return;
+    
+    // Stop mic while agent speaks
+    isAgentSpeakingRef.current = true;
+    stopSpeechRecognition();
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = LANG_CODES[language];
+    utterance.rate = 1.0;
+    
+    // Try to find a local voice that matches the language
+    const voices = window.speechSynthesis.getVoices();
+    const targetVoice = voices.find(v => v.lang.startsWith(LANG_CODES[language].split('-')[0]));
+    if (targetVoice) utterance.voice = targetVoice;
+
+    utterance.onend = () => {
+      isAgentSpeakingRef.current = false;
+      // Restart mic
+      if (phase === "connected" && !isMuted) {
+        try { recognitionRef.current?.start(); } catch {}
+      }
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }, [isSpeakerOn, language, phase, isMuted]);
 
   const playAudio = useCallback((b64: string) => {
     if (!isSpeakerOn) return;
@@ -70,9 +154,27 @@ export default function VoiceCallPage() {
       if (audioRef.current) { audioRef.current.pause(); URL.revokeObjectURL(audioRef.current.src); }
       const audio = new Audio(url);
       audioRef.current = audio;
-      audio.play().catch(() => {});
+      
+      isAgentSpeakingRef.current = true;
+      stopSpeechRecognition();
+      
+      audio.onended = () => {
+        isAgentSpeakingRef.current = false;
+        if (phase === "connected" && !isMuted) {
+          try { recognitionRef.current?.start(); } catch {}
+        }
+      };
+      
+      audio.play().catch(() => {
+        isAgentSpeakingRef.current = false;
+      });
     } catch {}
-  }, [isSpeakerOn]);
+  }, [isSpeakerOn, phase, isMuted]);
+
+  const agentReply = useCallback((text: string) => {
+    addMessage("agent", text);
+    speakText(text);
+  }, [addMessage, speakText]);
 
   const startCall = useCallback(() => {
     setPhase("ringing");
@@ -106,8 +208,9 @@ export default function VoiceCallPage() {
         };
 
         ws.onerror = () => {
+          // Fallback to local browser AI mode
           setPhase("connected");
-          addMessage("agent", language === "mr"
+          agentReply(language === "mr"
             ? "नमस्कार! जीवन AI आणीबाणी सहायता मध्ये आपले स्वागत आहे. मी तुमच्या मदतीसाठी येथे आहे. ही कॉल तुमच्या सुरक्षिततेसाठी रेकॉर्ड केली जात आहे. कृपया तुमची समस्या सांगा."
             : language === "en"
             ? "Namaskar! Welcome to JEEVAN AI Emergency Helpline. I am here to help you. This call is recorded for your safety. Please describe your emergency."
@@ -118,10 +221,10 @@ export default function VoiceCallPage() {
         ws.onclose = () => { if (phase !== "ended") setPhase("ended"); };
       } catch {
         setPhase("connected");
-        addMessage("agent", "नमस्कार! जीवन AI आपातकालीन सहायता में आपका स्वागत है। कृपया अपनी समस्या बताएं।");
+        agentReply("नमस्कार! जीवन AI आपातकालीन सहायता में आपका स्वागत है। कृपया अपनी समस्या बताएं।");
       }
     }, 2000);
-  }, [language, addMessage, playAudio, phase]);
+  }, [language, agentReply, addMessage, playAudio, phase]);
 
   const endCall = useCallback(() => {
     if (wsRef.current) {
@@ -129,24 +232,29 @@ export default function VoiceCallPage() {
       wsRef.current.close();
     }
     if (timerRef.current) clearInterval(timerRef.current);
+    stopSpeechRecognition();
+    window.speechSynthesis.cancel();
     setPhase("ended");
   }, []);
 
-  const sendMessage = useCallback(() => {
-    const text = inputText.trim();
+  const handleSend = useCallback((textToProcess: string) => {
+    const text = textToProcess.trim();
     if (!text) return;
     addMessage("caller", text);
     setInputText("");
     setIsProcessing(true);
+    
+    // Stop listening while processing
+    stopSpeechRecognition();
 
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "text", data: text }));
     } else {
-      // Offline simulation
+      // Local Browser Offline Simulation Engine
       setTimeout(() => {
         const lower = text.toLowerCase();
-        const isEmergency = ["gir", "padla", "help", "emergency", "bachao", "madad", "blood", "pain", "fire", "aag", "doob", "behosh", "missing", "kho"].some(k => lower.includes(k));
-        const hasLandmark = ["ramkund", "panchavati", "kalaram", "godavari", "tapovan", "trimbak", "kushavart"].some(k => lower.includes(k));
+        const isEmergency = ["gir", "padla", "help", "emergency", "bachao", "madad", "blood", "pain", "fire", "aag", "doob", "behosh", "missing", "kho", "chot", "accident"].some(k => lower.includes(k));
+        const hasLandmark = ["ramkund", "panchavati", "kalaram", "godavari", "tapovan", "trimbak", "kushavart", "ghat", "mandir", "temple"].some(k => lower.includes(k));
 
         if (isEmergency && !emergencyType) {
           setEmergencyType("MEDICAL_EMERGENCY");
@@ -154,13 +262,13 @@ export default function VoiceCallPage() {
           if (hasLandmark) {
             const lm = lower.includes("ramkund") ? "Ramkund" : lower.includes("panchavati") ? "Panchavati" : lower.includes("kalaram") ? "Kalaram Temple" : "Godavari Ghats";
             setLandmark(lm);
-            addMessage("agent", language === "mr"
+            agentReply(language === "mr"
               ? `मला समजले. वैद्यकीय आणीबाणी — ${lm} जवळ. ते शुद्धीवर आहेत का? किती लोक प्रभावित आहेत?`
               : language === "en"
               ? `I understand. Medical Emergency near ${lm}. Are they conscious? How many people are affected?`
               : `मुझे समझ आ गया। चिकित्सा आपातकाल — ${lm} के पास। क्या वे होश में हैं? कितने लोग प्रभावित हैं?`);
           } else {
-            addMessage("agent", language === "mr"
+            agentReply(language === "mr"
               ? "मला समजले — वैद्यकीय आणीबाणी. तुम्ही कुठे आहात? कोणते मंदिर, घाट किंवा जागेचे नाव सांगा."
               : language === "en"
               ? "I understand — Medical Emergency. Where are you? Tell me the nearest temple, ghat, or landmark."
@@ -169,28 +277,28 @@ export default function VoiceCallPage() {
         } else if (emergencyType && !landmark && hasLandmark) {
           const lm = lower.includes("ramkund") ? "Ramkund" : lower.includes("panchavati") ? "Panchavati" : "Godavari Ghats";
           setLandmark(lm);
-          addMessage("agent", language === "mr"
+          agentReply(language === "mr"
             ? `ठीक आहे, ${lm} जवळ. ते शुद्धीवर आहेत का?`
             : language === "en"
             ? `OK, near ${lm}. Are they conscious?`
             : `ठीक है, ${lm} के पास। क्या वे होश में हैं?`);
         } else if (emergencyType && landmark && !ticketId) {
-          const tid = `VT-${Date.now().toString(36).slice(-6)}`;
+          const tid = `VT-${Date.now().toString(36).slice(-6).toUpperCase()}`;
           setTicketId(tid);
           setCallState("PROVIDE_GUIDANCE");
-          addMessage("agent", language === "mr"
+          agentReply(language === "mr"
             ? "मदत पाठवली जात आहे. तोपर्यंत हे करा — सर्वप्रथम, ते श्वास घेत आहेत का? त्यांची छाती बघा."
             : language === "en"
             ? "Help is being dispatched. Meanwhile — first, are they breathing? Check their chest."
             : "मदद भेजी जा रही है। तब तक ये करें — सबसे पहले, क्या वे सांस ले रहे हैं? उनकी छाती देखें।");
         } else if (ticketId) {
-          addMessage("agent", language === "mr"
+          agentReply(language === "mr"
             ? "मदत वाटेवर आहे. शांत राहा. मी तुमच्यासोबत आहे. अजून काही सांगायचे आहे का?"
             : language === "en"
             ? "Help is on the way. Stay calm. I am with you. Anything else?"
             : "मदद रास्ते में है। शांत रहें। मैं आपके साथ हूँ। क्या और कुछ बताना है?");
         } else {
-          addMessage("agent", language === "mr"
+          agentReply(language === "mr"
             ? "कृपया तुमची समस्या सांगा. कोणी जखमी आहे का? कोणी धोक्यात आहे का?"
             : language === "en"
             ? "Please describe the emergency. Is someone injured or in danger?"
@@ -199,7 +307,7 @@ export default function VoiceCallPage() {
         setIsProcessing(false);
       }, 1500);
     }
-  }, [inputText, addMessage, language, emergencyType, landmark, ticketId]);
+  }, [inputText, language, emergencyType, landmark, ticketId, agentReply]);
 
   const sevColor = severity === "CRITICAL" ? "bg-red-500" : severity === "HIGH" ? "bg-orange-500" : "bg-blue-500";
 
@@ -241,21 +349,12 @@ export default function VoiceCallPage() {
               </motion.button>
             </div>
             <div className="text-center max-w-xs">
-              <h1 className="text-2xl font-display font-bold text-white mb-2">Emergency Helpline</h1>
-              <p className="text-sm text-ink-400 mb-6">Tap to call JEEVAN AI. Get instant voice assistance in Hindi or Marathi.</p>
+              <h1 className="text-2xl font-display font-bold text-white mb-2">Voice Emergency</h1>
+              <p className="text-sm text-ink-400 mb-6">Talk to JEEVAN AI directly in Hindi or Marathi. Tap the button to start the call.</p>
               <div className="flex items-center justify-center gap-4 text-xs text-ink-500">
-                <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5" /> Encrypted</span>
+                <span className="flex items-center gap-1"><Mic className="w-3.5 h-3.5" /> Real-time Speech</span>
                 <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" /> Multilingual</span>
-                <span className="flex items-center gap-1"><Activity className="w-3.5 h-3.5" /> 24/7</span>
               </div>
-            </div>
-            <div className="w-full max-w-sm p-4 rounded-2xl bg-ink-900/50 border border-ink-800/50">
-              <p className="text-xs text-ink-500 mb-2">Try saying:</p>
-              <ul className="text-sm font-semibold text-ink-200 space-y-1.5">
-                <li>&quot;Mere papa Ramkund ke paas gir gaye hain&quot;</li>
-                <li>&quot;Maza baba Panchavati jawal padla aahe&quot;</li>
-                <li>&quot;Emergency, need help near Kalaram Temple&quot;</li>
-              </ul>
             </div>
           </div>
         )}
@@ -284,6 +383,11 @@ export default function VoiceCallPage() {
                 <span className="live-dot" style={{ background: "#22c55e", boxShadow: "0 0 6px rgba(34,197,94,0.6)" }} />
                 <span className="text-xs font-mono text-green-400">LIVE</span>
                 <span className="text-xs font-mono text-ink-400">{formatTime(callDuration)}</span>
+                {isListening && !isMuted && (
+                  <span className="text-[10px] text-primary-400 font-bold ml-2 animate-pulse flex items-center gap-1">
+                    <Mic className="w-3 h-3" /> LISTENING...
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 {emergencyType && (
@@ -337,14 +441,14 @@ export default function VoiceCallPage() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Text Input */}
+            {/* Text Input (Optional fallback) */}
             <div className="px-4 py-3 bg-ink-900/80 border-t border-ink-800 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <input value={inputText} onChange={e => setInputText(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && sendMessage()}
-                  placeholder={language === "mr" ? "तुमची समस्या लिहा..." : language === "en" ? "Type your emergency..." : "अपनी समस्या लिखें..."}
+                  onKeyDown={e => e.key === "Enter" && handleSend(inputText)}
+                  placeholder={language === "mr" ? "तुमची समस्या लिहा (किंवा बोला)..." : language === "en" ? "Type or speak your emergency..." : "अपनी समस्या लिखें (या बोलें)..."}
                   className="flex-1 bg-ink-800 border border-ink-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-ink-500 outline-none focus:border-primary-500/50" />
-                <button onClick={sendMessage} disabled={!inputText.trim() || isProcessing}
+                <button onClick={() => handleSend(inputText)} disabled={!inputText.trim() || isProcessing}
                   className="w-10 h-10 rounded-xl bg-primary-600 hover:bg-primary-700 disabled:opacity-30 flex items-center justify-center transition-colors">
                   <Send className="w-4 h-4 text-white" />
                 </button>
@@ -354,16 +458,16 @@ export default function VoiceCallPage() {
             {/* Call Controls */}
             <div className="px-4 py-4 bg-ink-950 border-t border-ink-800 flex items-center justify-center gap-6 flex-shrink-0">
               <button onClick={() => setIsMuted(!isMuted)}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isMuted ? "bg-red-600" : "bg-ink-800 hover:bg-ink-700"}`}>
-                {isMuted ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-ink-300" />}
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${isMuted ? "bg-red-600 shadow-lg shadow-red-600/20" : "bg-ink-800 hover:bg-ink-700"}`}>
+                {isMuted ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-ink-300" />}
               </button>
               <button onClick={endCall}
                 className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center shadow-lg shadow-red-600/30 transition-colors">
                 <PhoneOff className="w-7 h-7 text-white" />
               </button>
               <button onClick={() => setIsSpeakerOn(!isSpeakerOn)}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${!isSpeakerOn ? "bg-red-600" : "bg-ink-800 hover:bg-ink-700"}`}>
-                {isSpeakerOn ? <Volume2 className="w-5 h-5 text-ink-300" /> : <VolumeX className="w-5 h-5 text-white" />}
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${!isSpeakerOn ? "bg-red-600" : "bg-ink-800 hover:bg-ink-700"}`}>
+                {isSpeakerOn ? <Volume2 className="w-6 h-6 text-ink-300" /> : <VolumeX className="w-6 h-6 text-white" />}
               </button>
             </div>
           </>
