@@ -40,6 +40,10 @@ websockets>=12.0
 # --- Fuzzy Matching (Landmark names) ---
 rapidfuzz>=3.5.0
 
+# --- Telephony (Twilio PSTN) ---
+twilio==9.0.0
+pydub==0.25.1
+
 # --- Testing ---
 pytest==8.3.5
 pytest-asyncio==0.25.3

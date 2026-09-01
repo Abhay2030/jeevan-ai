@@ -16,6 +16,7 @@ from app.core.config import settings
 from app.engine.stt import stt_engine
 from app.routes.calls import router as calls_router
 from app.routes.health import router as health_router
+from app.routes.twilio import router as twilio_router
 from app.routes.voice_ws import router as voice_ws_router
 from app.telephony.call_manager import call_manager
 
@@ -76,4 +77,5 @@ app.add_middleware(
 # Mount routes
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(calls_router, prefix="/api/v1")
+app.include_router(twilio_router, prefix="/api/v1")
 app.include_router(voice_ws_router, prefix="/api/v1")
