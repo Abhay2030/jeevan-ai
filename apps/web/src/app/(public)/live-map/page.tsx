@@ -8,6 +8,7 @@ import {
   Hospital, AlertTriangle, Car, Eye, EyeOff, Layers,
   Activity, Search, ChevronDown
 } from "lucide-react";
+import type { MapPoint } from "@web/components/Map";
 
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
@@ -36,24 +37,24 @@ const DEFAULT_LAYERS: MapLayer[] = [
 
 /* ─── Zone Markers ─── */
 const ZONE_POINTS = [
-  { id: "ramkund", latitude: 20.0059, longitude: 73.7903, title: "Ramkund — Crowd: HIGH", severity: "CRITICAL" as const },
-  { id: "panchavati", latitude: 20.0063, longitude: 73.7905, title: "Panchavati — Crowd: HIGH", severity: "HIGH" as const },
-  { id: "trimbak", latitude: 19.9325, longitude: 73.5311, title: "Trimbakeshwar — Moderate", severity: "MEDIUM" as const },
-  { id: "godavari", latitude: 19.9982, longitude: 73.7900, title: "Godavari Ghat — HIGH", severity: "HIGH" as const },
-  { id: "kushavarta", latitude: 19.9358, longitude: 73.5289, title: "Kushavarta — Low", severity: "LOW" as const },
+  { id: "ramkund", latitude: 20.0059, longitude: 73.7903, title: "Ramkund — Crowd: HIGH", severity: "CRITICAL" as const, type: "zone" as const },
+  { id: "panchavati", latitude: 20.0063, longitude: 73.7905, title: "Panchavati — Crowd: HIGH", severity: "HIGH" as const, type: "zone" as const },
+  { id: "trimbak", latitude: 19.9325, longitude: 73.5311, title: "Trimbakeshwar — Moderate", severity: "MEDIUM" as const, type: "zone" as const },
+  { id: "godavari", latitude: 19.9982, longitude: 73.7900, title: "Godavari Ghat — HIGH", severity: "HIGH" as const, type: "zone" as const },
+  { id: "kushavarta", latitude: 19.9358, longitude: 73.5289, title: "Kushavarta — Low", severity: "LOW" as const, type: "zone" as const },
 ];
 
 const MEDICAL_POINTS = [
-  { id: "mc01", latitude: 20.0075, longitude: 73.7888, title: "MC-01 Civil Hospital", severity: "MEDIUM" as const },
-  { id: "mc02", latitude: 20.0042, longitude: 73.7920, title: "MC-02 Ramkund Camp", severity: "HIGH" as const },
-  { id: "mc03", latitude: 19.9970, longitude: 73.7915, title: "MC-03 Godavari Camp", severity: "MEDIUM" as const },
-  { id: "mc04", latitude: 20.0090, longitude: 73.7860, title: "MC-04 Panchavati Aid", severity: "LOW" as const },
+  { id: "mc01", latitude: 20.0075, longitude: 73.7888, title: "MC-01 Civil Hospital", severity: "MEDIUM" as const, type: "hospital" as const },
+  { id: "mc02", latitude: 20.0042, longitude: 73.7920, title: "MC-02 Ramkund Camp", severity: "HIGH" as const, type: "camp" as const },
+  { id: "mc03", latitude: 19.9970, longitude: 73.7915, title: "MC-03 Godavari Camp", severity: "MEDIUM" as const, type: "camp" as const },
+  { id: "mc04", latitude: 20.0090, longitude: 73.7860, title: "MC-04 Panchavati Aid", severity: "LOW" as const, type: "camp" as const },
 ];
 
 const AMBULANCE_POINTS = [
-  { id: "amb01", latitude: 20.0050, longitude: 73.7870, title: "AMB-01 — Available", severity: "LOW" as const },
-  { id: "amb08", latitude: 20.0035, longitude: 73.7930, title: "AMB-08 — En Route", severity: "HIGH" as const },
-  { id: "amb12", latitude: 20.0080, longitude: 73.7850, title: "AMB-12 — Available", severity: "LOW" as const },
+  { id: "amb01", latitude: 20.0050, longitude: 73.7870, title: "AMB-01 — Available", severity: "LOW" as const, type: "ambulance" as const },
+  { id: "amb08", latitude: 20.0035, longitude: 73.7930, title: "AMB-08 — En Route", severity: "HIGH" as const, type: "ambulance" as const },
+  { id: "amb12", latitude: 20.0080, longitude: 73.7850, title: "AMB-12 — Available", severity: "LOW" as const, type: "ambulance" as const },
 ];
 
 export default function LiveMapPage() {
@@ -69,7 +70,7 @@ export default function LiveMapPage() {
 
   // Combine points based on active layers
   const getActivePoints = useCallback(() => {
-    const points: typeof ZONE_POINTS = [];
+    const points: MapPoint[] = [];
     if (layers.find(l => l.id === "zones")?.enabled) points.push(...ZONE_POINTS);
     if (layers.find(l => l.id === "medical")?.enabled) points.push(...MEDICAL_POINTS);
     if (layers.find(l => l.id === "ambulances")?.enabled) points.push(...AMBULANCE_POINTS);
@@ -138,7 +139,7 @@ export default function LiveMapPage() {
           zoom={14}
           points={getActivePoints()}
           className="h-full w-full"
-          onPointClick={(id) => setSelectedZone(id)}
+          onPointClick={(point) => setSelectedZone(point.id)}
         />
 
         {/* Live Indicator */}

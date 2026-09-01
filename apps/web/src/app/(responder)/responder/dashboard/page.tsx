@@ -56,7 +56,7 @@ export default function ResponderDashboard() {
 
   const mapPoints = incidents.map(inc => ({
     id: inc.id, latitude: inc.location.latitude, longitude: inc.location.longitude,
-    title: inc.title, severity: inc.severity,
+    title: inc.title, severity: inc.severity, type: "incident" as const
   }));
 
   return (

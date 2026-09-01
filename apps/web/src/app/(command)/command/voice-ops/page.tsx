@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Phone, PhoneIncoming, PhoneOff, Clock, MapPin, AlertTriangle, Activity, BarChart3, Globe, Shield, CheckCircle2, Users, TrendingUp, Zap } from "lucide-react";
+import { Phone, PhoneIncoming, PhoneOff, Clock, MapPin, AlertTriangle, Activity, BarChart3, CheckCircle2, Users, TrendingUp, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 
@@ -70,7 +70,7 @@ export default function VoiceOpsPage() {
     // 2. Subscribe to realtime changes
     const channel = supabase
       .channel("public:emergency_calls")
-      .on("postgres_changes", { event: "*", schema: "public", table: "emergency_calls" }, (payload) => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "emergency_calls" }, (payload: any) => {
         const record = payload.new as EmergencyCall;
         if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
           if (record.status === "ACTIVE") {

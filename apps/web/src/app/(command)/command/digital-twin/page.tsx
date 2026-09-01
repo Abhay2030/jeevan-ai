@@ -166,7 +166,7 @@ export default function DigitalTwin() {
         if (results && scenario === "crowd_surge" && p.id === "z1") risk = Math.min(99, risk + 15 * crowdMultiplier);
         if (results && scenario === "heatwave" && p.id === "z1") risk = Math.min(99, risk + (temperature - 34) * 2);
         
-        let severity: any = "LOW";
+        let severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" = "LOW";
         if (risk > 80) severity = "CRITICAL";
         else if (risk > 60) severity = "HIGH";
         else if (risk > 40) severity = "MEDIUM";

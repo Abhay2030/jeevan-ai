@@ -14,7 +14,7 @@ export interface MapPoint {
   latitude: number;
   longitude: number;
   title: string;
-  type: "ambulance" | "hospital" | "camp" | "zone" | "incident";
+  type: "ambulance" | "hospital" | "camp" | "zone" | "incident" | "person" | "donor";
   severity?: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
   metadata?: any;
 }

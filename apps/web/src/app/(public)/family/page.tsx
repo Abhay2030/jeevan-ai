@@ -44,7 +44,8 @@ export default function FamilySafety() {
     latitude: m.lat,
     longitude: m.lng,
     title: m.name,
-    severity: (m.status === "emergency" ? "CRITICAL" : m.status === "offline" ? "HIGH" : "LOW") as "CRITICAL" | "HIGH" | "LOW"
+    severity: (m.status === "emergency" ? "CRITICAL" : m.status === "offline" ? "HIGH" : "LOW") as "CRITICAL" | "HIGH" | "LOW",
+    type: "person" as const
   }));
 
   return (

@@ -38,7 +38,8 @@ export default function BloodNetwork() {
     latitude: d.lat,
     longitude: d.lng,
     title: `${d.name} (${d.group})`,
-    severity: "LOW" as const
+    severity: "LOW" as const,
+    type: "donor" as const
   }));
 
   return (
