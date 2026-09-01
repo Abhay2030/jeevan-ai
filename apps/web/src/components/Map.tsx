@@ -28,6 +28,7 @@ export interface MapProps {
   theme?: "light" | "dark";
   heatmapData?: any; // GeoJSON FeatureCollection
   corridorsData?: any; // GeoJSON LineString
+  liveRouteData?: any; // GeoJSON LineString for ambulance path
   animateOnLoad?: boolean;
 }
 
@@ -105,7 +106,7 @@ function CinematicController({ center, animateOnLoad }: { center: [number, numbe
   return null;
 }
 
-export function Map({
+export const Map = React.forwardRef<MapRef, MapProps>(({
   center,
   zoom = 14,
   points = [],
@@ -114,10 +115,9 @@ export function Map({
   theme = "dark",
   heatmapData = null,
   corridorsData = null,
+  liveRouteData = null,
   animateOnLoad = true,
-}: MapProps) {
-  
-  const mapRef = useRef<MapRef>(null);
+}, ref) => {
 
   const satelliteStyle: any = {
     version: 8,
@@ -171,13 +171,20 @@ export function Map({
   const renderMarkerIcon = (point: MapPoint) => {
     switch(point.type) {
       case "ambulance":
+        const isActive = point.metadata?.status === "DISPATCHED" || point.metadata?.status === "EN_ROUTE";
         return (
-          <div className="relative flex items-center justify-center cursor-pointer group">
-             <div className="absolute inset-0 bg-sky-500 rounded-full animate-ping opacity-70"></div>
-             <div className="w-8 h-8 bg-sky-950 border border-sky-500 rounded-full flex items-center justify-center relative z-10 shadow-[0_0_15px_rgba(14,165,233,0.8)]">
+          <div className={`relative flex items-center justify-center cursor-pointer group ${isActive ? "scale-125" : "scale-100"} transition-transform duration-500`}>
+             {isActive && (
+               <>
+                 <div className="absolute inset-0 bg-alert-500 rounded-full animate-ping opacity-50 animation-delay-0"></div>
+                 <div className="absolute inset-0 bg-sky-500 rounded-full animate-ping opacity-50 animation-delay-500"></div>
+               </>
+             )}
+             <div className={`w-8 h-8 rounded-full flex items-center justify-center relative z-10 
+                ${isActive ? 'bg-ink-950 border-2 border-white shadow-[0_0_20px_rgba(239,68,68,0.8),0_0_40px_rgba(14,165,233,0.8)]' : 'bg-sky-950 border border-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.8)]'}`}>
                <span className="text-sm">🚑</span>
              </div>
-             <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-sky-500 text-sky-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none">
+             <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-sky-500 text-sky-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
                {point.title} <br/>
                {point.metadata?.speed && `${point.metadata.speed} km/h`}
              </div>
@@ -238,7 +245,7 @@ export function Map({
   return (
     <div className={`w-full h-full relative z-0 rounded-xl overflow-hidden bg-ink-950 ${className}`}>
       <MapGL
-        ref={mapRef}
+        ref={ref}
         initialViewState={{
           longitude: center[1],
           latitude: center[0],
@@ -271,6 +278,22 @@ export function Map({
           </Source>
         )}
 
+        {/* Live Ambulance Route Layer */}
+        {liveRouteData && (
+          <Source id="live-route-source" type="geojson" data={liveRouteData}>
+            <Layer
+              id="live-route"
+              type="line"
+              layout={{ "line-join": "round", "line-cap": "round" }}
+              paint={{
+                "line-color": "#38bdf8", // Sky blue for AI route
+                "line-width": 6,
+                "line-opacity": 0.9,
+              }}
+            />
+          </Source>
+        )}
+
         {/* Dynamic Markers */}
         {points.map((point) => (
           <Marker
@@ -290,4 +313,4 @@ export function Map({
       </MapGL>
     </div>
   );
-}
+});

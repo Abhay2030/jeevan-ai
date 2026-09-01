@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2, Search, CloudRain, Wind, Mic, Moon, Sun, FastForward } from "lucide-react";
 import type { MapPoint } from "@web/components/Map";
@@ -12,6 +12,7 @@ const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod
 });
 
 type Scenario = "baseline" | "crowd_surge" | "heatwave" | "road_closure";
+type RescueState = "IDLE" | "SOS" | "DISPATCHED" | "EN_ROUTE" | "REROUTING" | "AT_SCENE" | "TO_HOSPITAL" | "ARRIVED";
 
 const STATIC_POINTS: MapPoint[] = [
   { id: "z1", type: "zone", title: "RAMKUND", latitude: 20.0059, longitude: 73.7903, severity: "HIGH", metadata: { risk: 84 } },
@@ -36,6 +37,12 @@ export default function DigitalTwin() {
   const [isListening, setIsListening] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapRef = useRef<any>(null);
+  const [rescueState, setRescueState] = useState<RescueState>("IDLE");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [liveRouteData, setLiveRouteData] = useState<any>(null);
+  
   // Simulation modifiers
   const [crowdMultiplier, setCrowdMultiplier] = useState(1.0);
   const [temperature, setTemperature] = useState(34);
@@ -54,20 +61,31 @@ export default function DigitalTwin() {
     setSimulating(true);
     setResults(false);
     setSelectedPoint(null);
+    setRescueState("IDLE");
+    setActiveIncidents([]);
+    setLiveRouteData(null);
+    setActiveAmbulances([
+      { id: "a1", type: "ambulance", title: "AMB-04", latitude: 20.0120, longitude: 73.7850, metadata: { speed: 0, status: "STANDBY", dest: "-" } },
+      { id: "a2", type: "ambulance", title: "AMB-12", latitude: 19.9950, longitude: 73.8000, metadata: { speed: 45, status: "EN_ROUTE", dest: "Civil Hospital" } },
+    ]);
+    
     setTimeout(() => {
       setSimulating(false);
       setResults(true);
+      setRescueState("SOS");
       
-      // Spawn incidents based on scenario
-      if (scenario === "crowd_surge") {
-        setActiveIncidents([{ id: "i1", type: "incident", title: "CROWD CRUSH ALERT", latitude: 20.0065, longitude: 73.7910, severity: "CRITICAL" }]);
-      } else if (scenario === "heatwave") {
-        setActiveIncidents([
-          { id: "i2", type: "incident", title: "HEATSTROKE", latitude: 20.0040, longitude: 73.7930, severity: "HIGH" },
-          { id: "i3", type: "incident", title: "FAINTING", latitude: 20.0080, longitude: 73.7900, severity: "MEDIUM" }
-        ]);
+      // Spawn incident at Ramkund
+      setActiveIncidents([{ id: "i1", type: "incident", title: "PILGRIM COLLAPSE (SOS)", latitude: 20.0059, longitude: 73.7903, severity: "CRITICAL" }]);
+      
+      // Camera FlyTo SOS
+      if (mapRef.current) {
+        mapRef.current.flyTo({ center: [73.7903, 20.0059], zoom: 16.5, pitch: 70, duration: 3000 });
       }
-    }, 2500);
+      
+      // Trigger Dispatch after 3s
+      setTimeout(() => setRescueState("DISPATCHED"), 3000);
+      
+    }, 1000);
   };
 
   const handleVoiceSearch = () => {
@@ -89,64 +107,122 @@ export default function DigitalTwin() {
   };
 
   const handleReplay = () => {
-    // Reset ambulance and restart interval
-    setResults(false);
-    setTimeout(() => {
-      setResults(true);
-    }, 100);
+    handleSimulate();
   };
 
   // Live Ambulance Movement Simulation Loop
   useEffect(() => {
-    if (!results) return;
+    if (!results || rescueState === "IDLE" || rescueState === "SOS") return;
 
-    // Create a smooth curved path using turf.js
-    const line = turf.lineString([
+    // Stage 3 & 4: Route to SOS
+    const lineToSOS = turf.lineString([
       [73.7850, 20.0120], 
       [73.7880, 20.0090], 
       [73.7930, 20.0070], 
-      [73.7903, 20.0059]
+      [73.7903, 20.0059] // Ramkund
     ]);
-    const curvedPath = turf.bezierSpline(line);
-    const pathLength = turf.length(curvedPath, { units: 'kilometers' });
+    const routeToSOS = turf.bezierSpline(lineToSOS);
+    const lengthToSOS = turf.length(routeToSOS, { units: 'kilometers' });
 
+    // Stage 6: Route to Hospital
+    const lineToHospital = turf.lineString([
+      [73.7903, 20.0059], // Ramkund
+      [73.7880, 20.0020],
+      [73.7850, 19.9990],
+      [73.7890, 19.9975] // Civil Hospital
+    ]);
+    const routeToHospital = turf.bezierSpline(lineToHospital);
+    const lengthToHospital = turf.length(routeToHospital, { units: 'kilometers' });
+
+    let animationFrameId: number;
     let distanceTraveled = 0;
+    let currentRoute = routeToSOS;
+    let currentLength = lengthToSOS;
     
-    const interval = setInterval(() => {
-      // Speed: ~40 km/h = ~11 m/s = 0.011 km / sec. Let's move 0.02 km per second for faster visual
-      distanceTraveled += 0.02; 
+    // We speed up animation to keep the demo tight
+    const speedKmPerFrame = 0.003; 
+
+    const animate = () => {
+      distanceTraveled += speedKmPerFrame;
       
-      if (distanceTraveled > pathLength) {
-         // Reached destination
-         clearInterval(interval);
-         setActiveAmbulances(prev => {
-            const amb1 = prev.find(a => a.id === "a1");
-            if (!amb1) return prev;
-            return [
-              { ...amb1, metadata: { ...amb1.metadata, speed: 0, status: "AT_SCENE" } },
-              prev[1]
-            ];
-         });
-         return;
+      if (distanceTraveled > currentLength) {
+        // Reached destination
+        if (rescueState === "EN_ROUTE" || rescueState === "REROUTING") {
+           // Reached Pilgrim
+           setRescueState("AT_SCENE");
+           setActiveAmbulances(prev => {
+              const amb1 = prev.find(a => a.id === "a1");
+              if (!amb1) return prev;
+              return [{ ...amb1, metadata: { ...amb1.metadata, speed: 0, status: "AT_SCENE", dest: "RAMKUND (Arrived)" } }, prev[1]];
+           });
+           
+           // Wait 3 seconds at scene (Pilgrim pickup), then go to hospital
+           setTimeout(() => {
+             setRescueState("TO_HOSPITAL");
+           }, 3000);
+           
+           return; // Stop animation loop temporarily
+        } else if (rescueState === "TO_HOSPITAL") {
+           // Reached Hospital
+           setRescueState("ARRIVED");
+           setActiveAmbulances(prev => {
+              const amb1 = prev.find(a => a.id === "a1");
+              if (!amb1) return prev;
+              return [{ ...amb1, metadata: { ...amb1.metadata, speed: 0, status: "STANDBY", dest: "Civil Hospital (Arrived)" } }, prev[1]];
+           });
+           // Camera zoom out
+           if (mapRef.current) mapRef.current.flyTo({ center: [73.7903, 20.0059], zoom: 14, pitch: 45, duration: 4000 });
+           return;
+        }
+      }
+
+      // Mid-route Rerouting event
+      if ((rescueState === "EN_ROUTE") && (distanceTraveled > currentLength * 0.4)) {
+        setRescueState("REROUTING");
       }
       
-      const currentPoint = turf.along(curvedPath, distanceTraveled, { units: 'kilometers' });
+      // Calculate current position
+      const currentPoint = turf.along(currentRoute, distanceTraveled, { units: 'kilometers' });
       const [newLng, newLat] = currentPoint.geometry.coordinates;
       
+      // Update Live Route rendering data (draws the remaining route)
+      const slicedRoute = turf.lineSlice(currentPoint, turf.point(currentRoute.geometry.coordinates[currentRoute.geometry.coordinates.length - 1]), currentRoute);
+      setLiveRouteData(slicedRoute);
+      
+      // Camera Chase Mode
+      if (mapRef.current && (rescueState === "EN_ROUTE" || rescueState === "REROUTING" || rescueState === "TO_HOSPITAL")) {
+         mapRef.current.flyTo({ center: [newLng, newLat], zoom: 16.5, pitch: 60, duration: 0 }); // instant follow
+      }
+
       setActiveAmbulances(prev => {
         const amb1 = prev.find(a => a.id === "a1");
         if (!amb1) return prev;
-        
         return [
-          { ...amb1, longitude: newLng, latitude: newLat, metadata: { ...amb1.metadata, speed: Math.floor(35 + Math.random() * 10), status: "DISPATCHED", dest: "RAMKUND SOS" } },
+          { ...amb1, longitude: newLng, latitude: newLat, metadata: { ...amb1.metadata, speed: Math.floor(40 + Math.random() * 15), status: rescueState, dest: rescueState === "TO_HOSPITAL" ? "Civil Hospital" : "RAMKUND SOS" } },
           prev[1]
         ];
       });
-      
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [results, scenario]);
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    if (rescueState === "DISPATCHED") {
+      // Transition to en_route safely outside the immediate render
+      setTimeout(() => setRescueState("EN_ROUTE"), 0);
+    } else if (rescueState === "EN_ROUTE" || rescueState === "REROUTING") {
+      currentRoute = routeToSOS;
+      currentLength = lengthToSOS;
+      animationFrameId = requestAnimationFrame(animate);
+    } else if (rescueState === "TO_HOSPITAL") {
+      currentRoute = routeToHospital;
+      currentLength = lengthToHospital;
+      // Note: we would reset distanceTraveled=0 if we didn't recreate the closure, 
+      // but because rescueState changed to "TO_HOSPITAL", this useEffect re-runs, and distanceTraveled initializes to 0.
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [results, rescueState, mapRef]);
 
   const scenarios = [
     { id: "crowd_surge", icon: Users, title: "Crowd Surge", desc: "Simulate massive influx at Ram Ghat" },
@@ -347,11 +423,13 @@ export default function DigitalTwin() {
         {/* Map Layer */}
         <div className="absolute inset-0 bg-black">
           <DynamicMap 
+            ref={mapRef}
             center={defaultCenter} 
             zoom={14} 
             className="h-full w-full" 
             heatmapData={heatmapData} 
             corridorsData={corridorsData}
+            liveRouteData={liveRouteData}
             points={mapPoints}
             onPointClick={setSelectedPoint}
             animateOnLoad={true}
@@ -444,7 +522,7 @@ export default function DigitalTwin() {
               </div>
             </div>
             
-            {results && (
+            {(rescueState === "EN_ROUTE" || rescueState === "REROUTING" || rescueState === "TO_HOSPITAL" || rescueState === "ARRIVED") && (
                <div className="mt-4 pt-4 border-t border-white/10">
                  <h4 className="text-[10px] text-ink-400 uppercase tracking-widest mb-2">AI Routing Active</h4>
                  <div className="flex items-end justify-between">
@@ -472,7 +550,7 @@ export default function DigitalTwin() {
         )}
         
         {/* Incident Replay Timeline */}
-        {results && (
+        {rescueState === "ARRIVED" && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[500px] z-30 animate-slide-up">
             <div className="glass-dark border border-white/10 rounded-xl p-4 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center justify-between mb-3">
@@ -651,8 +729,24 @@ export default function DigitalTwin() {
             <><span className="w-2 h-2 rounded-full bg-primary-500" /> <span className="text-[10px] font-mono text-primary-400 font-bold">BASELINE</span></>
           )}
         </div>
+        
+        {/* Pilgrim Rescue Overlay */}
+        {rescueState === "AT_SCENE" && (
+          <div className="absolute inset-0 flex items-center justify-center z-40 bg-black/40 backdrop-blur-sm animate-fade-in">
+            <div className="glass-dark border border-sky-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(14,165,233,0.3)] text-center max-w-sm">
+              <div className="w-16 h-16 mx-auto bg-sky-500/20 border-2 border-sky-400 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                <span className="text-3xl">⛑</span>
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">PARAMEDICS ASSISTING</h2>
+              <p className="text-xs text-sky-200 mb-6 font-mono">Patient stabilization in progress. Preparing for transport.</p>
+              <div className="w-full bg-ink-900 h-2 rounded-full overflow-hidden">
+                <div className="h-full bg-sky-500 w-full animate-[shrink_3s_linear_forwards]" />
+              </div>
+              <p className="text-[10px] text-ink-400 mt-2 font-bold uppercase">Estimated Time: 45 Sec</p>
+            </div>
+          </div>
+        )}
       </div>
-
     </div>
   );
 }
