@@ -2,8 +2,9 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2 } from "lucide-react";
+import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2, Search, CloudRain, Wind } from "lucide-react";
 import type { MapPoint } from "@web/components/Map";
+import * as turf from "@turf/turf";
 
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
@@ -70,24 +71,45 @@ export default function DigitalTwin() {
   useEffect(() => {
     if (!results) return;
 
-    let progress = 0;
+    // Create a smooth curved path using turf.js
+    const line = turf.lineString([
+      [73.7850, 20.0120], 
+      [73.7880, 20.0090], 
+      [73.7930, 20.0070], 
+      [73.7903, 20.0059]
+    ]);
+    const curvedPath = turf.bezierSpline(line);
+    const pathLength = turf.length(curvedPath, { units: 'kilometers' });
+
+    let distanceTraveled = 0;
+    
     const interval = setInterval(() => {
-      progress += 0.02; // Move along path
-      if (progress > 1) progress = 1;
+      // Speed: ~40 km/h = ~11 m/s = 0.011 km / sec. Let's move 0.02 km per second for faster visual
+      distanceTraveled += 0.02; 
+      
+      if (distanceTraveled > pathLength) {
+         // Reached destination
+         clearInterval(interval);
+         setActiveAmbulances(prev => {
+            const amb1 = prev.find(a => a.id === "a1");
+            if (!amb1) return prev;
+            return [
+              { ...amb1, metadata: { ...amb1.metadata, speed: 0, status: "AT_SCENE" } },
+              prev[1]
+            ];
+         });
+         return;
+      }
+      
+      const currentPoint = turf.along(curvedPath, distanceTraveled, { units: 'kilometers' });
+      const [newLng, newLat] = currentPoint.geometry.coordinates;
       
       setActiveAmbulances(prev => {
         const amb1 = prev.find(a => a.id === "a1");
         if (!amb1) return prev;
         
-        // Move AMB-04 towards Ramkund (73.7903, 20.0059)
-        const targetLng = 73.7903;
-        const targetLat = 20.0059;
-        
-        const newLng = amb1.longitude + (targetLng - amb1.longitude) * 0.05;
-        const newLat = amb1.latitude + (targetLat - amb1.latitude) * 0.05;
-        
         return [
-          { ...amb1, longitude: newLng, latitude: newLat, metadata: { ...amb1.metadata, speed: Math.floor(30 + Math.random() * 15), status: "DISPATCHED", dest: "RAMKUND SOS" } },
+          { ...amb1, longitude: newLng, latitude: newLat, metadata: { ...amb1.metadata, speed: Math.floor(35 + Math.random() * 10), status: "DISPATCHED", dest: "RAMKUND SOS" } },
           prev[1]
         ];
       });
@@ -283,7 +305,7 @@ export default function DigitalTwin() {
       <div className="flex-1 flex flex-col relative bg-ink-900">
         
         {/* Map Layer */}
-        <div className="absolute inset-0 grayscale invert contrast-125 hue-rotate-180 brightness-[0.7] saturate-50">
+        <div className="absolute inset-0 bg-black">
           <DynamicMap 
             center={defaultCenter} 
             zoom={14} 
@@ -294,6 +316,89 @@ export default function DigitalTwin() {
             onPointClick={setSelectedPoint}
             animateOnLoad={true}
           />
+        </div>
+        {/* Smart Search Bar (Top Center) */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[400px] z-30">
+          <div className="glass-dark border border-white/10 rounded-full flex items-center px-4 py-2.5 shadow-2xl backdrop-blur-xl">
+            <Search className="w-4 h-4 text-ink-400 mr-3 shrink-0" />
+            <input 
+              type="text" 
+              placeholder="Search Ramkund, Hospitals, Medical Camps..." 
+              className="bg-transparent border-none outline-none text-white text-xs w-full placeholder:text-ink-500 font-medium"
+            />
+          </div>
+        </div>
+
+        {/* Weather Intelligence Panel (Top Right) */}
+        <div className="absolute right-6 top-6 w-64 flex flex-col gap-4 pointer-events-none z-20">
+          <div className="glass-dark p-4 pointer-events-auto rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <ThermometerSun className="w-4 h-4 text-amber-400" /> Weather Intelligence
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/5 p-2 rounded-lg border border-white/5 text-center">
+                <ThermometerSun className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+                <p className="text-[10px] text-ink-400 uppercase">Temp</p>
+                <p className="text-sm font-bold text-white">{temperature}°C</p>
+              </div>
+              <div className="bg-white/5 p-2 rounded-lg border border-white/5 text-center">
+                <Wind className="w-5 h-5 text-sky-400 mx-auto mb-1" />
+                <p className="text-[10px] text-ink-400 uppercase">Wind</p>
+                <p className="text-sm font-bold text-white">12 km/h</p>
+              </div>
+            </div>
+            {temperature > 38 && (
+              <div className="mt-3 bg-alert-500/10 border border-alert-500/30 p-2 rounded-lg flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-alert-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[10px] font-bold text-alert-500 uppercase">Heatwave Warning</p>
+                  <p className="text-[9px] text-alert-200 mt-0.5 leading-tight">Crowd heat-stress probability increased by 45%. Additional medical camps recommended.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Fleet Intelligence Panel (Floating Left) */}
+        <div className="absolute left-6 top-6 w-72 flex flex-col gap-4 pointer-events-none z-20">
+          <div className="glass-dark p-4 pointer-events-auto rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Crosshair className="w-4 h-4 text-sky-400" /> Fleet Command
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                <span className="text-xs text-ink-300">Available</span>
+                <span className="text-sm font-bold text-emerald-400">42</span>
+              </div>
+              <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                <span className="text-xs text-ink-300">En Route</span>
+                <span className="text-sm font-bold text-sky-400">18</span>
+              </div>
+              <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                <span className="text-xs text-ink-300">Busy / At Scene</span>
+                <span className="text-sm font-bold text-amber-400">12</span>
+              </div>
+            </div>
+            
+            {results && (
+               <div className="mt-4 pt-4 border-t border-white/10">
+                 <h4 className="text-[10px] text-ink-400 uppercase tracking-widest mb-2">AI Routing Active</h4>
+                 <div className="flex items-end justify-between">
+                   <div>
+                     <p className="text-[10px] text-ink-300">Standard Route</p>
+                     <p className="text-sm font-mono text-ink-500 line-through">8m 20s</p>
+                   </div>
+                   <div className="text-right">
+                     <p className="text-[10px] text-sky-300">AI Fast Route</p>
+                     <p className="text-lg font-mono font-bold text-sky-400 drop-shadow-md">4m 10s</p>
+                   </div>
+                 </div>
+                 <div className="mt-2 w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                   <div className="h-full bg-sky-500 w-1/2 shadow-[0_0_10px_rgba(14,165,233,0.8)]" />
+                 </div>
+                 <p className="text-[10px] text-emerald-400 font-bold mt-2 text-right">50% Time Saved</p>
+               </div>
+            )}
+          </div>
         </div>
 
         {/* Visual Overlay for Road Closure */}

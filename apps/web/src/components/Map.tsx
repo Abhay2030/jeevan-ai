@@ -90,13 +90,13 @@ function CinematicController({ center, animateOnLoad }: { center: [number, numbe
   
   useEffect(() => {
     if (map && animateOnLoad) {
-      // Start high up and zoom in cinematically
+      // Start high up and zoom in cinematically with a 360 sweep
       map.flyTo({
         center: [center[1], center[0]],
         zoom: 15.5,
         pitch: 65,
-        bearing: -25,
-        duration: 8000,
+        bearing: 360 - 25,
+        duration: 12000,
         essential: true,
       });
     }
@@ -119,9 +119,49 @@ export function Map({
   
   const mapRef = useRef<MapRef>(null);
 
-  const mapStyle = theme === "dark"
-    ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-    : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+  const satelliteStyle: any = {
+    version: 8,
+    sources: {
+      "esri-satellite": {
+        type: "raster",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+        tileSize: 256,
+        attribution: "Esri"
+      },
+      "esri-labels": {
+        type: "raster",
+        tiles: ["https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"],
+        tileSize: 256
+      },
+      "terrain": {
+        type: "raster-dem",
+        tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+        encoding: "terrarium",
+        tileSize: 256,
+        attribution: "AWS Terrarium"
+      }
+    },
+    layers: [
+      {
+        id: "satellite-layer",
+        type: "raster",
+        source: "esri-satellite",
+        paint: { "raster-opacity": theme === "dark" ? 0.7 : 1.0, "raster-contrast": theme === "dark" ? 0.2 : 0, "raster-saturation": theme === "dark" ? -0.2 : 0 }
+      },
+      {
+        id: "satellite-labels",
+        type: "raster",
+        source: "esri-labels",
+        paint: { "raster-opacity": 0.9 }
+      }
+    ],
+    terrain: {
+      source: "terrain",
+      exaggeration: 1.8
+    }
+  };
+
+  const mapStyle = satelliteStyle;
 
   const renderMarkerIcon = (point: MapPoint) => {
     switch(point.type) {

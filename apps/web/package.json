@@ -17,6 +17,7 @@
     "@jeevan-ai/types": "workspace:*",
     "@jeevan-ai/ui": "workspace:*",
     "@supabase/supabase-js": "^2.112.4",
+    "@turf/turf": "^7.4.0",
     "framer-motion": "^13.1.1",
     "idb": "^8.0.0",
     "lucide-react": "^0.475.0",
