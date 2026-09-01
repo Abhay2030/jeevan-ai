@@ -41,7 +41,7 @@ const buildingLayer: LayerProps = {
   type: "fill-extrusion",
   minzoom: 14,
   paint: {
-    "fill-extrusion-color": "#1a1c23", 
+    "fill-extrusion-color": "#1a1c23",
     "fill-extrusion-height": ["get", "height"],
     "fill-extrusion-base": ["get", "min_height"],
     "fill-extrusion-opacity": 0.9
@@ -89,14 +89,14 @@ const corridorLayer: LayerProps = {
 
 function CinematicController({ center, animateOnLoad }: { center: [number, number], animateOnLoad: boolean }) {
   const { current: map } = useMap();
-  
+
   useEffect(() => {
     if (map && animateOnLoad) {
       // Start high up and zoom in cinematically with a 360 sweep
       map.flyTo({
         center: [center[1], center[0]],
-        zoom: 15.5,
-        pitch: 65,
+        zoom: 10.5,
+        pitch: 0,
         bearing: 360 - 25,
         duration: 12000,
         essential: true,
@@ -148,9 +148,9 @@ export function Map({
         id: "satellite-layer",
         type: "raster",
         source: "esri-satellite",
-        paint: { 
-          "raster-opacity": 1.0, 
-          "raster-contrast": theme === "dark" ? 0.4 : 0, 
+        paint: {
+          "raster-opacity": 1.0,
+          "raster-contrast": theme === "dark" ? 0.4 : 0,
           "raster-saturation": theme === "dark" ? -0.5 : 0,
           "raster-brightness-max": theme === "dark" ? 0.3 : 1.0
         }
@@ -171,74 +171,74 @@ export function Map({
   const mapStyle = satelliteStyle;
 
   const renderMarkerIcon = (point: MapPoint) => {
-    switch(point.type) {
+    switch (point.type) {
       case "ambulance":
         const isActive = point.metadata?.status === "DISPATCHED" || point.metadata?.status === "EN_ROUTE";
         return (
           <div className={`relative flex items-center justify-center cursor-pointer group ${isActive ? "scale-125" : "scale-100"} transition-transform duration-500`}>
-             {isActive && (
-               <>
-                 <div className="absolute inset-0 bg-alert-500 rounded-full animate-ping opacity-50 animation-delay-0"></div>
-                 <div className="absolute inset-0 bg-sky-500 rounded-full animate-ping opacity-50 animation-delay-500"></div>
-               </>
-             )}
-             <div className={`w-8 h-8 rounded-full flex items-center justify-center relative z-10 
+            {isActive && (
+              <>
+                <div className="absolute inset-0 bg-alert-500 rounded-full animate-ping opacity-50 animation-delay-0"></div>
+                <div className="absolute inset-0 bg-sky-500 rounded-full animate-ping opacity-50 animation-delay-500"></div>
+              </>
+            )}
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center relative z-10 
                 ${isActive ? 'bg-ink-950 border-2 border-white shadow-[0_0_20px_rgba(239,68,68,0.8),0_0_40px_rgba(14,165,233,0.8)]' : 'bg-sky-950 border border-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.8)]'}`}>
-               <span className="text-sm">🚑</span>
-             </div>
-             <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-sky-500 text-sky-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
-               {point.title} <br/>
-               {point.metadata?.speed && `${point.metadata.speed} km/h`}
-             </div>
+              <span className="text-sm">🚑</span>
+            </div>
+            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-sky-500 text-sky-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
+              {point.title} <br />
+              {point.metadata?.speed && `${point.metadata.speed} km/h`}
+            </div>
           </div>
         );
       case "hospital":
         return (
           <div className="relative flex items-center justify-center cursor-pointer group">
-             <div className="w-8 h-8 bg-indigo-950 border border-indigo-500 rounded flex items-center justify-center relative z-10 shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-transform hover:scale-110">
-               <span className="text-sm">🏥</span>
-             </div>
-             <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-indigo-500 text-indigo-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none">
-               {point.title}
-             </div>
+            <div className="w-8 h-8 bg-indigo-950 border border-indigo-500 rounded flex items-center justify-center relative z-10 shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-transform hover:scale-110">
+              <span className="text-sm">🏥</span>
+            </div>
+            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-indigo-500 text-indigo-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none">
+              {point.title}
+            </div>
           </div>
         );
       case "camp":
         return (
           <div className="relative flex items-center justify-center cursor-pointer group hover:scale-110 transition-transform">
-             <div className="w-7 h-7 bg-emerald-950 border border-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
-               <span className="text-sm">⛑</span>
-             </div>
-             <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-emerald-500 text-emerald-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none">
-               {point.title}
-             </div>
+            <div className="w-7 h-7 bg-emerald-950 border border-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+              <span className="text-sm">⛑</span>
+            </div>
+            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-emerald-500 text-emerald-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none">
+              {point.title}
+            </div>
           </div>
         );
       case "incident":
         return (
           <div className="relative flex items-center justify-center cursor-pointer group hover:scale-110 transition-transform">
             <div className="absolute inset-0 bg-alert-500 rounded-full animate-pulse opacity-50"></div>
-             <div className="w-6 h-6 bg-alert-950 border-2 border-alert-500 rounded-full flex items-center justify-center relative z-10 shadow-glow-alert">
-               <span className="text-[10px] text-alert-500 font-bold">SOS</span>
-             </div>
-             <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-alert-500 text-alert-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
-               {point.title}
-             </div>
+            <div className="w-6 h-6 bg-alert-950 border-2 border-alert-500 rounded-full flex items-center justify-center relative z-10 shadow-glow-alert">
+              <span className="text-[10px] text-alert-500 font-bold">SOS</span>
+            </div>
+            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-ink-950 border border-alert-500 text-alert-400 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
+              {point.title}
+            </div>
           </div>
         );
       case "zone":
       default:
         return (
           <div className="relative flex flex-col items-center justify-center cursor-pointer group transition-transform hover:-translate-y-1">
-             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center relative z-10 shadow-lg bg-ink-950
-                ${point.severity === "CRITICAL" ? "border-alert-500 shadow-glow-alert" : 
-                  point.severity === "HIGH" ? "border-accent-500 shadow-glow-accent" : "border-primary-500 shadow-glow-primary"}`}
-             >
-               <span className="text-[10px] text-white font-bold">{point.metadata?.risk || 50}</span>
-             </div>
-             <div className="mt-1 bg-ink-950/80 backdrop-blur border border-ink-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">
-               {point.title}
-             </div>
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center relative z-10 shadow-lg bg-ink-950
+                ${point.severity === "CRITICAL" ? "border-alert-500 shadow-glow-alert" :
+                point.severity === "HIGH" ? "border-accent-500 shadow-glow-accent" : "border-primary-500 shadow-glow-primary"}`}
+            >
+              <span className="text-[10px] text-white font-bold">{point.metadata?.risk || 50}</span>
+            </div>
+            <div className="mt-1 bg-ink-950/80 backdrop-blur border border-ink-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">
+              {point.title}
+            </div>
           </div>
         );
     }
@@ -260,12 +260,12 @@ export function Map({
         interactiveLayerIds={['3d-buildings']}
       >
         <CinematicController center={center} animateOnLoad={animateOnLoad} />
-        
+
         <NavigationControl position="bottom-right" />
         <FullscreenControl position="bottom-right" />
 
         {/* 3D Buildings Layer (Optional, depends on tileset, but standard Carto DB doesn't have 3d buildings out of the box in this free tier, we will leave it in case we inject OpenMapTiles) */}
-        
+
         {/* Dynamic Crowd Density Heatmap Layer */}
         {heatmapData && (
           <Source id="crowd-heat-source" type="geojson" data={heatmapData}>
