@@ -423,7 +423,7 @@ export default function DigitalTwin() {
         {/* Map Layer */}
         <div className="absolute inset-0 bg-black">
           <DynamicMap 
-            ref={mapRef}
+            mapRef={mapRef}
             center={defaultCenter} 
             zoom={14} 
             className="h-full w-full" 

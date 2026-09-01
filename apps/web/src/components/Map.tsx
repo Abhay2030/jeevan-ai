@@ -26,6 +26,7 @@ export interface MapProps {
   onPointClick?: (point: MapPoint) => void;
   className?: string;
   theme?: "light" | "dark";
+  mapRef?: React.RefObject<MapRef | null>;
   heatmapData?: any; // GeoJSON FeatureCollection
   corridorsData?: any; // GeoJSON LineString
   liveRouteData?: any; // GeoJSON LineString for ambulance path
@@ -106,18 +107,19 @@ function CinematicController({ center, animateOnLoad }: { center: [number, numbe
   return null;
 }
 
-export const Map = React.forwardRef<MapRef, MapProps>(({
+export function Map({
   center,
   zoom = 14,
   points = [],
   onPointClick,
   className = "",
   theme = "dark",
+  mapRef,
   heatmapData = null,
   corridorsData = null,
   liveRouteData = null,
   animateOnLoad = true,
-}, ref) => {
+}: MapProps) {
 
   const satelliteStyle: any = {
     version: 8,
@@ -245,7 +247,7 @@ export const Map = React.forwardRef<MapRef, MapProps>(({
   return (
     <div className={`w-full h-full relative z-0 rounded-xl overflow-hidden bg-ink-950 ${className}`}>
       <MapGL
-        ref={ref}
+        ref={mapRef}
         initialViewState={{
           longitude: center[1],
           latitude: center[0],
@@ -313,4 +315,4 @@ export const Map = React.forwardRef<MapRef, MapProps>(({
       </MapGL>
     </div>
   );
-});
+}
