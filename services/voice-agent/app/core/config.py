@@ -24,10 +24,14 @@ class VoiceAgentSettings(BaseSettings):
     WHISPER_DEVICE: str = "cpu"  # cpu or cuda
     WHISPER_LANGUAGE: str | None = None  # None = auto-detect
 
-    # --- Edge TTS ---
-    TTS_VOICE_MARATHI: str = "mr-IN-AarohiNeural"
-    TTS_VOICE_HINDI: str = "hi-IN-SwaraNeural"
-    TTS_VOICE_ENGLISH: str = "en-IN-NeerjaNeural"
+    # --- ElevenLabs TTS ---
+    ELEVENLABS_API_KEY: str = ""
+    TTS_VOICE_MARATHI: str = "pNInz6obbfIdG2roUcmV"  # Example ElevenLabs Indian voice ID (Adam/Aarohi equivalent)
+    TTS_VOICE_HINDI: str = "pNInz6obbfIdG2roUcmV" 
+    TTS_VOICE_ENGLISH: str = "pNInz6obbfIdG2roUcmV"
+
+    # --- Google Gemini AI ---
+    GEMINI_API_KEY: str = ""
     TTS_RATE: str = "-10%"  # Slightly slower for clarity
     TTS_VOLUME: str = "+0%"
 

@@ -17,8 +17,7 @@ import time
 from typing import Any
 
 from fastapi import WebSocket, WebSocketDisconnect
-
-from app.engine.conversation import conversation_engine, ConversationContext, CallState
+from app.engine.brain import ai_brain
 from app.engine.stt import stt_engine
 from app.engine.tts import tts_engine
 from app.telephony.call_manager import call_manager
@@ -62,10 +61,13 @@ class WebSocketCallHandler:
 
         try:
             # Send greeting
-            greeting_response = conversation_engine.get_greeting(ctx)
-            consent_response = conversation_engine.get_consent_prompt(ctx)
-
-            full_greeting = greeting_response.text + " " + consent_response.text
+            greeting_response = ai_brain.get_greeting(session_id, ctx.language)
+            consent = (
+                "ही कॉल तुमच्या सुरक्षिततेसाठी रेकॉर्ड केली जात आहे." if ctx.language == "mr"
+                else "यह कॉल आपकी सुरक्षा के लिए रिकॉर्ड की जा रही है।" if ctx.language == "hi"
+                else "This call is being recorded for your safety."
+            )
+            full_greeting = greeting_response.text + " " + consent
 
             # Generate TTS for greeting
             tts_result = await tts_engine.synthesize(full_greeting, ctx.language)
@@ -90,12 +92,7 @@ class WebSocketCallHandler:
                     )
                     message = json.loads(raw)
                 except asyncio.TimeoutError:
-                    # Silence timeout
-                    response = conversation_engine.process_input(ctx, "")
-                    await self._send_response(websocket, ctx, response)
-                    if ctx.state == CallState.CALL_END:
-                        break
-                    continue
+                    break
                 except (json.JSONDecodeError, WebSocketDisconnect):
                     break
 
@@ -127,15 +124,19 @@ class WebSocketCallHandler:
                 else:
                     continue
 
-                # Process through conversation engine
-                response = conversation_engine.process_input(ctx, caller_text)
+                if not caller_text.strip():
+                    continue
+
+                # Process through Gemini brain
+                response = await ai_brain.process_input(session_id, caller_text)
 
                 # Create ticket if needed
                 if response.should_create_ticket and response.ticket_data:
                     ticket_id = await call_manager.create_incident_ticket(
                         ctx, response.ticket_data
                     )
-                    response.metadata["ticket_id"] = ticket_id
+                    ctx.ticket_created = True
+                    ctx.incident_id = ticket_id
 
                 # Broadcast update
                 await call_manager.broadcast_call_update(ctx)

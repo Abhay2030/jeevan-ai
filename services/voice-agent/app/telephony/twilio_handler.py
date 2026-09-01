@@ -14,7 +14,7 @@ from io import BytesIO
 from fastapi import WebSocket, WebSocketDisconnect
 from pydub import AudioSegment
 
-from app.engine.conversation import conversation_engine, CallState
+from app.engine.brain import ai_brain
 from app.engine.stt import stt_engine
 from app.engine.tts import tts_engine
 from app.telephony.call_manager import call_manager
@@ -129,11 +129,16 @@ class TwilioStreamHandler:
             
         self.is_processing = True
         try:
-            greeting = conversation_engine.get_greeting(self.ctx)
-            consent = conversation_engine.get_consent_prompt(self.ctx)
-            full_text = greeting.text + " " + consent.text
+            greeting = ai_brain.get_greeting(self.ctx.session_id, self.ctx.language)
+            # Add a consent prompt naturally
+            consent = (
+                "ही कॉल तुमच्या सुरक्षिततेसाठी रेकॉर्ड केली जात आहे." if self.ctx.language == "mr"
+                else "यह कॉल आपकी सुरक्षा के लिए रिकॉर्ड की जा रही है।" if self.ctx.language == "hi"
+                else "This call is being recorded for your safety."
+            )
+            full_text = greeting.text + " " + consent
             
-            await self._synthesize_and_send(full_text, self.ctx.language)
+            await self._synthesize_and_send(full_text, greeting.language)
         finally:
             self.is_processing = False
 
@@ -160,8 +165,8 @@ class TwilioStreamHandler:
                 
             logger.info(f"Twilio Caller: {caller_text}")
             
-            # 2. Run NLU & State Machine
-            response = conversation_engine.process_input(self.ctx, caller_text)
+            # 2. Run NLU & State Machine via Gemini
+            response = await ai_brain.process_input(self.ctx.session_id, caller_text)
             
             # 3. Create ticket if needed
             if response.should_create_ticket and response.ticket_data:

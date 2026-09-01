@@ -13,8 +13,11 @@ openai-whisper==20231117
 torch>=2.0.0
 numpy>=1.24.0
 
-# --- Text-to-Speech (Edge TTS) ---
-edge-tts==6.1.12
+# --- AI Brain (Google Gemini) ---
+google-generativeai>=0.8.0
+
+# --- Text-to-Speech (ElevenLabs) ---
+elevenlabs>=1.0.0
 
 # --- Audio Processing ---
 soundfile>=0.12.1
