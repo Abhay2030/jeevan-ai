@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2, Search, CloudRain, Wind } from "lucide-react";
+import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2, Search, CloudRain, Wind, Mic, Moon, Sun, FastForward } from "lucide-react";
 import type { MapPoint } from "@web/components/Map";
 import * as turf from "@turf/turf";
 
@@ -32,6 +32,9 @@ export default function DigitalTwin() {
   const [scenario, setScenario] = useState<Scenario>("baseline");
   const [simulating, setSimulating] = useState(false);
   const [results, setResults] = useState<boolean>(false);
+  const [mapTheme, setMapTheme] = useState<"light" | "dark">("light");
+  const [isListening, setIsListening] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Simulation modifiers
   const [crowdMultiplier, setCrowdMultiplier] = useState(1.0);
@@ -65,6 +68,32 @@ export default function DigitalTwin() {
         ]);
       }
     }, 2500);
+  };
+
+  const handleVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Voice search is not supported in your browser.");
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.onstart = () => setIsListening(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
+  const handleReplay = () => {
+    // Reset ambulance and restart interval
+    setResults(false);
+    setTimeout(() => {
+      setResults(true);
+    }, 100);
   };
 
   // Live Ambulance Movement Simulation Loop
@@ -242,9 +271,20 @@ export default function DigitalTwin() {
 
           {/* Modifiers (Sliders) */}
           <div className="pt-4 border-t border-ink-800">
-             <h3 className="text-[10px] font-bold text-ink-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <SlidersHorizontal className="w-3 h-3" /> Environmental Modifiers
-            </h3>
+             <div className="flex items-center justify-between mb-4">
+               <h3 className="text-[10px] font-bold text-ink-500 uppercase tracking-widest flex items-center gap-2">
+                <SlidersHorizontal className="w-3 h-3" /> Modifiers
+               </h3>
+               
+               {/* Day/Night Toggle */}
+               <button 
+                 onClick={() => setMapTheme(mapTheme === "light" ? "dark" : "light")}
+                 className="flex items-center gap-1.5 px-2 py-1 rounded bg-ink-900 border border-ink-800 hover:bg-ink-800 transition-colors"
+               >
+                 {mapTheme === "light" ? <Moon className="w-3 h-3 text-sky-400" /> : <Sun className="w-3 h-3 text-amber-400" />}
+                 <span className="text-[9px] text-ink-300 font-bold uppercase">{mapTheme === "light" ? "Night Mode" : "Day Mode"}</span>
+               </button>
+             </div>
             
             <div className="space-y-5">
               <div>
@@ -315,7 +355,24 @@ export default function DigitalTwin() {
             points={mapPoints}
             onPointClick={setSelectedPoint}
             animateOnLoad={true}
+            theme={mapTheme}
           />
+        </div>
+        
+        {/* Floating Mini Map */}
+        <div className="absolute bottom-6 right-6 w-48 h-48 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl z-20 pointer-events-none">
+          <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none mix-blend-overlay" />
+          <DynamicMap 
+            center={defaultCenter} 
+            zoom={11} 
+            className="h-full w-full" 
+            points={[]}
+            animateOnLoad={false}
+            theme={mapTheme}
+          />
+          <div className="absolute bottom-2 right-2 z-20 bg-ink-950/80 backdrop-blur px-2 py-1 rounded text-[8px] font-bold text-ink-300 uppercase border border-white/5">
+            Overview Map
+          </div>
         </div>
         {/* Smart Search Bar (Top Center) */}
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[400px] z-30">
@@ -324,8 +381,16 @@ export default function DigitalTwin() {
             <input 
               type="text" 
               placeholder="Search Ramkund, Hospitals, Medical Camps..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-white text-xs w-full placeholder:text-ink-500 font-medium"
             />
+            <button 
+              onClick={handleVoiceSearch} 
+              className={`ml-2 p-1.5 rounded-full transition-colors ${isListening ? "bg-alert-500/20 text-alert-500 animate-pulse" : "hover:bg-white/10 text-ink-400"}`}
+            >
+              <Mic className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -403,7 +468,35 @@ export default function DigitalTwin() {
 
         {/* Visual Overlay for Road Closure */}
         {results && scenario === "road_closure" && (
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-alert-500/30 via-transparent to-transparent mix-blend-screen animate-fade-in pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-alert-500/30 via-transparent to-transparent mix-blend-screen animate-fade-in pointer-events-none z-10" />
+        )}
+        
+        {/* Incident Replay Timeline */}
+        {results && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[500px] z-30 animate-slide-up">
+            <div className="glass-dark border border-white/10 rounded-xl p-4 shadow-2xl backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary-400" /> Incident Replay Timeline
+                </h3>
+                <button 
+                  onClick={handleReplay}
+                  className="flex items-center gap-1.5 text-[10px] font-bold text-ink-300 hover:text-white uppercase bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                >
+                  <FastForward className="w-3 h-3" /> Replay Simulation
+                </button>
+              </div>
+              <div className="relative h-1 bg-white/10 rounded-full overflow-hidden mb-3">
+                <div className="absolute left-0 top-0 h-full bg-primary-500 w-full animate-[pulse_2s_ease-in-out_infinite] opacity-50" />
+                <div className="absolute left-0 top-0 h-full bg-primary-400 w-3/4 shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
+              </div>
+              <div className="flex justify-between text-[9px] text-ink-400 uppercase font-bold">
+                <span>00:00 - Incident Detected</span>
+                <span>02:15 - AI Route Sent</span>
+                <span className="text-sky-400">04:10 - AMB-04 At Scene</span>
+              </div>
+            </div>
+          </div>
         )}
         
         {/* Visual Overlay for Heatwave */}

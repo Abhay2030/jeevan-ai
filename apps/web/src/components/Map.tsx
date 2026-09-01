@@ -146,7 +146,12 @@ export function Map({
         id: "satellite-layer",
         type: "raster",
         source: "esri-satellite",
-        paint: { "raster-opacity": theme === "dark" ? 0.7 : 1.0, "raster-contrast": theme === "dark" ? 0.2 : 0, "raster-saturation": theme === "dark" ? -0.2 : 0 }
+        paint: { 
+          "raster-opacity": 1.0, 
+          "raster-contrast": theme === "dark" ? 0.4 : 0, 
+          "raster-saturation": theme === "dark" ? -0.5 : 0,
+          "raster-brightness-max": theme === "dark" ? 0.3 : 1.0
+        }
       },
       {
         id: "satellite-labels",
