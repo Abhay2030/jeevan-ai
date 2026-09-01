@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     # --- Storage ---
     STORAGE_BUCKET: str = ""
 
+    # --- Voice Agent Integration ---
+    VOICE_AGENT_URL: str = "http://localhost:8001"
+    VOICE_ENCRYPTION_KEY: str = "CHANGE_ME_TO_A_32_BYTE_KEY_IN_PRODUCTION_1234"
+
     @property
     def cors_origins(self) -> list[str]:
         """Parse comma-separated CORS origins."""

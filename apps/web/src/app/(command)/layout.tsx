@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
-import { Shield, Radio, Layers, AlertTriangle, BarChart3, LogOut, History, Zap } from "lucide-react";
+import { Shield, Radio, Layers, AlertTriangle, BarChart3, LogOut, History, Zap, Phone } from "lucide-react";
 
 export default function CommandLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -14,6 +14,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
     { name: "Live Operations", href: "/command/dashboard", icon: Radio },
     { name: "Digital Twin", href: "/command/digital-twin", icon: Layers },
     { name: "Smart Corridors", href: "/command/smart-corridors", icon: Zap },
+    { name: "Voice Ops", href: "/command/voice-ops", icon: Phone },
     { name: "Kumbh Replay", href: "/command/kumbh-replay", icon: History },
     { name: "Disaster Alerts", href: "/command/alerts", icon: AlertTriangle },
     { name: "Intelligence", href: "/command/analytics", icon: BarChart3 },

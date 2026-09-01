@@ -52,5 +52,29 @@ services:
       redis:
         condition: service_healthy
 
+  voice-agent:
+    build:
+      context: ./services/voice-agent
+    container_name: jeevan_voice_agent
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./services/voice-agent:/code
+      - whisper_cache:/root/.cache/whisper
+    ports:
+      - "8001:8001"
+    environment:
+      - VOICE_DATABASE_URL=postgresql+asyncpg://jeevan_admin:jeevan_secure_password@db:5432/jeevan_ai
+      - VOICE_REDIS_URL=redis://redis:6379/0
+      - VOICE_JEEVAN_API_URL=http://api:8000
+      - VOICE_CORS_ORIGINS=http://localhost:3000
+      - VOICE_WHISPER_MODEL=base
+      - VOICE_WHISPER_DEVICE=cpu
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
+  whisper_cache:
