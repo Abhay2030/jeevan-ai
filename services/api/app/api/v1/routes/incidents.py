@@ -50,7 +50,11 @@ def format_incident(incident: Incident) -> IncidentRead:
         verification_state=incident.verification_state or "UNVERIFIED",
         source_type=incident.source_type or "CITIZEN_REPORT",
         location=Location(longitude=point.x, latitude=point.y),
-        location_confidence=incident.location_confidence if incident.location_confidence is not None else 1.0,
+        location_confidence=(
+            incident.location_confidence
+            if incident.location_confidence is not None
+            else 1.0
+        ),
         zone_id=incident.zone_id,
         state_code=incident.state_code,
         district=incident.district,
