@@ -84,6 +84,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.3
+      '@types/google.maps':
+        specifier: ^3.66.6
+        version: 3.66.6
       '@types/node':
         specifier: ^20
         version: 20.19.43
@@ -1901,6 +1904,9 @@ packages:
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
+
+  '@types/google.maps@3.66.6':
+    resolution: {integrity: sha512-F+m8NwLXXDf43/GsxmyceugqpBtKMaQGM/raqyINTG+r7fFgCXKxTZJ6Aw4QeMwUkIJwDtYVeUhndq3RFNkuDA==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -7453,6 +7459,8 @@ snapshots:
     dependencies:
       '@types/minimatch': 6.0.0
       '@types/node': 20.19.43
+
+  '@types/google.maps@3.66.6': {}
 
   '@types/json-schema@7.0.15': {}
 

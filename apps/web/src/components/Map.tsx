@@ -8,6 +8,7 @@ import type { MapRef } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { LayerProps } from "react-map-gl/maplibre";
 import { generateProcedural3DBuildingsGeoJSON } from "@web/lib/geoIntelligenceData";
+import { getGoogleMapsTileUrl } from "@web/lib/googleMaps";
 
 export interface MapPoint {
   id: string;
@@ -19,7 +20,15 @@ export interface MapPoint {
   metadata?: any;
 }
 
-export type MapStyleMode = "satellite" | "dark" | "streets" | "topo";
+export type MapStyleMode =
+  | "google-hybrid"
+  | "google-streets"
+  | "google-terrain"
+  | "google-satellite"
+  | "satellite"
+  | "dark"
+  | "streets"
+  | "topo";
 
 export interface MapProps {
   center: [number, number]; // [lat, lng]
@@ -44,8 +53,8 @@ export interface MapProps {
   animateOnLoad?: boolean;
 }
 
-/* ══════════ MAP TILE STYLES (NO SECRET KEYS REQUIRED) ══════════ */
-function getMapStyleConfig(mode: MapStyleMode = "satellite", theme: "light" | "dark" = "dark") {
+/* ══════════ MAP TILE STYLES (GOOGLE MAPS & TERRAIN 3D) ══════════ */
+function getMapStyleConfig(mode: MapStyleMode = "google-hybrid", theme: "light" | "dark" = "dark") {
   // Raster DEM terrain source for genuine 3D elevation
   const terrainSource = {
     type: "raster-dem",
@@ -56,6 +65,124 @@ function getMapStyleConfig(mode: MapStyleMode = "satellite", theme: "light" | "d
   };
 
   switch (mode) {
+    case "google-hybrid":
+      return {
+        version: 8,
+        sources: {
+          "google-hybrid": {
+            type: "raster",
+            tiles: getGoogleMapsTileUrl("hybrid"),
+            tileSize: 256,
+            attribution: "© Google Maps"
+          },
+          "terrain": terrainSource
+        },
+        layers: [
+          {
+            id: "google-hybrid-base",
+            type: "raster",
+            source: "google-hybrid",
+            paint: {
+              "raster-opacity": 1.0,
+              "raster-contrast": theme === "dark" ? 0.15 : 0.05,
+              "raster-saturation": theme === "dark" ? -0.1 : 0
+            }
+          }
+        ],
+        terrain: {
+          source: "terrain",
+          exaggeration: 1.8
+        }
+      };
+
+    case "google-streets":
+      return {
+        version: 8,
+        sources: {
+          "google-streets": {
+            type: "raster",
+            tiles: getGoogleMapsTileUrl("streets"),
+            tileSize: 256,
+            attribution: "© Google Maps"
+          },
+          "terrain": terrainSource
+        },
+        layers: [
+          {
+            id: "google-streets-base",
+            type: "raster",
+            source: "google-streets",
+            paint: {
+              "raster-opacity": 1.0,
+              "raster-contrast": theme === "dark" ? 0.25 : 0.05,
+              "raster-brightness-max": theme === "dark" ? 0.9 : 1.0
+            }
+          }
+        ],
+        terrain: {
+          source: "terrain",
+          exaggeration: 1.5
+        }
+      };
+
+    case "google-terrain":
+      return {
+        version: 8,
+        sources: {
+          "google-terrain": {
+            type: "raster",
+            tiles: getGoogleMapsTileUrl("terrain"),
+            tileSize: 256,
+            attribution: "© Google Maps"
+          },
+          "terrain": terrainSource
+        },
+        layers: [
+          {
+            id: "google-terrain-base",
+            type: "raster",
+            source: "google-terrain",
+            paint: {
+              "raster-opacity": 1.0,
+              "raster-contrast": theme === "dark" ? 0.2 : 0.05
+            }
+          }
+        ],
+        terrain: {
+          source: "terrain",
+          exaggeration: 1.8
+        }
+      };
+
+    case "google-satellite":
+      return {
+        version: 8,
+        sources: {
+          "google-satellite": {
+            type: "raster",
+            tiles: getGoogleMapsTileUrl("satellite"),
+            tileSize: 256,
+            attribution: "© Google Maps"
+          },
+          "terrain": terrainSource
+        },
+        layers: [
+          {
+            id: "google-satellite-base",
+            type: "raster",
+            source: "google-satellite",
+            paint: {
+              "raster-opacity": 1.0,
+              "raster-contrast": theme === "dark" ? 0.25 : 0.05
+            }
+          }
+        ],
+        terrain: {
+          source: "terrain",
+          exaggeration: 1.8
+        }
+      };
+
     case "dark":
       return {
         version: 8,
@@ -350,7 +477,7 @@ export function Map({
   onMapClick,
   className = "",
   theme = "dark",
-  styleMode = "satellite",
+  styleMode = "google-hybrid",
   mapRef,
   heatmapData = null,
   corridorsData = null,
@@ -715,6 +842,14 @@ export function Map({
           </Marker>
         ))}
       </MapGL>
+
+      {/* Google Maps Attribution Badge */}
+      {styleMode.startsWith("google") && (
+        <div className="absolute bottom-2 left-2 z-10 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-950/85 backdrop-blur-md border border-slate-800 text-[11px] font-sans text-slate-200 shadow-lg">
+          <span className="font-bold text-white tracking-tight">Google</span>
+          <span className="text-[9px] text-slate-400 font-mono uppercase">3D Engine</span>
+        </div>
+      )}
     </div>
   );
 }

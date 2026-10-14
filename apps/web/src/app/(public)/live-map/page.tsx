@@ -32,6 +32,7 @@ import {
   type OperationalZone,
   type CityHub
 } from "@web/lib/geoIntelligenceData";
+import { geocodeLocation, calculateGoogleRoute } from "@web/lib/googleMaps";
 
 // Dynamically import the upgraded 3D Map
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
@@ -56,7 +57,7 @@ export default function LiveMapPage() {
   const [pitch, setPitch] = useState<number>(INDIAN_COMMAND_HUBS[1].pitch);
   const [bearing, setBearing] = useState<number>(INDIAN_COMMAND_HUBS[1].bearing);
   const [is3D, setIs3D] = useState<boolean>(true);
-  const [styleMode, setStyleMode] = useState<MapStyleMode>("satellite");
+  const [styleMode, setStyleMode] = useState<MapStyleMode>("google-hybrid");
 
   // Selection & UI State
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
@@ -357,8 +358,8 @@ export default function LiveMapPage() {
     flyToCoords(point.latitude, point.longitude, Math.max(zoom, 15.2), pitch, bearing);
   }, [zoom, pitch, bearing, flyToCoords]);
 
-  /* ══════════ ROUTE CALCULATION HANDLER ══════════ */
-  const handleCalculateRoute = useCallback((
+  /* ══════════ ROUTE CALCULATION HANDLER (GOOGLE MAPS + PROCEDURAL FALLBACK) ══════════ */
+  const handleCalculateRoute = useCallback(async (
     fromLat: number,
     fromLng: number,
     toLat: number,
@@ -366,20 +367,89 @@ export default function LiveMapPage() {
     fromLabel: string,
     toLabel: string
   ) => {
-    const route = generateEmergencyRoute(fromLat, fromLng, toLat, toLng, 48);
-    setActiveRouteData(route.geoJsonRoute);
-    setRouteStats({
-      distanceKm: route.roadDistanceKm,
-      etaMinutes: route.etaMinutes,
-      fromLabel,
-      toLabel
-    });
+    // Attempt Google Directions API calculation
+    const googleRoute = await calculateGoogleRoute(
+      { lat: fromLat, lng: fromLng },
+      { lat: toLat, lng: toLng }
+    );
+
+    if (googleRoute && googleRoute.coordinates.length > 0) {
+      setActiveRouteData({
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: googleRoute.coordinates
+        },
+        properties: {
+          summary: googleRoute.summary
+        }
+      });
+      setRouteStats({
+        distanceKm: googleRoute.distanceKm,
+        etaMinutes: googleRoute.durationMinutes,
+        fromLabel,
+        toLabel
+      });
+      setLocationToast(`Google Directions: ${googleRoute.distanceKm} km • ~${googleRoute.durationMinutes} min ETA`);
+      setTimeout(() => setLocationToast(null), 4000);
+    } else {
+      // Procedural corridor fallback
+      const route = generateEmergencyRoute(fromLat, fromLng, toLat, toLng, 48);
+      setActiveRouteData(route.geoJsonRoute);
+      setRouteStats({
+        distanceKm: route.roadDistanceKm,
+        etaMinutes: route.etaMinutes,
+        fromLabel,
+        toLabel
+      });
+    }
 
     // Center map midway between points
     const midLat = (fromLat + toLat) / 2;
     const midLng = (fromLng + toLng) / 2;
     flyToCoords(midLat, midLng, 14.5, 62, -25);
   }, [flyToCoords]);
+
+  /* ══════════ GOOGLE MAPS GEOCODING SEARCH HANDLER ══════════ */
+  const handleLocationSearch = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    // 1. Check local demo items first
+    const matchIncident = DEMO_INCIDENTS.find(i =>
+      i.title.toLowerCase().includes(query.toLowerCase()) ||
+      i.locationName.toLowerCase().includes(query.toLowerCase())
+    );
+    if (matchIncident) {
+      setSelectedPointId(matchIncident.id);
+      setSelectedDetail({ type: "incident", data: matchIncident });
+      flyToCoords(matchIncident.latitude, matchIncident.longitude, 16, 62, -25);
+      return;
+    }
+
+    const matchHospital = DEMO_HOSPITALS.find(h =>
+      h.name.toLowerCase().includes(query.toLowerCase())
+    );
+    if (matchHospital) {
+      setSelectedPointId(matchHospital.id);
+      setSelectedDetail({ type: "hospital", data: matchHospital });
+      flyToCoords(matchHospital.latitude, matchHospital.longitude, 16, 62, -25);
+      return;
+    }
+
+    // 2. Query Google Maps Geocoding API
+    setLocationToast(`Geocoding "${query}" via Google Maps...`);
+    const geo = await geocodeLocation(query);
+    if (geo) {
+      setLocationToast(`Google Maps: ${geo.formattedAddress}`);
+      setTimeout(() => setLocationToast(null), 4500);
+      flyToCoords(geo.lat, geo.lng, 16.0, 62, -25);
+    } else {
+      setLocationToast(`No location match for "${query}"`);
+      setTimeout(() => setLocationToast(null), 3000);
+    }
+  }, [searchQuery, flyToCoords]);
 
   const handleRouteToIncident = useCallback((incident: EmergencyIncident) => {
     // Find closest available ambulance
@@ -536,25 +606,36 @@ export default function LiveMapPage() {
               </button>
             </div>
 
-            {/* Search Input */}
-            <div className="relative">
+            {/* Search Input with Google Maps Geocoding */}
+            <form onSubmit={handleLocationSearch} className="relative flex items-center">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search incidents, hospitals, units..."
+                placeholder="Search location, incidents, hospitals (Enter)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 focus:border-cyan-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none transition-colors"
+                className="w-full bg-slate-900 border border-slate-800 focus:border-cyan-500 rounded-lg pl-8 pr-14 py-1.5 text-xs text-white placeholder-slate-500 outline-none transition-colors"
               />
-              {searchQuery && (
+              <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="text-slate-400 hover:text-white p-0.5"
+                    title="Clear"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
                 <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  type="submit"
+                  className="px-1.5 py-0.5 rounded bg-cyan-600 hover:bg-cyan-500 text-[10px] font-bold text-slate-950 transition-colors"
+                  title="Geocode with Google Maps"
                 >
-                  <X className="w-3 h-3" />
+                  Go
                 </button>
-              )}
-            </div>
+              </div>
+            </form>
 
             {/* Navigation Tabs */}
             <div className="grid grid-cols-4 gap-1 p-0.5 bg-slate-900/90 rounded-lg border border-slate-800">
@@ -1000,15 +1081,19 @@ export default function LiveMapPage() {
 
               {/* Style Dropdown Menu */}
               {showStyleMenu && (
-                <div className="absolute right-12 bottom-0 w-44 bg-slate-950/95 backdrop-blur-xl border border-slate-800 rounded-xl p-2 shadow-2xl space-y-1 z-30">
-                  <div className="text-[10px] font-mono text-slate-400 px-2 py-1 uppercase tracking-wider">
+                <div className="absolute right-12 bottom-0 w-52 bg-slate-950/95 backdrop-blur-xl border border-slate-800 rounded-xl p-2 shadow-2xl space-y-1 z-30 max-h-80 overflow-y-auto no-scrollbar">
+                  <div className="text-[10px] font-mono text-cyan-400 px-2 py-1 uppercase tracking-wider font-bold">
                     Select 3D Basemap
                   </div>
                   {[
-                    { id: "satellite", label: "Satellite 3D", desc: "Esri Imagery + Elevation" },
-                    { id: "dark", label: "Dark Ops 3D", desc: "Carto Dark + Elevation" },
-                    { id: "streets", label: "Clean Streets 3D", desc: "Carto Voyager + Elevation" },
-                    { id: "topo", label: "Topographic 3D", desc: "Contour + Elevation" },
+                    { id: "google-hybrid", label: "Google Hybrid 3D", desc: "Satellite + Google Road Vector" },
+                    { id: "google-streets", label: "Google Streets 3D", desc: "Official Google Cartography" },
+                    { id: "google-terrain", label: "Google Terrain 3D", desc: "Topographic Relief & Elevation" },
+                    { id: "google-satellite", label: "Google Satellite", desc: "Pure Photographic Imagery" },
+                    { id: "satellite", label: "Esri Satellite 3D", desc: "Global Imagery + Elevation" },
+                    { id: "dark", label: "Tactical Dark Ops", desc: "Night Radar / High Contrast" },
+                    { id: "streets", label: "Clean Streets 3D", desc: "Carto Voyager Basemap" },
+                    { id: "topo", label: "Topographic 3D", desc: "Contour & Hillshade Elevation" },
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -1022,7 +1107,12 @@ export default function LiveMapPage() {
                           : "text-slate-300 hover:bg-slate-900"
                       }`}
                     >
-                      <span className="font-semibold">{s.label}</span>
+                      <span className="font-semibold flex items-center justify-between">
+                        {s.label}
+                        {s.id.startsWith("google") && (
+                          <span className="text-[8px] px-1 rounded bg-blue-500/20 text-blue-400 font-mono">GOOGLE</span>
+                        )}
+                      </span>
                       <span className="text-[9px] text-slate-500">{s.desc}</span>
                     </button>
                   ))}
