@@ -1,0 +1,196 @@
+rules_version = '2';
+
+/**
+ * ===============================================================
+ * JEEVAN AI — Cloud Firestore Security Rules
+ * National Predictive Public Health & Emergency Response Platform
+ * ===============================================================
+ *
+ * Security Architecture Invariants:
+ * 1. Default Deny: All paths are locked down by default.
+ * 2. Validator Function Pattern: Enforced on both `create` and `update`
+ *    to prevent the "Update Bypass" vulnerability.
+ * 3. Authority Source & RBAC: Role-based authority derived from verified
+ *    token claims or established admin database records.
+ * 4. Privilege Escalation Prevention: Non-admin users cannot self-assign
+ *    or modify `role` or `is_active` attributes.
+ * 5. Immutable Attributes: `uid` and `created_at` cannot be changed after creation.
+ * 6. PII Protection: Non-admin users cannot list the `users` collection;
+ *    reading profile documents is strictly constrained to the account owner or Admins.
+ * 7. Resource Exhaustion / DoS Protection: All string fields enforce explicit
+ *    length bounds; extraneous fields are forbidden (hasOnlyAllowedFields).
+ */
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId} (matches Firebase Auth UID)
+// Fields:
+//   - uid: string (required, 1-128 chars, matches request.auth.uid) - Account UID
+//   - email: string (required, valid email, 3-254 chars) - Registered email
+//   - full_name: string (required, 1-100 chars) - Official operator/user name
+//   - role: string (required, enum ['ADMIN', 'COMMAND', 'RESPONDER', 'PUBLIC']) - System role
+//   - is_active: bool (required) - Account operational status
+//   - phone_number: string (optional, 0-25 chars) - Emergency contact phone number
+//   - created_at: timestamp (required, immutable) - Document creation timestamp
+//   - last_login_at: timestamp (optional) - Session login audit timestamp
+//   - updated_at: timestamp (optional) - Profile modification timestamp
+//   - platform: string (optional, 1-50 chars) - Deployment system origin identifier
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request is authenticated with Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user owns the document by path UID
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if a user account is active in Cloud Firestore
+    function isUserActive(userId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(userId)) &&
+        get(/databases/$(database)/documents/users/$(userId)).data.is_active == true;
+    }
+
+    // Check if the authenticated caller has verified ADMIN authority
+    function isAdmin() {
+      return isAuthenticated() && (
+        // Custom claims check in Firebase Auth token
+        ('role' in request.auth.token && request.auth.token.role == 'ADMIN') ||
+        ('admin' in request.auth.token && request.auth.token.admin == true) ||
+        // Persisted Firestore profile check for established active administrators
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN' &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.is_active == true
+        )
+      );
+    }
+
+    // Validate email format and length
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() >= 3 &&
+        email.size() <= 254 &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate optional string with bounds
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+        (data[field] is string && data[field].size() >= minLen && data[field].size() <= maxLen);
+    }
+
+    // Validate optional timestamp
+    function isValidOptionalTimestamp(data, field) {
+      return !(field in data) || data[field] is timestamp;
+    }
+
+    // ===============================================================
+    // Domain Validator: User Profile Document
+    // Enforced identically on BOTH create and update operations
+    // ===============================================================
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'full_name', 'role', 'is_active', 'created_at']) &&
+        data.keys().hasOnly([
+          'uid', 'email', 'full_name', 'role', 'is_active',
+          'phone_number', 'created_at', 'last_login_at', 'updated_at', 'platform'
+        ]) &&
+        data.uid is string &&
+        data.uid.size() >= 1 &&
+        data.uid.size() <= 128 &&
+        data.email is string &&
+        isValidEmail(data.email) &&
+        data.full_name is string &&
+        data.full_name.size() >= 1 &&
+        data.full_name.size() <= 100 &&
+        data.role is string &&
+        data.role in ['ADMIN', 'COMMAND', 'RESPONDER', 'PUBLIC'] &&
+        data.is_active is bool &&
+        data.created_at is timestamp &&
+        isValidOptionalString(data, 'phone_number', 0, 25) &&
+        isValidOptionalTimestamp(data, 'last_login_at') &&
+        isValidOptionalTimestamp(data, 'updated_at') &&
+        isValidOptionalString(data, 'platform', 1, 50);
+    }
+
+    // ===============================================================
+    // Collection: users/{userId}
+    // ===============================================================
+    match /users/{userId} {
+      // READ: Account owners can read their own profile; Admins can read any profile
+      allow get: if isOwner(userId) || isAdmin();
+
+      // LIST: Only Admins can list or query the users collection
+      // Strict lockdown prevents unprivileged user enumeration and PII disclosure
+      allow list: if isAdmin();
+
+      // CREATE: Authenticated user can create their own profile record.
+      // Privilege escalation prevention: self-registration allows ONLY
+      // 'RESPONDER' or 'PUBLIC' roles. 'ADMIN' and 'COMMAND' roles require
+      // creation by an existing Admin.
+      allow create: if isAuthenticated() &&
+        isValidUser(request.resource.data) &&
+        request.resource.data.uid == userId &&
+        (
+          (
+            isOwner(userId) &&
+            request.resource.data.role in ['RESPONDER', 'PUBLIC'] &&
+            request.resource.data.is_active == true
+          ) ||
+          isAdmin()
+        );
+
+      // UPDATE: Personal information can be updated by the account owner.
+      // Privilege escalation prevention:
+      // - Account owner CANNOT change role (must match existing role).
+      // - Account owner CANNOT change is_active status (must match existing status).
+      // - Account owner can only touch allowed fields (full_name, phone_number, last_login_at, updated_at).
+      // - Immutable fields (uid, created_at) cannot be modified.
+      // - Deactivated accounts cannot modify their profile.
+      // - Admins can update roles, status, and directory records for any user.
+      allow update: if isAuthenticated() &&
+        isValidUser(request.resource.data) &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.created_at == resource.data.created_at &&
+        (
+          // Active account owner updating personal info
+          (
+            isOwner(userId) &&
+            resource.data.is_active == true &&
+            request.resource.data.role == resource.data.role &&
+            request.resource.data.is_active == resource.data.is_active &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'full_name', 'phone_number', 'last_login_at', 'updated_at'
+            ])
+          ) ||
+          // Admin management
+          isAdmin()
+        );
+
+      // DELETE: Only Admins can delete user profiles.
+      // Self-deletion is denied to prevent accidental admin lockout.
+      allow delete: if isAdmin() && request.auth.uid != userId;
+    }
+
+    // ===============================================================
+    // Default Deny Fallback
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: false;
+    }
+  }
+}

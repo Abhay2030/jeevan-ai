@@ -69,7 +69,9 @@ export default function ResponderDashboard() {
           </div>
           <div>
             <h1 className="text-sm font-display font-bold text-ink-900 leading-tight">Responder Hub</h1>
-            <p className="text-xs text-primary-600 font-medium leading-tight">Unit R-17 • Active</p>
+            <p className="text-xs text-primary-600 font-medium leading-tight">
+              {user?.full_name || "Responder Unit"} • {user?.role || "RESPONDER"}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">

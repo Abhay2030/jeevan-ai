@@ -49,13 +49,15 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
 
         <div className="p-4 border-t border-surface-border flex items-center justify-center lg:justify-between">
           <div className="hidden lg:flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-ink-800 flex items-center justify-center text-xs font-bold text-ink-300">OP</div>
+            <div className="w-8 h-8 rounded-full bg-ink-800 border border-ink-700 flex items-center justify-center text-xs font-bold text-cyan-400 font-mono">
+              {user?.full_name ? user.full_name.charAt(0).toUpperCase() : "OP"}
+            </div>
             <div>
-              <p className="text-xs text-ink-200 font-medium line-clamp-1">{user?.full_name || "Operator"}</p>
-              <p className="text-[10px] text-ink-500 font-mono">SYS_ADMIN</p>
+              <p className="text-xs text-ink-200 font-medium line-clamp-1">{user?.full_name || "Command Operator"}</p>
+              <p className="text-[10px] text-cyan-400 font-mono font-bold">{user?.role || "OPERATOR"}</p>
             </div>
           </div>
-          <button onClick={() => logout()} className="text-ink-500 hover:text-alert-400 transition-colors" title="Logout">
+          <button onClick={() => logout()} className="text-ink-500 hover:text-alert-400 transition-colors cursor-pointer" title="Logout">
             <LogOut className="w-5 h-5" />
           </button>
         </div>
