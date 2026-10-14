@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | JEEVAN AI",
   },
   description:
-    "Real-time public-health intelligence and emergency decision-support platform for large-scale gatherings. Powered by explainable AI with human-in-the-loop safety.",
+    "AI-powered national public health intelligence and emergency decision-support platform for India. Predicts risks, coordinates response, and saves lives.",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -27,7 +27,6 @@ export const metadata: Metadata = {
     "public health",
     "emergency response",
     "AI",
-    "Kumbh",
     "decision support",
     "real-time",
   ],

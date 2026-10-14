@@ -68,7 +68,7 @@ async def recognize_face(file: UploadFile = File(...)):  # noqa: B008
             match_found=True,
             confidence=round(random.uniform(0.90, 0.99), 2),
             matched_person_id=f"LP-{random.randint(1000,9999)}",
-            last_seen_zone="Sector 4 (Ramkund)"
+            last_seen_zone="Zone Alpha (Central Concourse)"
         )
     else:
         return FaceMatchResponse(

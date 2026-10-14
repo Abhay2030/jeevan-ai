@@ -19,10 +19,24 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     hashed_password = Column(String(255), nullable=False)
     role = Column(
-        Enum("PUBLIC", "RESPONDER", "COMMAND", "ADMIN", name="user_role"),
+        Enum(
+            "PUBLIC",
+            "RESPONDER",
+            "MEDICAL",
+            "COMMAND_DISTRICT",
+            "COMMAND_STATE",
+            "COMMAND_NATIONAL",
+            "ADMIN",
+            name="user_role",
+        ),
         nullable=False,
-        default="PUBLIC"
+        default="PUBLIC",
     )
+    organization = Column(String(255), nullable=True)
+    state_code = Column(String(2), nullable=True)
+    district = Column(String(100), nullable=True)
+    preferred_language = Column(String(10), nullable=False, default="en")
+
     is_active = Column(Boolean, default=True, nullable=False)
     phone_number = Column(String(20), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)

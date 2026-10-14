@@ -2,7 +2,7 @@
 JEEVAN AI — Natural Language Understanding (NLU) Engine
 
 Keyword-based intent classification and entity extraction
-optimized for Kumbh Mela emergency scenarios in Hindi and Marathi.
+optimized for multi-hazard emergency scenarios in Hindi, Marathi, and English.
 """
 
 import logging
@@ -150,7 +150,7 @@ class NLUEngine:
     Natural Language Understanding engine for emergency intent classification.
 
     Uses keyword-based matching optimized for Hindi, Marathi, and English
-    emergency vocabulary used at Kumbh Mela.
+    emergency vocabulary across all-hazard public emergency scenarios.
     """
 
     def analyze(self, text: str) -> NLUResult:

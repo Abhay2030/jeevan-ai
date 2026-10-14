@@ -1,7 +1,7 @@
 """
 JEEVAN AI — Emergency Type Classification
 
-Defines emergency categories specific to Kumbh Mela scenarios
+Defines multi-hazard emergency categories for national emergency response
 with severity levels and response protocols.
 """
 

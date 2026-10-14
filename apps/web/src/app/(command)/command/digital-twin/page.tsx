@@ -15,13 +15,13 @@ type Scenario = "baseline" | "crowd_surge" | "heatwave" | "road_closure";
 type RescueState = "IDLE" | "SOS" | "DISPATCHED" | "EN_ROUTE" | "REROUTING" | "AT_SCENE" | "TO_HOSPITAL" | "ARRIVED";
 
 const STATIC_POINTS: MapPoint[] = [
-  { id: "z1", type: "zone", title: "RAMKUND", latitude: 20.0059, longitude: 73.7903, severity: "HIGH", metadata: { risk: 84 } },
-  { id: "z2", type: "zone", title: "PANCHAVATI", latitude: 20.0080, longitude: 73.7920, severity: "MEDIUM", metadata: { risk: 42 } },
-  { id: "z3", type: "zone", title: "TAPOVAN", latitude: 19.9950, longitude: 73.8050, severity: "LOW", metadata: { risk: 15 } },
-  { id: "h1", type: "hospital", title: "Civil Hospital", latitude: 19.9975, longitude: 73.7890 },
-  { id: "h2", type: "hospital", title: "Apollo Apollo", latitude: 20.0120, longitude: 73.7800 },
-  { id: "c1", type: "camp", title: "Medical Camp Alpha", latitude: 20.0030, longitude: 73.7950 },
-  { id: "c2", type: "camp", title: "Medical Camp Beta", latitude: 20.0090, longitude: 73.7850 },
+  { id: "z1", type: "zone", title: "ZONE ALPHA", latitude: 20.0059, longitude: 73.7903, severity: "HIGH", metadata: { risk: 84 } },
+  { id: "z2", type: "zone", title: "ZONE BRAVO", latitude: 20.0080, longitude: 73.7920, severity: "MEDIUM", metadata: { risk: 42 } },
+  { id: "z3", type: "zone", title: "ZONE CHARLIE", latitude: 19.9950, longitude: 73.8050, severity: "LOW", metadata: { risk: 15 } },
+  { id: "h1", type: "hospital", title: "District Civil Hospital", latitude: 19.9975, longitude: 73.7890 },
+  { id: "h2", type: "hospital", title: "Metropolitan Hospital", latitude: 20.0120, longitude: 73.7800 },
+  { id: "c1", type: "camp", title: "Medical Unit Alpha", latitude: 20.0030, longitude: 73.7950 },
+  { id: "c2", type: "camp", title: "Medical Unit Beta", latitude: 20.0090, longitude: 73.7850 },
 ];
 
 // Shahi Marg path
@@ -55,7 +55,7 @@ export default function DigitalTwin() {
   const [activeIncidents, setActiveIncidents] = useState<MapPoint[]>([]);
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
 
-  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik Ramkund
+  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Operational Sector Alpha
 
   const handleSimulate = () => {
     setSimulating(true);
@@ -74,8 +74,8 @@ export default function DigitalTwin() {
       setResults(true);
       setRescueState("SOS");
       
-      // Spawn incident at Ramkund
-      setActiveIncidents([{ id: "i1", type: "incident", title: "PILGRIM COLLAPSE (SOS)", latitude: 20.0059, longitude: 73.7903, severity: "CRITICAL" }]);
+      // Spawn incident at Zone Alpha
+      setActiveIncidents([{ id: "i1", type: "incident", title: "EMERGENCY INCIDENT (SOS)", latitude: 20.0059, longitude: 73.7903, severity: "CRITICAL" }]);
       
       // Camera FlyTo SOS
       if (mapRef.current) {
@@ -119,17 +119,17 @@ export default function DigitalTwin() {
       [73.7850, 20.0120], 
       [73.7880, 20.0090], 
       [73.7930, 20.0070], 
-      [73.7903, 20.0059] // Ramkund
+      [73.7903, 20.0059] // Zone Alpha
     ]);
     const routeToSOS = turf.bezierSpline(lineToSOS);
     const lengthToSOS = turf.length(routeToSOS, { units: 'kilometers' });
 
     // Stage 6: Route to Hospital
     const lineToHospital = turf.lineString([
-      [73.7903, 20.0059], // Ramkund
+      [73.7903, 20.0059], // Zone Alpha
       [73.7880, 20.0020],
       [73.7850, 19.9990],
-      [73.7890, 19.9975] // Civil Hospital
+      [73.7890, 19.9975] // District Hospital
     ]);
     const routeToHospital = turf.bezierSpline(lineToHospital);
     const lengthToHospital = turf.length(routeToHospital, { units: 'kilometers' });
@@ -148,15 +148,15 @@ export default function DigitalTwin() {
       if (distanceTraveled > currentLength) {
         // Reached destination
         if (rescueState === "EN_ROUTE" || rescueState === "REROUTING") {
-           // Reached Pilgrim
+           // Reached Scene
            setRescueState("AT_SCENE");
            setActiveAmbulances(prev => {
               const amb1 = prev.find(a => a.id === "a1");
               if (!amb1) return prev;
-              return [{ ...amb1, metadata: { ...amb1.metadata, speed: 0, status: "AT_SCENE", dest: "RAMKUND (Arrived)" } }, prev[1]];
+              return [{ ...amb1, metadata: { ...amb1.metadata, speed: 0, status: "AT_SCENE", dest: "ZONE ALPHA (Arrived)" } }, prev[1]];
            });
            
-           // Wait 3 seconds at scene (Pilgrim pickup), then go to hospital
+           // Wait 3 seconds at scene (patient stabilization), then go to hospital
            setTimeout(() => {
              setRescueState("TO_HOSPITAL");
            }, 3000);
@@ -198,7 +198,7 @@ export default function DigitalTwin() {
         const amb1 = prev.find(a => a.id === "a1");
         if (!amb1) return prev;
         return [
-          { ...amb1, longitude: newLng, latitude: newLat, metadata: { ...amb1.metadata, speed: Math.floor(40 + Math.random() * 15), status: rescueState, dest: rescueState === "TO_HOSPITAL" ? "Civil Hospital" : "RAMKUND SOS" } },
+          { ...amb1, longitude: newLng, latitude: newLat, metadata: { ...amb1.metadata, speed: Math.floor(40 + Math.random() * 15), status: rescueState, dest: rescueState === "TO_HOSPITAL" ? "District Civil Hospital" : "ZONE ALPHA SOS" } },
           prev[1]
         ];
       });
@@ -225,9 +225,9 @@ export default function DigitalTwin() {
   }, [results, rescueState, mapRef]);
 
   const scenarios = [
-    { id: "crowd_surge", icon: Users, title: "Crowd Surge", desc: "Simulate massive influx at Ram Ghat" },
-    { id: "heatwave", icon: ThermometerSun, title: "Heatwave", desc: "Simulate extreme temperature impact on elderly" },
-    { id: "road_closure", icon: AlertTriangle, title: "Arterial Closure", desc: "Simulate Dewas Road blockage and reroutes" },
+    { id: "crowd_surge", icon: Users, title: "Crowd Surge", desc: "Simulate massive influx in high-density gathering sector" },
+    { id: "heatwave", icon: ThermometerSun, title: "Heatwave", desc: "Simulate extreme temperature impact on vulnerable citizens" },
+    { id: "road_closure", icon: AlertTriangle, title: "Arterial Closure", desc: "Simulate arterial road blockage and tactical rerouting" },
   ];
 
   const generateMockHeatmapData = useCallback(() => {
@@ -314,7 +314,7 @@ export default function DigitalTwin() {
           <h2 className="text-sm font-display font-bold text-white uppercase tracking-widest flex items-center gap-2">
             <Layers className="w-4 h-4 text-primary-500" /> Digital Twin Engine
           </h2>
-          <p className="text-[10px] text-ink-400 font-mono mt-1 leading-relaxed">Adjust parameters and run predictive simulations to stress-test Kumbh operations.</p>
+          <p className="text-[10px] text-ink-400 font-mono mt-1 leading-relaxed">Adjust parameters and run predictive simulations to stress-test regional emergency operations. [SIMULATION]</p>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar">
@@ -458,7 +458,7 @@ export default function DigitalTwin() {
             <Search className="w-4 h-4 text-ink-400 mr-3 shrink-0" />
             <input 
               type="text" 
-              placeholder="Search Ramkund, Hospitals, Medical Camps..." 
+              placeholder="Search Operational Zones, Hospitals, Medical Camps..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-white text-xs w-full placeholder:text-ink-500 font-medium"
@@ -700,7 +700,7 @@ export default function DigitalTwin() {
               </div>
               
               <div>
-                <p className="text-[10px] font-mono text-ink-400 mb-1 flex justify-between"><span>CROWD DENSITY (RAMKUND)</span> <span className="text-primary-400 font-bold">{Math.floor(4.2 * crowdMultiplier)} pax/m²</span></p>
+                <p className="text-[10px] font-mono text-ink-400 mb-1 flex justify-between"><span>CROWD DENSITY (ZONE ALPHA)</span> <span className="text-primary-400 font-bold">{Math.floor(4.2 * crowdMultiplier)} pax/m²</span></p>
                 <div className="h-1.5 w-full bg-ink-800 rounded-full overflow-hidden">
                   <div className={`h-full ${crowdMultiplier > 1.5 ? "bg-alert-500 shadow-glow-alert" : "bg-primary-500"}`} style={{ width: `${Math.min(100, (4.2 * crowdMultiplier / 6) * 100)}%` }} />
                 </div>
@@ -710,10 +710,10 @@ export default function DigitalTwin() {
             <div className="mt-6 pt-4 border-t border-ink-800 bg-alert-950/20 -mx-5 px-5 -mb-5 pb-5 rounded-b-xl border-t-alert-900/50">
               <p className="text-[10px] font-mono text-alert-400 mb-2 font-bold flex items-center gap-1.5"><Activity className="w-3 h-3" /> AI MITIGATION PLAN</p>
               <ul className="text-xs text-ink-200 space-y-1.5 list-disc pl-3">
-                {scenario === "road_closure" && <li>Reroute AMB-04 and AMB-12 via Gangapur Road.</li>}
+                {scenario === "road_closure" && <li>Reroute AMB-04 and AMB-12 via Alternate Arterial Bypass.</li>}
                 {temperature >= 40 && <li>Deploy 5 mobile hydration units to Sector B.</li>}
-                {crowdMultiplier > 1.5 && <li>Halt entry at Gate 4; divert foot traffic to Godavari bridge.</li>}
-                <li>Pre-emptively alert Civil Hospital for mass casualty protocol.</li>
+                {crowdMultiplier > 1.5 && <li>Halt entry at Gate 4; divert foot traffic to secondary concourse.</li>}
+                <li>Pre-emptively alert District Civil Hospital for mass casualty protocol.</li>
               </ul>
             </div>
           </div>

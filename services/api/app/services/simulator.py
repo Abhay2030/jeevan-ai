@@ -21,19 +21,19 @@ class FleetSimulator:
         self._task = None
         self.mock_ambulances = [
             {
-                "id": str(uuid4()), "vehicle_number": "MH-15-ER-001",
-                "lat": 20.0059, "lng": 73.7903, "status": "AVAILABLE",
-                "zone": "Ramkund"
+                "id": str(uuid4()), "vehicle_number": "IN-01-ER-1001",
+                "lat": 28.6448, "lng": 77.2195, "status": "AVAILABLE",
+                "zone": "Central Transit Sector"
             },
             {
-                "id": str(uuid4()), "vehicle_number": "MH-15-ER-002",
-                "lat": 20.0102, "lng": 73.7850, "status": "EN_ROUTE",
-                "zone": "Panchavati"
+                "id": str(uuid4()), "vehicle_number": "IN-01-ER-1002",
+                "lat": 28.6500, "lng": 77.2200, "status": "EN_ROUTE",
+                "zone": "North Medical Sector"
             },
             {
-                "id": str(uuid4()), "vehicle_number": "MH-15-ER-003",
-                "lat": 20.0010, "lng": 73.7950, "status": "AT_SCENE",
-                "zone": "Godavari Ghat"
+                "id": str(uuid4()), "vehicle_number": "IN-01-ER-1003",
+                "lat": 28.6560, "lng": 77.2300, "status": "AT_SCENE",
+                "zone": "Civic Administration Sector"
             },
         ]
 

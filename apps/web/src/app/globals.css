@@ -363,7 +363,7 @@ code, kbd, samp, pre, [data-mono] {
 .delay-800 { animation-delay: 800ms; }
 
 /* ==========================================================================
-   Kumbh Mela 2027 — Enhanced Animations & Utilities
+   Enhanced Animations & Utilities
    ========================================================================== */
 
 @keyframes hold-progress {
@@ -453,8 +453,8 @@ code, kbd, samp, pre, [data-mono] {
 .risk-moderate { background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2); }
 .risk-low { background: rgba(13, 148, 136, 0.08); border-color: rgba(13, 148, 136, 0.2); }
 
-/* Gradient for Kumbh Pulse hero */
-.gradient-kumbh {
+/* Gradient for Situation Pulse hero */
+.gradient-situation {
   background:
     radial-gradient(ellipse 70% 50% at 30% 20%, rgba(13, 148, 136, 0.15) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 80% 70%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),

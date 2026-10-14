@@ -15,7 +15,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
     { name: "Digital Twin", href: "/command/digital-twin", icon: Layers },
     { name: "Smart Corridors", href: "/command/smart-corridors", icon: Zap },
     { name: "Voice Ops", href: "/command/voice-ops", icon: Phone },
-    { name: "Kumbh Replay", href: "/command/kumbh-replay", icon: History },
+    { name: "Incident Replay", href: "/command/incident-replay", icon: History },
     { name: "Disaster Alerts", href: "/command/alerts", icon: AlertTriangle },
     { name: "Intelligence", href: "/command/analytics", icon: BarChart3 },
   ];

@@ -9,9 +9,10 @@ import {
   AlertTriangle, Wifi, WifiOff, Navigation,
   Radio, Heart, Search as SearchIcon, Map as MapIcon
 } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 /* ─── Simulated Live Data ─── */
-const KUMBH_ZONES = ["Ramkund", "Panchavati", "Godavari Ghat", "Trimbakeshwar", "Kushavarta"] as const;
+const DEMO_ZONES = ["Central District", "East Zone", "West Zone", "North Sector", "South Sector"] as const;
 type CrowdLevel = "Low" | "Moderate" | "High" | "Critical";
 
 interface LiveStatus {
@@ -20,22 +21,22 @@ interface LiveStatus {
   temperature: number;
   medicalRisk: "Low" | "Moderate" | "High";
   activeAlerts: number;
-  pilgrimsNearby: string;
+  populationNearby: string;
   nearestAmbulance: string;
-  nearestMedCamp: string;
+  nearestFacility: string;
   etaMinutes: number;
 }
 
 function useSimulatedLiveData(): LiveStatus {
   const [data, setData] = useState<LiveStatus>({
-    zone: "Ramkund",
+    zone: "Central District",
     crowdLevel: "High",
     temperature: 34,
     medicalRisk: "Moderate",
     activeAlerts: 3,
-    pilgrimsNearby: "2.4L",
+    populationNearby: "~2.4L",
     nearestAmbulance: "AMB-08",
-    nearestMedCamp: "MC-04",
+    nearestFacility: "MC-04",
     etaMinutes: 3,
   });
 
@@ -61,7 +62,7 @@ const services = [
   { href: "/first-aid", icon: HeartPulse, title: "First Aid", desc: "Help until help arrives", color: "bg-success-600" },
   { href: "/blood", icon: Droplets, title: "Blood Network", desc: "Find donors", color: "bg-alert-700" },
   { href: "/family", icon: Users, title: "Family Safety", desc: "Track loved ones", color: "bg-primary-700" },
-  { href: "/kumbh-pulse", icon: Activity, title: "Kumbh Pulse", desc: "Live dashboard", color: "bg-ink-600" },
+  { href: "/situation-pulse", icon: Activity, title: "Situation Pulse", desc: "Live dashboard", color: "bg-ink-600" },
   { href: "/live-map", icon: MapIcon, title: "Live Map", desc: "Interactive zones", color: "bg-emerald-600" },
   { href: "/lost-person", icon: SearchIcon, title: "Lost Person", desc: "Find & report", color: "bg-purple-600" },
 ];
@@ -107,7 +108,7 @@ export default function EmergencyHub() {
   return (
     <div className="min-h-[100dvh] flex flex-col" data-theme="paper">
 
-      {/* ═══════ LIVE KUMBH STATUS BAR ═══════ */}
+      {/* ═══════ LIVE STATUS BAR ═══════ */}
       <header className="glass sticky top-0 z-40 border-b border-paper-300">
         {/* Top Row: Branding + Network */}
         <div className="px-4 py-2.5 flex items-center justify-between">
@@ -117,7 +118,7 @@ export default function EmergencyHub() {
             </div>
             <div>
               <span className="font-display font-bold text-ink-900 text-sm leading-none">JEEVAN <span className="text-primary-600">AI</span></span>
-              <p className="text-[9px] text-ink-300 font-medium leading-none mt-0.5">Simhastha Kumbh Nashik 2027</p>
+              <p className="text-[9px] text-ink-300 font-medium leading-none mt-0.5">National Emergency Intelligence</p>
             </div>
           </Link>
           <div className="flex items-center gap-3">
@@ -131,8 +132,15 @@ export default function EmergencyHub() {
           </div>
         </div>
 
+        {/* Simulation Banner */}
+        <div className="px-4 pt-1 pb-0.5 flex items-center">
+          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-accent-50 text-accent-700 border border-accent-200">
+            DEMO DATA
+          </span>
+        </div>
+
         {/* Bottom Row: Live Stats Ticker */}
-        <div className="px-4 pb-2.5 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div className="px-4 pb-2.5 pt-1 flex items-center gap-3 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-paper-100 border border-paper-300 text-xs shrink-0">
             <MapPin className="w-3 h-3 text-primary-500" />
             <span className="font-semibold text-ink-700">{live.zone}</span>
@@ -165,8 +173,8 @@ export default function EmergencyHub() {
             <p className="text-sm font-display font-bold text-ink-800">{live.nearestAmbulance}</p>
           </div>
           <div className="metric-card p-3 text-center animate-count-up delay-200">
-            <p className="text-[9px] text-ink-300 font-semibold uppercase tracking-wide mb-1">Med Camp</p>
-            <p className="text-sm font-display font-bold text-ink-800">{live.nearestMedCamp}</p>
+            <p className="text-[9px] text-ink-300 font-semibold uppercase tracking-wide mb-1">Facility</p>
+            <p className="text-sm font-display font-bold text-ink-800">{live.nearestFacility}</p>
           </div>
           <div className="metric-card p-3 text-center animate-count-up delay-300">
             <p className="text-[9px] text-ink-300 font-semibold uppercase tracking-wide mb-1">Risk</p>
@@ -200,7 +208,7 @@ export default function EmergencyHub() {
             </span>
             <span className="flex items-center gap-1.5">
               <Navigation className="w-3.5 h-3.5 text-success-500" />
-              {live.pilgrimsNearby} pilgrims nearby
+              {live.populationNearby} people in area
             </span>
           </div>
         </div>
@@ -236,16 +244,16 @@ export default function EmergencyHub() {
             <span className="text-[10px] font-bold text-accent-600 uppercase tracking-wider">AI Health Alert</span>
           </div>
           <p className="text-sm text-ink-700 font-medium">
-            Crowd density at <strong>Ramkund</strong> is rising. Heat index at <strong>{live.temperature}°C</strong>. 
+            Risk levels in <strong>Central District</strong> are rising. Heat index at <strong>{live.temperature}°C</strong>. 
             Medical teams have been pre-positioned at sectors C and D.
           </p>
-          <Link href="/kumbh-pulse" className="inline-flex items-center gap-1 text-xs text-primary-600 font-semibold mt-2 hover:text-primary-700 transition-colors">
-            View Kumbh Pulse <ChevronRight className="w-3.5 h-3.5" />
+          <Link href="/situation-pulse" className="inline-flex items-center gap-1 text-xs text-primary-600 font-semibold mt-2 hover:text-primary-700 transition-colors">
+            View Situation Pulse <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* ═══════ EMERGENCY NUMBERS ═══════ */}
-        <div className="card-elevated p-4 flex items-center justify-between">
+        <div className="card-elevated p-4 flex items-center justify-around">
           <div className="text-center">
             <p className="text-[9px] text-ink-300 font-medium mb-0.5 uppercase">Emergency</p>
             <a href="tel:112" className="text-2xl font-display font-bold text-alert-600">112</a>
@@ -260,13 +268,10 @@ export default function EmergencyHub() {
             <p className="text-[9px] text-ink-300 font-medium mb-0.5 uppercase">Women</p>
             <a href="tel:181" className="text-2xl font-display font-bold text-purple-600">181</a>
           </div>
-          <div className="h-10 w-px bg-paper-300" />
-          <div className="text-center">
-            <p className="text-[9px] text-ink-300 font-medium mb-0.5 uppercase">Kumbh Help</p>
-            <a href="tel:1077" className="text-2xl font-display font-bold text-accent-600">1077</a>
-          </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

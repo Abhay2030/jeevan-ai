@@ -16,11 +16,11 @@ interface HospitalData {
 }
 
 const mockHospitals: HospitalData[] = [
-  { id: "1", name: "Civil Hospital Nashik", distance: "2.4 km", eta: "8 min", rating: 4.5, emergency: true, icu: 3, icuTotal: 12, bloodBank: true, specializations: ["Trauma", "Cardiology", "Neurology"], address: "Trimbak Road, Nashik", aiRecommended: true },
-  { id: "2", name: "District Hospital Nashik", distance: "3.1 km", eta: "12 min", rating: 4.2, emergency: true, icu: 1, icuTotal: 8, bloodBank: true, specializations: ["General", "Orthopedics"], address: "CBS, Nashik" },
-  { id: "3", name: "Apollo Hospitals Nashik", distance: "4.8 km", eta: "15 min", rating: 4.7, emergency: true, icu: 5, icuTotal: 10, bloodBank: false, specializations: ["Cardiology", "Pediatrics", "Oncology"], address: "Panchavati, Nashik" },
-  { id: "4", name: "Sahyadri Super Speciality Hospital", distance: "1.9 km", eta: "6 min", rating: 3.9, emergency: true, icu: 0, icuTotal: 4, bloodBank: false, specializations: ["General", "ENT"], address: "Wadala Naka, Nashik" },
-  { id: "5", name: "Wockhardt Hospital", distance: "5.5 km", eta: "18 min", rating: 4.3, emergency: true, icu: 2, icuTotal: 6, bloodBank: true, specializations: ["Trauma", "Burns"], address: "Mumbai Naka, Nashik" },
+  { id: "1", name: "District Civil Hospital", distance: "2.4 km", eta: "8 min", rating: 4.5, emergency: true, icu: 3, icuTotal: 12, bloodBank: true, specializations: ["Trauma", "Cardiology", "Neurology"], address: "Civil Lines Central", aiRecommended: true },
+  { id: "2", name: "Apex Trauma & Multispecialty Centre", distance: "3.1 km", eta: "12 min", rating: 4.2, emergency: true, icu: 1, icuTotal: 8, bloodBank: true, specializations: ["General", "Orthopedics"], address: "Station Ring Road" },
+  { id: "3", name: "Metropolitan Super Speciality Hospital", distance: "4.8 km", eta: "15 min", rating: 4.7, emergency: true, icu: 5, icuTotal: 10, bloodBank: false, specializations: ["Cardiology", "Pediatrics", "Oncology"], address: "North Sector Medical Hub" },
+  { id: "4", name: "City Care General Hospital", distance: "1.9 km", eta: "6 min", rating: 3.9, emergency: true, icu: 0, icuTotal: 4, bloodBank: false, specializations: ["General", "ENT"], address: "East Bypass Road" },
+  { id: "5", name: "National Emergency Care Facility", distance: "5.5 km", eta: "18 min", rating: 4.3, emergency: true, icu: 2, icuTotal: 6, bloodBank: true, specializations: ["Trauma", "Burns"], address: "West Industrial Corridor" },
 ];
 
 function HospitalCard({ h }: { h: HospitalData }) {

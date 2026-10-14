@@ -26,9 +26,9 @@ const SEV_COLORS: Record<string, string> = {
 };
 
 const ZONE_LABELS: Record<string, string> = {
-  ZONE_A: "Central Godavari", ZONE_B: "Panchavati North",
-  ZONE_C: "Tapovan Outer", ZONE_D: "Trimbakeshwar",
-  ZONE_E: "South Nashik", ZONE_F: "Transit Zone",
+  ZONE_A: "Central Core", ZONE_B: "North Sector",
+  ZONE_C: "East Sector", ZONE_D: "West Sector",
+  ZONE_E: "South Sector", ZONE_F: "Transit Corridor",
 };
 
 const LANG_FLAGS: Record<string, string> = { hi: "🇮🇳 HI", mr: "🇮🇳 MR", en: "🇬🇧 EN" };

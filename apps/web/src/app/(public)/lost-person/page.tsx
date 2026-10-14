@@ -61,12 +61,12 @@ export default function LostPersonRecoverySystem() {
     // Initialize Timeline
     const now = new Date();
     setTimelineEvents([
-      { time: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), title: "Report Created", desc: "Case ID #NK-2027-449", active: true }
+      { time: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), title: "Report Created", desc: "Case ID #LP-2026-449", active: true }
     ]);
     
     // Create expanding search radius
     let radiusKm = 0.2;
-    const center = [73.7903, 20.0059]; // Ramkund
+    const center = [75.8577, 22.7196]; // Central Sector
     
     const updateRadius = () => {
       radiusKm += 0.05;
@@ -284,8 +284,8 @@ export default function LostPersonRecoverySystem() {
           <div className="p-4 rounded-xl bg-alert-950/30 border border-alert-900 flex items-start gap-3">
             <MapPin className="w-5 h-5 text-alert-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-bold text-white">Ramkund Ghat</p>
-              <p className="text-[10px] text-ink-400 mt-1">15 minutes ago • High crowd density</p>
+              <p className="text-sm font-bold text-white">Central Concourse / Sector 4</p>
+              <p className="text-[10px] text-ink-400 mt-1">15 minutes ago • High density area</p>
             </div>
           </div>
           
@@ -502,7 +502,7 @@ export default function LostPersonRecoverySystem() {
             </Link>
             <div>
               <h1 className="text-sm font-display font-bold text-white leading-tight">AI Recovery System</h1>
-              <p className="text-[10px] text-ink-400 font-mono">Simhastha Kumbh 2027</p>
+              <p className="text-[10px] text-ink-400 font-mono">National Emergency Network</p>
             </div>
           </div>
           <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">

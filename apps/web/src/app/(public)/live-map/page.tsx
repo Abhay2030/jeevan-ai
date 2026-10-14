@@ -12,7 +12,7 @@ import type { MapPoint } from "@web/components/Map";
 
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
-  loading: () => <div className="w-full h-full flex items-center justify-center bg-ink-900 skeleton">Loading Kumbh Map Engine...</div>,
+  loading: () => <div className="w-full h-full flex items-center justify-center bg-ink-900 skeleton">Loading Map Engine...</div>,
 });
 
 /* ─── Map Layer Definitions ─── */
@@ -25,8 +25,8 @@ interface MapLayer {
 }
 
 const DEFAULT_LAYERS: MapLayer[] = [
-  { id: "zones", label: "Kumbh Zones", icon: MapPin, color: "bg-primary-600", enabled: true },
-  { id: "medical", label: "Medical Camps", icon: Hospital, color: "bg-alert-600", enabled: true },
+  { id: "zones", label: "Operational Zones", icon: MapPin, color: "bg-primary-600", enabled: true },
+  { id: "medical", label: "Medical Facilities", icon: Hospital, color: "bg-alert-600", enabled: true },
   { id: "ambulances", label: "Ambulances", icon: Ambulance, color: "bg-accent-600", enabled: true },
   { id: "volunteers", label: "Volunteers", icon: Users, color: "bg-success-600", enabled: false },
   { id: "police", label: "Police Posts", icon: Shield, color: "bg-blue-600", enabled: false },
@@ -35,26 +35,26 @@ const DEFAULT_LAYERS: MapLayer[] = [
   { id: "corridors", label: "Emergency Corridors", icon: AlertTriangle, color: "bg-accent-700", enabled: false },
 ];
 
-/* ─── Zone Markers ─── */
+/* ─── Demo Zone Markers (configurable per deployment) ─── */
 const ZONE_POINTS = [
-  { id: "ramkund", latitude: 20.0059, longitude: 73.7903, title: "Ramkund — Crowd: HIGH", severity: "CRITICAL" as const, type: "zone" as const },
-  { id: "panchavati", latitude: 20.0063, longitude: 73.7905, title: "Panchavati — Crowd: HIGH", severity: "HIGH" as const, type: "zone" as const },
-  { id: "trimbak", latitude: 19.9325, longitude: 73.5311, title: "Trimbakeshwar — Moderate", severity: "MEDIUM" as const, type: "zone" as const },
-  { id: "godavari", latitude: 19.9982, longitude: 73.7900, title: "Godavari Ghat — HIGH", severity: "HIGH" as const, type: "zone" as const },
-  { id: "kushavarta", latitude: 19.9358, longitude: 73.5289, title: "Kushavarta — Low", severity: "LOW" as const, type: "zone" as const },
+  { id: "z-central", latitude: 22.7196, longitude: 75.8577, title: "Central District — HIGH", severity: "CRITICAL" as const, type: "zone" as const },
+  { id: "z-east", latitude: 22.7240, longitude: 75.8650, title: "East Sector — HIGH", severity: "HIGH" as const, type: "zone" as const },
+  { id: "z-west", latitude: 22.7150, longitude: 75.8450, title: "West Sector — Moderate", severity: "MEDIUM" as const, type: "zone" as const },
+  { id: "z-north", latitude: 22.7300, longitude: 75.8550, title: "North Zone — HIGH", severity: "HIGH" as const, type: "zone" as const },
+  { id: "z-south", latitude: 22.7050, longitude: 75.8500, title: "South Zone — Low", severity: "LOW" as const, type: "zone" as const },
 ];
 
 const MEDICAL_POINTS = [
-  { id: "mc01", latitude: 20.0075, longitude: 73.7888, title: "MC-01 Civil Hospital", severity: "MEDIUM" as const, type: "hospital" as const },
-  { id: "mc02", latitude: 20.0042, longitude: 73.7920, title: "MC-02 Ramkund Camp", severity: "HIGH" as const, type: "camp" as const },
-  { id: "mc03", latitude: 19.9970, longitude: 73.7915, title: "MC-03 Godavari Camp", severity: "MEDIUM" as const, type: "camp" as const },
-  { id: "mc04", latitude: 20.0090, longitude: 73.7860, title: "MC-04 Panchavati Aid", severity: "LOW" as const, type: "camp" as const },
+  { id: "mc01", latitude: 22.7220, longitude: 75.8520, title: "District Hospital", severity: "MEDIUM" as const, type: "hospital" as const },
+  { id: "mc02", latitude: 22.7180, longitude: 75.8600, title: "Field Medical Unit A", severity: "HIGH" as const, type: "camp" as const },
+  { id: "mc03", latitude: 22.7130, longitude: 75.8560, title: "Field Medical Unit B", severity: "MEDIUM" as const, type: "camp" as const },
+  { id: "mc04", latitude: 22.7260, longitude: 75.8480, title: "Primary Health Centre", severity: "LOW" as const, type: "camp" as const },
 ];
 
 const AMBULANCE_POINTS = [
-  { id: "amb01", latitude: 20.0050, longitude: 73.7870, title: "AMB-01 — Available", severity: "LOW" as const, type: "ambulance" as const },
-  { id: "amb08", latitude: 20.0035, longitude: 73.7930, title: "AMB-08 — En Route", severity: "HIGH" as const, type: "ambulance" as const },
-  { id: "amb12", latitude: 20.0080, longitude: 73.7850, title: "AMB-12 — Available", severity: "LOW" as const, type: "ambulance" as const },
+  { id: "amb01", latitude: 22.7200, longitude: 75.8490, title: "AMB-01 — Available", severity: "LOW" as const, type: "ambulance" as const },
+  { id: "amb08", latitude: 22.7160, longitude: 75.8620, title: "AMB-08 — En Route", severity: "HIGH" as const, type: "ambulance" as const },
+  { id: "amb12", latitude: 22.7250, longitude: 75.8470, title: "AMB-12 — Available", severity: "LOW" as const, type: "ambulance" as const },
 ];
 
 export default function LiveMapPage() {
@@ -89,9 +89,9 @@ export default function LiveMapPage() {
           <div>
             <h1 className="text-sm font-display font-bold text-white flex items-center gap-2">
               <Layers className="w-4 h-4 text-primary-500" />
-              Live Kumbh Map
+              Live Situation Map
             </h1>
-            <p className="text-[9px] text-ink-400 font-mono">{enabledLayers.length} layers active • [SIMULATION]</p>
+            <p className="text-[9px] text-ink-400 font-mono">{enabledLayers.length} layers active • [DEMO]</p>
           </div>
         </div>
         <button
@@ -135,8 +135,8 @@ export default function LiveMapPage() {
       {/* ═══════ MAP ═══════ */}
       <div className="flex-1 relative">
         <DynamicMap
-          center={[20.0050, 73.7900]}
-          zoom={14}
+          center={[22.7196, 75.8577]}
+          zoom={13}
           points={getActivePoints()}
           className="h-full w-full"
           onPointClick={(point) => setSelectedZone(point.id)}
@@ -145,7 +145,7 @@ export default function LiveMapPage() {
         {/* Live Indicator */}
         <div className="absolute top-3 left-3 z-10 px-3 py-1.5 rounded-lg bg-ink-950/80 backdrop-blur border border-ink-800 text-xs font-mono text-white flex items-center gap-2">
           <span className="live-dot" style={{ width: 6, height: 6 }} />
-          LIVE • Nashik Kumbh
+          LIVE • Situation Map [DEMO]
         </div>
 
         {/* Zone count badge */}

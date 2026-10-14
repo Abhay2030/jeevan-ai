@@ -44,7 +44,7 @@ const AMBULANCE: AmbulanceInfo = {
 /* ─── Progress Steps for SOS Sequence ─── */
 const SOS_STEPS = [
   { label: "Finding your location...", icon: MapPin, delay: 800 },
-  { label: "Identifying Kumbh Zone — Ramkund", icon: Activity, delay: 1200 },
+  { label: "Identifying Local Zone", icon: Activity, delay: 1200 },
   { label: "Alerting Command Center...", icon: Radio, delay: 1000 },
   { label: "Assigning nearest Ambulance...", icon: Ambulance, delay: 1200 },
   { label: "Notifying Family & Emergency Contacts", icon: Users, delay: 800 },
@@ -106,7 +106,7 @@ export default function SOSPage() {
     // Tracking phase
     setTimeout(() => {
       setPhase("tracking");
-      setTimeline(prev => [...prev, { time: now(), label: "Hospital Pre-Notified — Civil Hospital Nashik", icon: Hospital, done: true }]);
+      setTimeline(prev => [...prev, { time: now(), label: "Hospital Pre-Notified — Nearest Available Hospital", icon: Hospital, done: true }]);
     }, totalDelay + 2000);
   }, []);
 
@@ -254,7 +254,7 @@ export default function SOSPage() {
         </div>
 
         <p className="mt-10 text-xs text-ink-200 text-center max-w-xs">
-          This will share your location, identify your Kumbh zone, alert emergency services, assign an ambulance, and notify your trusted contacts.
+          This will share your location, identify your zone, alert emergency services, assign an ambulance, and notify your trusted contacts.
         </p>
 
         <a href="tel:112" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-alert-600 hover:text-alert-700 transition-colors">
@@ -270,7 +270,7 @@ export default function SOSPage() {
   const phaseLabel = (() => {
     switch (phase) {
       case "locating": return "Finding Location...";
-      case "zone": return "Identifying Kumbh Zone...";
+      case "zone": return "Identifying Zone...";
       case "alerting": return "Alerting Command Center...";
       case "assigning": return "Assigning Ambulance...";
       case "notifying": return "Notifying Family...";
@@ -360,7 +360,7 @@ export default function SOSPage() {
               <Hospital className="w-6 h-6 text-primary-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-display font-bold text-ink-900 text-sm">Civil Hospital Nashik</h3>
+              <h3 className="font-display font-bold text-ink-900 text-sm">Nearest Available Hospital</h3>
               <p className="text-xs text-ink-300 mt-0.5">2.4 km • ICU Available • Blood Bank Active</p>
             </div>
             <ChevronRight className="w-5 h-5 text-ink-200 shrink-0" />

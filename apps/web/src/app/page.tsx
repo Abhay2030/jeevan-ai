@@ -3,11 +3,12 @@ import {
   Shield, Activity, Brain, MapPin, Clock, Heart,
   Phone, Users, Zap, ChevronRight, ArrowRight,
   Siren, Hospital, Ambulance, Radio, AlertTriangle,
-  CheckCircle2, Star, BadgeCheck, Globe
+  CheckCircle2, Star, Globe
 } from "lucide-react";
 
 /* ─── Tiny inline components (no separate files needed) ─── */
 import { HeroVideoModal } from "../components/HeroVideoModal";
+import { Footer } from "../components/Footer";
 
 function Navbar() {
   return (
@@ -83,80 +84,7 @@ function StepItem({ num, title, desc, icon: Icon }: { num: string; title: string
   );
 }
 
-function Footer() {
-  return (
-    <footer className="bg-ink-950 text-ink-200 py-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-display font-bold text-white">JEEVAN AI</span>
-            </div>
-            <p className="text-sm text-ink-300 leading-relaxed">
-              Official AI-powered Emergency Response Platform for Nashik Kumbh Mela 2027.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-display font-semibold text-white mb-4 text-sm">Platform</h4>
-            <ul className="space-y-2.5 text-sm text-ink-300">
-              <li><Link href="/emergency" className="hover:text-primary-400 transition-colors">Emergency Help</Link></li>
-              <li><Link href="/disaster" className="text-alert-400 hover:text-alert-300 font-bold transition-colors">Disaster Mode</Link></li>
-              <li><Link href="/volunteer" className="hover:text-primary-400 transition-colors">Volunteer Network</Link></li>
-              <li><Link href="/hospitals" className="hover:text-primary-400 transition-colors">Find Hospital</Link></li>
-              <li><Link href="/first-aid" className="hover:text-primary-400 transition-colors">First Aid Guide</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-display font-semibold text-white mb-4 text-sm">Portals</h4>
-            <ul className="space-y-2.5 text-sm text-ink-300">
-              <li><Link href="/login" className="hover:text-primary-400 transition-colors">Responder Login</Link></li>
-              <li><Link href="/login" className="hover:text-primary-400 transition-colors">Command Center</Link></li>
-              <li><Link href="/login" className="hover:text-primary-400 transition-colors">Admin Portal</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-display font-semibold text-white mb-4 text-sm">Contact</h4>
-            <ul className="space-y-2.5 text-sm text-ink-300">
-              <li>Emergency: <span className="text-alert-400 font-semibold">112</span></li>
-              <li>Ambulance: <span className="text-alert-400 font-semibold">108</span></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-ink-800 pt-10 mt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Left side: Terms & Mission */}
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <h4 className="font-display font-semibold text-white text-sm">JEEVAN AI • Nashik Simhastha Kumbh Mela 2027</h4>
-                <p className="text-primary-400 font-medium text-sm">Protect Every Pilgrim. Predict Every Risk. Respond Before It&apos;s Too Late.</p>
-              </div>
-              <div className="text-xs text-ink-400 leading-relaxed max-w-lg space-y-2">
-                <p><strong className="text-ink-300">Website Terms Notice:</strong> All content, designs, source code, graphics, documentation, and branding used in JEEVAN AI are protected by applicable copyright laws.</p>
-                <p>The &quot;JEEVAN AI&quot; name, visual identity, and project materials are intended solely for this project and may not be reproduced or used for commercial purposes without permission from Abhay Sachin Donde.</p>
-              </div>
-            </div>
 
-            {/* Right side: Copyright & Credits */}
-            <div className="flex flex-col lg:items-end justify-between space-y-6 lg:space-y-0">
-              <div className="flex items-center gap-1.5 text-xs text-ink-400">
-                <BadgeCheck className="w-4 h-4 text-primary-500" />
-                WCAG 2.1 AA Compliant
-              </div>
-              <div className="text-left lg:text-right space-y-1.5">
-                <p className="text-sm text-ink-300 font-medium">Built with ❤️ in India by Abhay Sachin Donde</p>
-                <p className="text-xs text-ink-500">&copy; 2026 JEEVAN AI. Designed and Developed by Abhay Sachin Donde.</p>
-                <p className="text-xs text-ink-500">Copyright &copy; 2026 Abhay Sachin Donde. All Rights Reserved.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 /* ─── Main Landing Page ─── */
 
@@ -173,16 +101,16 @@ export default function HomePage() {
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center py-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-200 text-primary-700 text-sm font-medium mb-8 animate-fade-in-down">
             <Zap className="w-4 h-4" />
-            Official Platform • Nashik Kumbh Mela 2027
+            National Platform • AI-Powered Emergency Intelligence
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight text-ink-900 mb-6 animate-fade-in-up">
-            Kumbh Mela{" "}
-            <span className="text-gradient-hero">Safe & Secure.</span>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight text-ink-900 mb-6 animate-fade-in-up">
+            See the Risk. Predict the Need.{" "}
+            <span className="text-gradient-hero block sm:inline">Move the Help.</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-ink-300 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up delay-200" style={{ animationFillMode: "both" }}>
-            The AI-powered public health platform designed to protect 150M+ pilgrims. We see the risk, predict the need, and move the help — before it&apos;s too late.
+            Every Life Matters. An AI-powered national public health and emergency response platform engineered to forecast medical surges, coordinate rapid triage, and dispatch help before it&apos;s too late.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-400" style={{ animationFillMode: "both" }}>
@@ -200,7 +128,7 @@ export default function HomePage() {
           <div className="mt-16 flex flex-wrap justify-center gap-6 sm:gap-10 text-xs text-ink-300 font-medium animate-fade-in delay-600" style={{ animationFillMode: "both" }}>
             <div className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-primary-500" /> Government Ready</div>
             <div className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-primary-500" /> Multi-Language</div>
-            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-primary-500" /> WCAG AA</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-primary-500" /> WCAG 2.2 AA</div>
             <div className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-primary-500" /> Offline-First</div>
           </div>
         </div>
@@ -211,11 +139,21 @@ export default function HomePage() {
 
       {/* ══════ STATISTICS ══════ */}
       <section id="safety" className="py-20 px-4 bg-paper-50">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
-          <StatCounter value="150M" suffix="+" label="Expected Pilgrims" />
-          <StatCounter value="12" suffix="" label="Active Sectors" />
-          <StatCounter value="10K" suffix="+" label="Active Volunteers" />
-          <StatCounter value="12" suffix="+" label="Languages Supported" />
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+              National Architecture &bull; Designed For Scale Across India
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
+            <StatCounter value="740" suffix="+" label="Districts (Design Scope)" />
+            <StatCounter value="36" suffix="" label="States & UTs Scope" />
+            <StatCounter value="24/7" suffix="" label="AI-Powered Predictions" />
+            <StatCounter value="12" suffix="+" label="Multi-Language Support" />
+          </div>
+          <p className="text-center text-xs text-ink-400 mt-8">
+            Platform architecture targets for pan-India healthcare resiliency and emergency interoperability.
+          </p>
         </div>
       </section>
 
@@ -232,13 +170,13 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FeatureCard icon={Siren} title="One-Tap SOS" desc="Giant emergency button with instant location capture. Help arrives in under 4 minutes." />
+            <FeatureCard icon={Siren} title="One-Tap SOS" desc="Giant emergency button with instant location capture. Direct connection and rapid dispatch coordination." />
             <FeatureCard icon={Hospital} title="Smart Hospital Finder" desc="AI recommends the best hospital — not just the closest. ICU, blood bank, and specialist availability." />
             <FeatureCard icon={Brain} title="AI Triage Assistant" desc="Conversational medical assistant in Hindi, English, and Marathi. Guides you calmly through emergencies." />
             <FeatureCard icon={Heart} title="Blood Donor Network" desc="Urgent blood request matching. Find verified donors within minutes based on blood group and proximity." />
             <FeatureCard icon={Users} title="Family Safety Circle" desc="Real-time family status dashboard. Automatic emergency timelines and trusted contact alerts." />
-            <FeatureCard icon={Shield} title="Volunteer Network" desc="A verified network of 10,000+ local guardians ready to assist with crowds and first aid." />
-            <FeatureCard icon={Activity} title="Kumbh Pulse AI" desc="Live situational awareness dashboard predicting crowd surges and medical hotspots." />
+            <FeatureCard icon={Shield} title="Volunteer Network" desc="A verified network of community guardians ready to assist during emergencies." />
+            <FeatureCard icon={Activity} title="Situation Pulse AI" desc="Live situational awareness predicting regional risks and medical demand." />
           </div>
         </div>
       </section>
@@ -277,11 +215,11 @@ export default function HomePage() {
                 Predict. Prevent. Protect.
               </h2>
               <p className="text-ink-300 leading-relaxed mb-8">
-                JEEVAN AI doesn&apos;t just react to emergencies — it predicts them. By analyzing crowd density, weather patterns, and historical incident data, the platform deploys resources before crises unfold.
+                JEEVAN AI doesn&apos;t just react to emergencies — it predicts them. By analyzing regional health signals, environmental conditions, and historical incident patterns, the platform deploys resources before crises unfold.
               </p>
               <div className="space-y-4">
                 {[
-                  { icon: Activity, text: "Real-time crowd density monitoring" },
+                  { icon: Activity, text: "Real-time risk & medical surge monitoring" },
                   { icon: AlertTriangle, text: "Anomaly detection with early warnings" },
                   { icon: Radio, text: "Automated resource redeployment" },
                   { icon: Star, text: "Explainable AI with human-in-the-loop safety" },
@@ -301,8 +239,8 @@ export default function HomePage() {
                 <Brain className="w-4 h-4" />
                 AI RECOMMENDATION
               </div>
-              <h3 className="text-lg font-display font-bold mb-2">Zone C Risk Increasing</h3>
-              <p className="text-sm text-ink-200 mb-5">Crowd density rising 23% in 15 min. Incident frequency +40%. Heat conditions worsening.</p>
+              <h3 className="text-lg font-display font-bold mb-2">Sector 4 Risk Escalation</h3>
+              <p className="text-sm text-ink-200 mb-5">Emergency call rate rising 23% in 15 min. Incident frequency +40%. Heat and stress conditions worsening.</p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-ink-300">Confidence</span>
@@ -334,7 +272,7 @@ export default function HomePage() {
           </p>
           <div className="grid sm:grid-cols-3 gap-8">
             {[
-              { icon: Shield, title: "Security First", desc: "End-to-end encryption, SOC 2 compliance, zero-trust architecture" },
+              { icon: Shield, title: "Security First", desc: "End-to-end encryption, security-first architecture, zero-trust design" },
               { icon: Globe, title: "12+ Languages", desc: "Hindi, English, Marathi, Tamil, Bengali, and more regional languages" },
               { icon: Zap, title: "Offline-First", desc: "SMS SOS, cached maps, offline first-aid — works without internet" },
             ].map(({ icon: I, title, desc }) => (
@@ -355,7 +293,7 @@ export default function HomePage() {
             Ready to Save Lives?
           </h2>
           <p className="text-ink-300 max-w-lg mx-auto mb-10 leading-relaxed">
-            JEEVAN AI is live and ready. Whether you need emergency help or want to join as a responder — every second matters.
+            JEEVAN AI is designed to save lives across India. Whether you need emergency help or want to join as a responder — every second matters.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/emergency" className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-alert-600 text-white font-display font-semibold text-lg shadow-lg shadow-alert-600/25 hover:bg-alert-700 transition-all gap-2">

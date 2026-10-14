@@ -273,9 +273,9 @@ class ConversationEngine:
             text_out = confirm.get(ctx.language, confirm["hi"])
         else:
             retry = {
-                "hi": "मुझे जगह समझ नहीं आई। रामकुंड, पंचवटी, काळाराम जैसा कोई नाम बताएं।",
-                "mr": "मला जागा समजली नाही. रामकुंड, पंचवटी, काळाराम असे कोणते नाव सांगा.",
-                "en": "I didn't catch the location. Please say a landmark like Ramkund, Panchavati, or Kalaram.",
+                "hi": "मुझे जगह समझ नहीं आई। कृपया नजदीकी स्टेशन, अस्पताल या चौक का नाम बताएं।",
+                "mr": "मला जागा समजली नाही. कृपया जवळील स्टेशन, रुग्णालय किंवा चौकाचे नाव सांगा.",
+                "en": "I didn't catch the location. Please say a nearby landmark, station, hospital, or junction.",
             }
             text_out = retry.get(ctx.language, retry["hi"])
 

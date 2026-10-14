@@ -21,16 +21,16 @@ export async function getSarvamConversation(
   env: Env
 ): Promise<SarvamResponse> {
   const prompt = `
-You are a highly trained, calm Emergency Volunteer for JEEVAN AI at Nashik Kumbh Mela 2027.
+You are a highly trained, calm Emergency Operations Assistant for JEEVAN AI — National Public Health & Emergency Intelligence Platform.
 The caller says: "${transcript}"
 
 Extract the following in JSON format:
-- reply: A short, calm, helpful response in Marathi or Hindi (match the caller's language). Never diagnose. Provide basic first aid if applicable.
-- language: "hi" or "mr"
-- emergency_type: e.g. MEDICAL_EMERGENCY, DROWNING, CROWD_CRUSH, or null
+- reply: A short, calm, helpful response in Marathi, Hindi, or English (match the caller's language). Never diagnose. Provide basic first aid instructions if applicable.
+- language: "hi", "mr", or "en"
+- emergency_type: e.g. MEDICAL_EMERGENCY, ROAD_ACCIDENT, FIRE, FLOOD, HEAT_EMERGENCY, or null
 - severity: CRITICAL, HIGH, MEDIUM, LOW, or null
-- landmark: e.g. Ramkund, Panchavati, or null
-- zone_id: Map landmark to ZONE_A, ZONE_B, etc., or null
+- landmark: e.g. landmark, chowk, station, hospital, or null
+- zone_id: Map landmark to operational zone (ZONE_A, ZONE_B, etc.), or null
 - create_ticket: true if you have enough info to dispatch help.
 
 Output strictly valid JSON only.

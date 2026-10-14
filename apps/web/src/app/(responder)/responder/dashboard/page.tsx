@@ -21,7 +21,7 @@ export default function ResponderDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"queue" | "map">("queue");
 
-  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik
+  const defaultCenter: [number, number] = [22.5937, 78.9629]; // Operational Center
 
   useEffect(() => {
     async function fetchIncidents() {

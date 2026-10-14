@@ -13,12 +13,12 @@ export default function SmartCorridors() {
   const [activeCorridor, setActiveCorridor] = useState<string>("c1");
   const [isRouting, setIsRouting] = useState(true);
 
-  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik
+  const defaultCenter: [number, number] = [22.7196, 75.8577]; // Central Grid Sector
 
   const corridors = [
-    { id: "c1", name: "Alpha Corridor", from: "Godavari Ghat", to: "Civil Hospital", eta: "4m 12s", status: "optimal", traffic: "low" },
-    { id: "c2", name: "Bravo Corridor", from: "Trimbakeshwar", to: "Base Camp A", eta: "12m 45s", status: "degraded", traffic: "high" },
-    { id: "c3", name: "Charlie Corridor", from: "Ramkund", to: "Sector 4 Med", eta: "8m 30s", status: "rerouting", traffic: "blocked" },
+    { id: "c1", name: "Corridor Alpha (North-South)", from: "North Transit Hub", to: "District Civil Hospital", eta: "4m 12s", status: "optimal", traffic: "low" },
+    { id: "c2", name: "Corridor Bravo (East Radial)", from: "East Sector Complex", to: "Metropolitan Trauma Centre", eta: "12m 45s", status: "degraded", traffic: "high" },
+    { id: "c3", name: "Corridor Charlie (Central Ring)", from: "Central Gathering Sector", to: "Apex Medical Unit", eta: "8m 30s", status: "rerouting", traffic: "blocked" },
   ];
 
   return (

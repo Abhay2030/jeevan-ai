@@ -22,9 +22,9 @@ const mockDonors: Donor[] = [
 
 interface BloodRequest { id: string; group: string; hospital: string; urgency: "CRITICAL" | "URGENT" | "NEEDED"; distance: string; timeLeft: string; }
 const mockRequests: BloodRequest[] = [
-  { id: "req1", group: "O+", hospital: "Civil Hospital Nashik", urgency: "CRITICAL", distance: "2.4 km", timeLeft: "45 min" },
-  { id: "req2", group: "AB-", hospital: "District Hospital", urgency: "URGENT", distance: "3.1 km", timeLeft: "2 hrs" },
-  { id: "req3", group: "B+", hospital: "Apollo Hospitals Nashik", urgency: "NEEDED", distance: "4.8 km", timeLeft: "6 hrs" },
+  { id: "req1", group: "O+", hospital: "District Civil Hospital", urgency: "CRITICAL", distance: "2.4 km", timeLeft: "45 min" },
+  { id: "req2", group: "AB-", hospital: "Metropolitan Hospital", urgency: "URGENT", distance: "3.1 km", timeLeft: "2 hrs" },
+  { id: "req3", group: "B+", hospital: "City Multi-Specialty Hospital", urgency: "NEEDED", distance: "4.8 km", timeLeft: "6 hrs" },
 ];
 
 export default function BloodNetwork() {
@@ -52,7 +52,7 @@ export default function BloodNetwork() {
             </Link>
             <div>
               <h1 className="text-lg font-display font-bold text-ink-900 leading-tight">Blood Network</h1>
-              <p className="text-[10px] text-ink-400 font-mono">Nashik Kumbh District</p>
+              <p className="text-[10px] text-ink-400 font-mono">National Emergency Network [DEMO]</p>
             </div>
           </div>
           <div className="w-9 h-9 flex items-center justify-center">
@@ -171,7 +171,7 @@ export default function BloodNetwork() {
             
             {/* Map View */}
             <div className="w-full h-48 rounded-xl overflow-hidden border border-paper-300 mb-4 shrink-0 relative">
-               <DynamicMap center={[20.0050, 73.7900]} zoom={13} points={mapPoints} theme="light" />
+               <DynamicMap center={[22.7196, 75.8577]} zoom={13} points={mapPoints} theme="light" />
                <div className="absolute top-2 right-2 px-2 py-1 bg-white/90 backdrop-blur rounded text-[10px] font-bold text-ink-600 shadow-sm border border-paper-200">
                  Within 5 km
                </div>

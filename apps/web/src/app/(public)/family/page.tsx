@@ -21,16 +21,16 @@ interface FamilyMember {
 }
 
 const family: FamilyMember[] = [
-  { id: "1", name: "Papa", status: "safe", location: "Home — Panchavati", battery: 78, lastSeen: "2 min ago", avatar: "👨", lat: 20.0070, lng: 73.7915 },
-  { id: "2", name: "Mummy", status: "safe", location: "Ramkund Ghat Area", battery: 45, lastSeen: "5 min ago", avatar: "👩", lat: 20.0059, lng: 73.7903 },
-  { id: "3", name: "Dadi", status: "offline", location: "Last: Home — Panchavati", battery: 12, lastSeen: "35 min ago", avatar: "👵", lat: 20.0070, lng: 73.7915 },
-  { id: "4", name: "Bhai", status: "safe", location: "Trimbakeshwar Temple", battery: 92, lastSeen: "Just now", avatar: "👦", lat: 19.9325, lng: 73.5311 },
+  { id: "1", name: "Papa", status: "safe", location: "Home — East Sector", battery: 78, lastSeen: "2 min ago", avatar: "👨", lat: 22.7240, lng: 75.8650 },
+  { id: "2", name: "Mummy", status: "safe", location: "Central Market Area", battery: 45, lastSeen: "5 min ago", avatar: "👩", lat: 22.7196, lng: 75.8577 },
+  { id: "3", name: "Dadi", status: "offline", location: "Last: Home — East Sector", battery: 12, lastSeen: "35 min ago", avatar: "👵", lat: 22.7240, lng: 75.8650 },
+  { id: "4", name: "Bhai", status: "safe", location: "North Transit Hub", battery: 92, lastSeen: "Just now", avatar: "👦", lat: 22.7300, lng: 75.8550 },
 ];
 
 const timeline = [
-  { time: "10:15 AM", text: "Mummy arrived at Ramkund Ghat Area", type: "info" },
+  { time: "10:15 AM", text: "Mummy checked in at Central Market Area", type: "info" },
   { time: "10:02 AM", text: "Dadi's phone went offline (low battery)", type: "warning" },
-  { time: "09:45 AM", text: "Bhai checked in at Trimbakeshwar Temple", type: "info" },
+  { time: "09:45 AM", text: "Bhai checked in at North Transit Hub", type: "info" },
   { time: "09:30 AM", text: "All family members marked safe", type: "success" },
 ];
 

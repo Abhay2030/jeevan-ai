@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'gov.in.jeevanai.kumbh',
-  appName: 'Jeevan AI - Kumbh 2027',
+  appId: 'in.jeevanai.app',
+  appName: 'JEEVAN AI',
   webDir: 'out',
   bundledWebRuntime: false,
   server: {

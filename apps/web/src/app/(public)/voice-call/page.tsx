@@ -254,13 +254,13 @@ export default function VoiceCallPage() {
       setTimeout(() => {
         const lower = text.toLowerCase();
         const isEmergency = ["gir", "padla", "help", "emergency", "bachao", "madad", "blood", "pain", "fire", "aag", "doob", "behosh", "missing", "kho", "chot", "accident"].some(k => lower.includes(k));
-        const hasLandmark = ["ramkund", "panchavati", "kalaram", "godavari", "tapovan", "trimbak", "kushavart", "ghat", "mandir", "temple"].some(k => lower.includes(k));
+        const hasLandmark = ["station", "hospital", "chowk", "market", "gate", "road", "temple", "mandir", "nagar", "sector", "bridge", "circle", "junction"].some(k => lower.includes(k));
 
         if (isEmergency && !emergencyType) {
           setEmergencyType("MEDICAL_EMERGENCY");
           setSeverity("CRITICAL");
           if (hasLandmark) {
-            const lm = lower.includes("ramkund") ? "Ramkund" : lower.includes("panchavati") ? "Panchavati" : lower.includes("kalaram") ? "Kalaram Temple" : "Godavari Ghats";
+            const lm = lower.includes("station") ? "Railway Station" : lower.includes("hospital") ? "Civil Hospital" : lower.includes("market") ? "Main Market Chowk" : "Central Sector Hub";
             setLandmark(lm);
             agentReply(language === "mr"
               ? `मला समजले. वैद्यकीय आणीबाणी — ${lm} जवळ. ते शुद्धीवर आहेत का? किती लोक प्रभावित आहेत?`
@@ -269,13 +269,13 @@ export default function VoiceCallPage() {
               : `मुझे समझ आ गया। चिकित्सा आपातकाल — ${lm} के पास। क्या वे होश में हैं? कितने लोग प्रभावित हैं?`);
           } else {
             agentReply(language === "mr"
-              ? "मला समजले — वैद्यकीय आणीबाणी. तुम्ही कुठे आहात? कोणते मंदिर, घाट किंवा जागेचे नाव सांगा."
+              ? "मला समजले — वैद्यकीय आणीबाणी. तुम्ही कुठे आहात? जवळचे चौक, स्थानक, रुग्णालय किंवा जागेचे नाव सांगा."
               : language === "en"
-              ? "I understand — Medical Emergency. Where are you? Tell me the nearest temple, ghat, or landmark."
-              : "मुझे समझ आ गया — चिकित्सा आपातकाल। आप कहाँ हैं? कोई मंदिर, घाट या जगह का नाम बताएं।");
+              ? "I understand — Medical Emergency. Where are you? Tell me the nearest landmark, chowk, station, or hospital."
+              : "मुझे समझ आ गया — चिकित्सा आपातकाल। आप कहाँ हैं? नज़दीकी चौक, स्टेशन, अस्पताल या लैंडमार्क बताएं।");
           }
         } else if (emergencyType && !landmark && hasLandmark) {
-          const lm = lower.includes("ramkund") ? "Ramkund" : lower.includes("panchavati") ? "Panchavati" : "Godavari Ghats";
+          const lm = lower.includes("station") ? "Railway Station" : lower.includes("hospital") ? "Civil Hospital" : "Central Sector Hub";
           setLandmark(lm);
           agentReply(language === "mr"
             ? `ठीक आहे, ${lm} जवळ. ते शुद्धीवर आहेत का?`

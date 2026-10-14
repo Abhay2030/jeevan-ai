@@ -16,7 +16,7 @@ const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod
 
 export default function VolunteerNetwork() {
   const [formStep, setFormStep] = useState<"intro" | "register" | "registered">("intro");
-  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik Ramkund
+  const defaultCenter: [number, number] = [22.7196, 75.8577]; // Central Operational Sector
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-paper-50 font-body" data-theme="paper">
@@ -31,7 +31,7 @@ export default function VolunteerNetwork() {
             <Users className="w-5 h-5 text-primary-600" />
             Volunteer Network
           </h1>
-          <p className="text-xs text-ink-400 font-medium">Nashik Kumbh Mela 2027</p>
+          <p className="text-xs text-ink-400 font-medium">National Emergency Volunteer Network</p>
         </div>
       </header>
 
@@ -45,9 +45,9 @@ export default function VolunteerNetwork() {
               <div className="w-20 h-20 bg-primary-50 rounded-full flex items-center justify-center mb-6 shadow-glow-primary">
                 <Shield className="w-10 h-10 text-primary-600" />
               </div>
-              <h2 className="text-3xl font-display font-bold text-ink-900 mb-4">Become a Kumbh Mela Guardian</h2>
+              <h2 className="text-3xl font-display font-bold text-ink-900 mb-4">Become an Emergency Guardian</h2>
               <p className="text-ink-300 max-w-md mx-auto mb-10 leading-relaxed text-sm sm:text-base">
-                Join a network of verified volunteers helping millions of pilgrims stay safe. Whether you have medical training, know the local area, or just want to help manage crowds, every pair of hands matters.
+                Join a network of verified volunteers helping communities stay safe during emergencies and large public gatherings. Whether you have medical training, know the local area, or want to assist with first aid, every pair of hands matters.
               </p>
 
               <div className="w-full max-w-md space-y-4 text-left mb-10">
@@ -62,7 +62,7 @@ export default function VolunteerNetwork() {
                   <div className="p-2 bg-white rounded-lg shadow-sm shrink-0"><Navigation className="w-5 h-5 text-accent-500" /></div>
                   <div>
                     <h3 className="font-bold text-ink-900 text-sm">Local Guide</h3>
-                    <p className="text-xs text-ink-400 mt-1">Help redirect crowds and assist lost pilgrims with Nashik terrain.</p>
+                    <p className="text-xs text-ink-400 mt-1">Help redirect crowds and assist lost citizens with local civic terrain and landmark directions.</p>
                   </div>
                 </div>
               </div>
@@ -119,7 +119,7 @@ export default function VolunteerNetwork() {
                     Submit Registration <ChevronRight className="w-5 h-5" />
                   </button>
                   <p className="text-[10px] text-center text-ink-400 mt-4 leading-relaxed">
-                    By registering, you agree to be deployed strictly under the command of the Nashik Police and NDRF guidelines.
+                    By registering, you agree to be deployed strictly under the guidance of authorized incident coordinators.
                   </p>
                 </div>
               </form>
@@ -133,12 +133,12 @@ export default function VolunteerNetwork() {
                 <CheckCircle2 className="w-12 h-12 text-success-500 relative z-10" />
               </div>
               <h2 className="text-3xl font-display font-bold text-ink-900 mb-2">You Are On Duty</h2>
-              <p className="text-ink-400 font-medium mb-8">Verified as Guardian ID: #NSK-4921</p>
+              <p className="text-ink-400 font-medium mb-8">Verified as Guardian ID: #GRD-4921</p>
               
               <div className="w-full max-w-sm bg-paper-50 border border-paper-200 rounded-2xl p-5 mb-8 text-left relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-2 h-full bg-success-500" />
                 <h3 className="font-bold text-ink-900 text-sm flex items-center gap-2 mb-2">
-                  <MapPin className="w-4 h-4 text-ink-400" /> Assigned Sector: Ramkund
+                  <MapPin className="w-4 h-4 text-ink-400" /> Assigned Sector: Central Sector 4
                 </h3>
                 <p className="text-xs text-ink-400">Please remain in your zone. AI Command Center will ping you with a Push Notification if an incident occurs nearby.</p>
               </div>
@@ -172,14 +172,14 @@ export default function VolunteerNetwork() {
                 <div className="flex items-center gap-2 text-alert-700 font-bold text-sm mb-1">
                   <HeartPulse className="w-4 h-4" /> Medical Need
                 </div>
-                <p className="text-xs text-alert-600 mb-2">CPR trained volunteers required at Tapovan Gate 4.</p>
+                <p className="text-xs text-alert-600 mb-2">CPR trained volunteers requested at Sector B Medical Post.</p>
                 <div className="text-[10px] font-bold text-alert-500 uppercase">300m Away</div>
               </div>
               <div className="p-3 bg-accent-50 border border-accent-100 rounded-lg">
                 <div className="flex items-center gap-2 text-accent-700 font-bold text-sm mb-1">
                   <AlertTriangle className="w-4 h-4" /> Crowd Assist
                 </div>
-                <p className="text-xs text-accent-600 mb-2">Crowd marshals needed to guide pilgrims at Trimbak Road.</p>
+                <p className="text-xs text-accent-600 mb-2">Crowd marshals needed to assist pedestrian flow at Main Transit Junction.</p>
                 <div className="text-[10px] font-bold text-accent-500 uppercase">1.2km Away</div>
               </div>
             </div>

@@ -56,8 +56,8 @@ app = FastAPI(
     version=settings.APP_VERSION,
     description=(
         "AI Emergency Calling Agent for JEEVAN AI — "
-        "Nashik Simhastha Kumbh Mela 2027. "
-        "Provides voice-based emergency assistance in Marathi and Hindi."
+        "National Public Health & Emergency Intelligence Platform. "
+        "Provides multilingual voice-based emergency assistance across Indian languages."
     ),
     docs_url="/api/docs",
     redoc_url="/api/redoc",

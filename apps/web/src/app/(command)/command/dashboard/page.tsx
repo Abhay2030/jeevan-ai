@@ -24,7 +24,7 @@ export default function CommandCenterDashboard() {
   const [liveIncidents, setLiveIncidents] = useState<unknown[]>([]);
   const [densityMetrics, setDensityMetrics] = useState<CrowdDensityPrediction[]>([]);
 
-  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Nashik
+  const defaultCenter: [number, number] = [22.5937, 78.9629]; // India Center
 
   useEffect(() => {
     if (lastMessage) {
@@ -49,9 +49,9 @@ export default function CommandCenterDashboard() {
 
   // Use simulation data if no real data
   const mockDensity: CrowdDensityPrediction[] = [
-    { sector_id: "Ramkund (Z1)", current_density: 45000, predicted_density_15m: 52000, threshold: 50000, status: "critical" },
-    { sector_id: "Panchavati (Z2)", current_density: 28000, predicted_density_15m: 31000, threshold: 40000, status: "warning" },
-    { sector_id: "Trimbakeshwar (Z3)", current_density: 15000, predicted_density_15m: 16000, threshold: 30000, status: "safe" },
+    { sector_id: "Zone Alpha (Z1)", current_density: 45000, predicted_density_15m: 52000, threshold: 50000, status: "critical" },
+    { sector_id: "Zone Bravo (Z2)", current_density: 28000, predicted_density_15m: 31000, threshold: 40000, status: "warning" },
+    { sector_id: "Zone Charlie (Z3)", current_density: 15000, predicted_density_15m: 16000, threshold: 30000, status: "safe" },
   ];
   
   const displayMetrics = densityMetrics.length > 0 ? densityMetrics : mockDensity;
@@ -69,7 +69,10 @@ export default function CommandCenterDashboard() {
           <div className="flex items-center gap-2 text-[10px] font-mono">
             <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-success-500 animate-sos-pulse" : "bg-alert-500"}`} />
             <span className={isConnected ? "text-success-400 font-bold tracking-wider" : "text-alert-400 font-bold tracking-wider"}>
-              {isConnected ? "SATCOM LINK ACTIVE" : "LINK OFFLINE"}
+              {isConnected ? "DATA LINK ACTIVE" : "LINK OFFLINE"}
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-[9px] font-bold text-amber-400 tracking-wider">
+              DEMO
             </span>
           </div>
           <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-ink-400 tracking-wider">
@@ -79,7 +82,7 @@ export default function CommandCenterDashboard() {
         
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-4 px-4 py-2 rounded-lg bg-ink-900 border border-ink-800 text-xs font-mono text-ink-300">
-            <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-primary-400" /> 1.2M LIVE</span>
+            <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-primary-400" /> 1.2M LIVE ATTENDEES</span>
             <div className="w-px h-4 bg-ink-700" />
             <span className="flex items-center gap-1.5"><Thermometer className="w-4 h-4 text-accent-500" /> 34°C</span>
           </div>
@@ -106,8 +109,8 @@ export default function CommandCenterDashboard() {
               <div className="flex items-center gap-2 text-[10px] font-mono text-alert-500 mb-2 tracking-widest font-bold">
                 <AlertTriangle className="w-3.5 h-3.5" /> CRITICAL ESCALATION
               </div>
-              <h3 className="text-sm font-display font-bold text-white mb-2">Ramkund (Z1) Overcrowding</h3>
-              <p className="text-[11px] text-ink-300 mb-4 leading-relaxed font-mono">Prediction: Density will exceed safe threshold by 24% in next 12 minutes. High risk of stampede.</p>
+              <h3 className="text-sm font-display font-bold text-white mb-2">Zone Alpha (Z1) Risk Escalation</h3>
+              <p className="text-[11px] text-ink-300 mb-4 leading-relaxed font-mono">Prediction: Density will exceed safe threshold by 24% in next 12 minutes. High risk of overcrowding.</p>
               
               <div className="space-y-2 mb-5">
                 <div className="flex justify-between text-[10px] text-ink-400 font-mono">
@@ -162,7 +165,7 @@ export default function CommandCenterDashboard() {
         {/* Center Column: Global Tactical Map */}
         <div className="lg:col-span-6 flex flex-col relative bg-ink-900">
           <div className="absolute inset-0 grayscale invert contrast-150 hue-rotate-180 brightness-[0.8] saturate-50">
-            <DynamicMap center={defaultCenter} zoom={14} className="h-full w-full" />
+            <DynamicMap center={defaultCenter} zoom={5} className="h-full w-full" />
           </div>
           
           {/* Map Overlays */}
@@ -227,7 +230,7 @@ export default function CommandCenterDashboard() {
                   <span className="text-[10px] font-mono text-ink-500">10:42:15</span>
                 </div>
                 <p className="text-xs text-ink-200 font-medium">Medical Emergency (Cardiac)</p>
-                <p className="text-[10px] text-ink-400 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> Godavari Ghat, Sector 4</p>
+                <p className="text-[10px] text-ink-400 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> Central District, Sector 4</p>
                 <div className="mt-2 flex gap-2">
                   <button className="h-6 px-2 rounded bg-ink-800 text-[9px] font-bold text-white hover:bg-ink-700">DISPATCH AMB</button>
                 </div>
@@ -238,7 +241,7 @@ export default function CommandCenterDashboard() {
                   <span className="text-[10px] font-mono text-primary-400 font-bold bg-primary-500/10 px-1.5 py-0.5 rounded">SYS-INFO</span>
                   <span className="text-[10px] font-mono text-ink-500">10:38:02</span>
                 </div>
-                <p className="text-xs text-ink-200 font-medium">Drone Unit D-04 battery low, returning to base.</p>
+                <p className="text-xs text-ink-200 font-medium">Sensor Unit S-04 battery low, returning to base.</p>
               </div>
               
               <div className="p-3 bg-accent-950/30 rounded-lg border border-accent-900/50 animate-fade-in-down" style={{ animationDelay: '200ms' }}>
@@ -246,7 +249,7 @@ export default function CommandCenterDashboard() {
                   <span className="text-[10px] font-mono text-accent-400 font-bold bg-accent-500/10 px-1.5 py-0.5 rounded">CROWD-WARN</span>
                   <span className="text-[10px] font-mono text-ink-500">10:35:55</span>
                 </div>
-                <p className="text-xs text-ink-200 font-medium">Density threshold reached at Gate 2.</p>
+                <p className="text-xs text-ink-200 font-medium">Risk threshold reached at Entry Point 2.</p>
               </div>
 
               {liveIncidents.map((msg, i) => (

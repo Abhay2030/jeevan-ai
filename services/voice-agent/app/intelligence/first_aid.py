@@ -1,8 +1,8 @@
 """
 JEEVAN AI — First Aid Guidance Module
 
-Provides step-by-step voice guidance for Kumbh Mela emergencies
-in Hindi and Marathi. Each protocol is designed for progressive
+Provides step-by-step voice guidance for emergency situations
+in Hindi, Marathi, and English. Each protocol is designed for progressive
 disclosure — one instruction at a time, waiting for caller confirmation.
 """
 

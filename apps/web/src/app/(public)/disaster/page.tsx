@@ -26,13 +26,13 @@ export default function DisasterMode() {
         {/* Broadcast Directive */}
         <div className="bg-alert-950/50 border-2 border-alert-600 rounded-2xl p-6 text-center animate-fade-in-down shadow-[0_0_30px_rgba(220,38,38,0.2)]">
           <p className="text-xs font-bold text-alert-500 uppercase tracking-widest mb-3 flex items-center justify-center gap-2">
-            <Radio className="w-4 h-4 animate-ping" /> GOVT DIRECTIVE - 16:42 IST
+            <Radio className="w-4 h-4 animate-ping" /> EMERGENCY BROADCAST [DEMO] - 16:42 IST
           </p>
           <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-4 uppercase leading-tight">
-            Evacuate Ramkund Immediately
+            Evacuate Sector 4 Immediately
           </h2>
           <p className="text-ink-200 text-sm sm:text-base leading-relaxed">
-            Severe crowding detected. Proceed calmly to <strong>Evacuation Route Alpha (Towards Goda Park)</strong>. Do not run. Follow NDRF personnel.
+            Severe hazard detected in operational sector. Proceed calmly to <strong>Evacuation Corridor Alpha (Designated Open Ground)</strong>. Do not run. Follow authorized response marshals.
           </p>
         </div>
 

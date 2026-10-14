@@ -46,11 +46,11 @@ async def get_voice_analytics():
             "GENERAL_HELP": 1,
         },
         calls_by_zone={
-            "ZONE_A_CENTRAL": 22,
-            "ZONE_B_NORTH": 10,
-            "ZONE_D_TRIMBAK": 8,
-            "ZONE_C_OUTER": 4,
-            "ZONE_F_TRANSIT": 3,
+            "ZONE_CENTRAL": 22,
+            "ZONE_NORTH": 10,
+            "ZONE_SOUTH": 8,
+            "ZONE_EAST": 4,
+            "ZONE_TRANSIT": 3,
         },
         tickets_created=42,
     )
@@ -58,7 +58,7 @@ async def get_voice_analytics():
 
 @router.get("/recent")
 async def get_recent_calls():
-    """Get recent completed call logs (simulated for MVP)."""
+    """Get recent completed call logs [DEMO DATA]."""
     return {
         "calls": [
             {
@@ -67,12 +67,12 @@ async def get_recent_calls():
                 "status": "COMPLETED",
                 "emergency_type": "MEDICAL_EMERGENCY",
                 "severity": "CRITICAL",
-                "landmark": "Ramkund",
-                "zone": "ZONE_A_CENTRAL",
+                "landmark": "Central Junction",
+                "zone": "ZONE_CENTRAL",
                 "duration_seconds": 245,
                 "turn_count": 8,
                 "ticket_id": "VT-demo001",
-                "started_at": "2027-01-15T14:23:00Z",
+                "started_at": "2026-10-14T14:23:00Z",
             },
             {
                 "session_id": "vc_demo_002",
@@ -80,12 +80,12 @@ async def get_recent_calls():
                 "status": "COMPLETED",
                 "emergency_type": "HEATSTROKE",
                 "severity": "HIGH",
-                "landmark": "Panchavati",
-                "zone": "ZONE_B_NORTH",
+                "landmark": "North Sector Square",
+                "zone": "ZONE_NORTH",
                 "duration_seconds": 180,
                 "turn_count": 6,
                 "ticket_id": "VT-demo002",
-                "started_at": "2027-01-15T13:45:00Z",
+                "started_at": "2026-10-14T13:45:00Z",
             },
             {
                 "session_id": "vc_demo_003",
@@ -93,12 +93,12 @@ async def get_recent_calls():
                 "status": "COMPLETED",
                 "emergency_type": "MISSING_PERSON",
                 "severity": "HIGH",
-                "landmark": "Kalaram Temple",
-                "zone": "ZONE_B_NORTH",
+                "landmark": "Civic Market Center",
+                "zone": "ZONE_NORTH",
                 "duration_seconds": 312,
                 "turn_count": 10,
                 "ticket_id": "VT-demo003",
-                "started_at": "2027-01-15T12:10:00Z",
+                "started_at": "2026-10-14T12:10:00Z",
             },
             {
                 "session_id": "vc_demo_004",
@@ -106,12 +106,12 @@ async def get_recent_calls():
                 "status": "COMPLETED",
                 "emergency_type": "CROWD_CRUSH",
                 "severity": "CRITICAL",
-                "landmark": "Godavari Ghats",
-                "zone": "ZONE_A_CENTRAL",
+                "landmark": "Riverside Promenade",
+                "zone": "ZONE_CENTRAL",
                 "duration_seconds": 156,
                 "turn_count": 5,
                 "ticket_id": "VT-demo004",
-                "started_at": "2027-01-15T11:30:00Z",
+                "started_at": "2026-10-14T11:30:00Z",
             },
             {
                 "session_id": "vc_demo_005",
@@ -119,12 +119,12 @@ async def get_recent_calls():
                 "status": "DROPPED",
                 "emergency_type": "DROWNING",
                 "severity": "CRITICAL",
-                "landmark": "Kushavarta Kund",
-                "zone": "ZONE_D_TRIMBAK",
+                "landmark": "South Water Reservoir",
+                "zone": "ZONE_SOUTH",
                 "duration_seconds": 67,
                 "turn_count": 3,
                 "ticket_id": "VT-demo005",
-                "started_at": "2027-01-15T10:55:00Z",
+                "started_at": "2026-10-14T10:55:00Z",
             },
         ]
     }

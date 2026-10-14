@@ -1,1 +1,1 @@
-# Intelligence module — Kumbh landmarks, first aid, emergency types
+# Intelligence module — civic landmarks, first aid, emergency types
