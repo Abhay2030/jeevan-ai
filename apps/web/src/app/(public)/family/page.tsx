@@ -69,7 +69,7 @@ export default function FamilySafety() {
       <div className={`w-full transition-all duration-500 ease-in-out relative overflow-hidden bg-ink-950 ${showMap ? "h-48 opacity-100" : "h-0 opacity-0"}`}>
         {showMap && (
           <>
-            <DynamicMap center={[20.0059, 73.7903]} zoom={12} points={mapPoints} theme="dark" />
+            <DynamicMap center={[22.7240, 75.8600]} zoom={13} points={mapPoints} theme="dark" />
             <div className="absolute top-2 left-2 px-2 py-1 rounded bg-ink-900/80 backdrop-blur border border-ink-800 text-[10px] text-white font-mono flex items-center gap-1.5">
               <span className="live-dot" style={{width:6, height:6}}/> Live Tracker
             </div>

@@ -4,8 +4,9 @@ JEEVAN AI — Hospital API Endpoints
 
 
 from fastapi import APIRouter, Query
+from geoalchemy2 import Geography
 from geoalchemy2.functions import ST_Distance, ST_DWithin
-from sqlalchemy import select
+from sqlalchemy import cast, select
 
 from app.api.dependencies import CurrentUser, SessionDep
 from app.models.hospital import Hospital
@@ -28,13 +29,15 @@ async def get_nearby_hospitals(
 
     # Convert lat/lng to PostGIS geography point
     user_location = f"SRID=4326;POINT({lng} {lat})"
+    geo_hospital = cast(Hospital.location, Geography)
+    geo_user = cast(user_location, Geography)
 
     # Base query: ST_DWithin for efficient radius search (distance in meters)
     stmt = select(
         Hospital,
-        ST_Distance(Hospital.location, user_location).label("distance_meters")
+        ST_Distance(geo_hospital, geo_user).label("distance_meters")
     ).where(
-        ST_DWithin(Hospital.location, user_location, radius_km * 1000)
+        ST_DWithin(geo_hospital, geo_user, radius_km * 1000)
     )
 
     # Apply filters

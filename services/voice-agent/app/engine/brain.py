@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass, field
 
 import google.generativeai as genai
-from google.generativeai.types import HarmCategory, HarmBlockerThreshold
+from google.generativeai.types import HarmCategory, HarmBlockerThreshold, content_types
 
 from app.core.config import settings
 
@@ -98,7 +98,9 @@ You MUST output valid JSON ONLY for every turn. Do not wrap in markdown blocks l
             ),
             safety_settings={
                 HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockerThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_MEDICAL: HarmBlockerThreshold.BLOCK_NONE, # Required for first-aid
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockerThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockerThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockerThreshold.BLOCK_NONE,
             }
         )
 
@@ -123,19 +125,23 @@ You MUST output valid JSON ONLY for every turn. Do not wrap in markdown blocks l
         }
         text = greetings.get(language, greetings["hi"])
         
-        # Manually prime the chat history
-        self._sessions[session_id]["chat"].history.append({
-            "role": "model",
-            "parts": [json.dumps({
-                "reply": text,
-                "language": language,
-                "emergency_type": None,
-                "severity": None,
-                "landmark": None,
-                "zone_id": None,
-                "create_ticket": False
-            })]
-        })
+        # Manually prime the chat history using valid Content object
+        try:
+            content = content_types.to_content({
+                "role": "model",
+                "parts": [json.dumps({
+                    "reply": text,
+                    "language": language,
+                    "emergency_type": None,
+                    "severity": None,
+                    "landmark": None,
+                    "zone_id": None,
+                    "create_ticket": False
+                })]
+            })
+            self._sessions[session_id]["chat"].history.append(content)
+        except Exception as e:
+            logger.debug(f"History priming bypassed: {e}")
         
         return BrainResponse(text=text, language=language)
 

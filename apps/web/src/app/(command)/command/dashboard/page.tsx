@@ -10,6 +10,7 @@ import {
   Brain, BarChart3, CloudRain, Thermometer, Layers, Clock, 
   CheckCircle2, XCircle, Search, Settings, HeartPulse, Video
 } from "lucide-react";
+import { ProvenanceBadge } from "@jeevan-ai/ui";
 
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
@@ -57,38 +58,30 @@ export default function CommandCenterDashboard() {
   const displayMetrics = densityMetrics.length > 0 ? densityMetrics : mockDensity;
 
   return (
-    <div className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative bg-ink-950">
+    <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-ink-950">
       
       {/* Top Status Bar */}
-      <header className="h-16 bg-ink-950 border-b border-ink-800 flex items-center justify-between px-6 shrink-0 z-10 shadow-lg">
-        <div className="flex items-center gap-6">
-          <h1 className="font-display font-bold text-white tracking-widest text-lg flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary-500" /> MISSION CONTROL
-          </h1>
-          <div className="h-6 w-px bg-ink-800" />
+      <header className="h-12 bg-ink-950 border-b border-ink-800 flex items-center justify-between px-4 shrink-0 z-10 shadow-lg">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-[10px] font-mono">
             <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-success-500 animate-sos-pulse" : "bg-alert-500"}`} />
             <span className={isConnected ? "text-success-400 font-bold tracking-wider" : "text-alert-400 font-bold tracking-wider"}>
-              {isConnected ? "DATA LINK ACTIVE" : "LINK OFFLINE"}
+              {isConnected ? "NATIONAL SATELLITE & IOT LINK ACTIVE" : "DATA TELEMETRY OFFLINE"}
             </span>
-            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-[9px] font-bold text-amber-400 tracking-wider">
-              DEMO
-            </span>
+            <ProvenanceBadge provenance={isConnected ? "[LIVE]" : "[SIMULATION]"} />
           </div>
+          <div className="h-4 w-px bg-ink-800 hidden sm:block" />
           <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-ink-400 tracking-wider">
-            <Clock className="w-3.5 h-3.5" /> {new Date().toISOString().replace("T", " ").slice(0, 19)} UTC
+            <Clock className="w-3.5 h-3.5 text-primary-400" /> INDIAN STANDARD TIME
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-4 px-4 py-2 rounded-lg bg-ink-900 border border-ink-800 text-xs font-mono text-ink-300">
-            <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-primary-400" /> 1.2M LIVE ATTENDEES</span>
-            <div className="w-px h-4 bg-ink-700" />
-            <span className="flex items-center gap-1.5"><Thermometer className="w-4 h-4 text-accent-500" /> 34°C</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 px-3 py-1 rounded-lg bg-ink-900 border border-ink-800 text-[11px] font-mono text-ink-300">
+            <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-primary-400" /> 1.2M ATTENDEES <ProvenanceBadge provenance="[ESTIMATE]" /></span>
+            <div className="w-px h-3 bg-ink-700" />
+            <span className="flex items-center gap-1.5"><Thermometer className="w-3.5 h-3.5 text-accent-500" /> 34°C • AQI 142</span>
           </div>
-          <button className="w-10 h-10 rounded-lg bg-ink-900 border border-ink-800 flex items-center justify-center text-ink-400 hover:text-white transition-colors">
-            <Settings className="w-4 h-4" />
-          </button>
         </div>
       </header>
 
@@ -99,15 +92,19 @@ export default function CommandCenterDashboard() {
         <div className="lg:col-span-3 flex flex-col border-r border-ink-800 bg-ink-950/50 backdrop-blur overflow-y-auto no-scrollbar z-10">
           
           <div className="p-4 border-b border-ink-800 bg-ink-900/20">
-            <h2 className="text-[10px] font-bold text-ink-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Brain className="w-3 h-3" /> Predictive Intelligence
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[10px] font-bold text-ink-500 uppercase tracking-widest flex items-center gap-2">
+                <Brain className="w-3 h-3 text-primary-400" /> Predictive Intelligence
+              </h2>
+              <ProvenanceBadge provenance="[ESTIMATE]" />
+            </div>
             
             {/* AI Recommendation Card */}
-            <div className="card-elevated bg-ink-950 border border-alert-900/50 shadow-glow-alert p-4 relative overflow-hidden">
+            <div className="card-elevated bg-ink-950 border border-alert-900/50 shadow-glow-alert p-4 relative overflow-hidden rounded-xl">
               <div className="absolute top-0 left-0 w-full h-1 bg-alert-500 animate-pulse" />
-              <div className="flex items-center gap-2 text-[10px] font-mono text-alert-500 mb-2 tracking-widest font-bold">
-                <AlertTriangle className="w-3.5 h-3.5" /> CRITICAL ESCALATION
+              <div className="flex items-center justify-between gap-2 text-[10px] font-mono text-alert-500 mb-2 tracking-widest font-bold">
+                <span className="flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5" /> CRITICAL ESCALATION</span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-alert-500/10 border border-alert-500/30 text-alert-400">P1 URGENT</span>
               </div>
               <h3 className="text-sm font-display font-bold text-white mb-2">Zone Alpha (Z1) Risk Escalation</h3>
               <p className="text-[11px] text-ink-300 mb-4 leading-relaxed font-mono">Prediction: Density will exceed safe threshold by 24% in next 12 minutes. High risk of overcrowding.</p>

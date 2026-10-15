@@ -171,7 +171,7 @@ export default function BloodNetwork() {
             
             {/* Map View */}
             <div className="w-full h-48 rounded-xl overflow-hidden border border-paper-300 mb-4 shrink-0 relative">
-               <DynamicMap center={[22.7196, 75.8577]} zoom={13} points={mapPoints} theme="light" />
+               <DynamicMap center={[20.0050, 73.7900]} zoom={14} points={mapPoints} theme="light" />
                <div className="absolute top-2 right-2 px-2 py-1 bg-white/90 backdrop-blur rounded text-[10px] font-bold text-ink-600 shadow-sm border border-paper-200">
                  Within 5 km
                </div>

@@ -48,7 +48,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/jeevan_ai
+      - DATABASE_URL=postgresql+asyncpg://jeevan:jeevan_dev@db:5432/jeevan_ai
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET=development_secret_key_change_in_prod
       - ENVIRONMENT=development
@@ -59,6 +59,21 @@ services:
         condition: service_started
     volumes:
       - ../services/api:/code
+    restart: unless-stopped
+
+  voice-agent:
+    build:
+      context: ../services/voice-agent
+    ports:
+      - "8001:8001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - SARVAM_API_KEY=${SARVAM_API_KEY:-}
+      - API_SERVICE_URL=http://api:8000/api/v1
+    depends_on:
+      - api
+    volumes:
+      - ../services/voice-agent:/code
     restart: unless-stopped
 
   web:

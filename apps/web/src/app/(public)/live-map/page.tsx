@@ -570,7 +570,7 @@ export default function LiveMapPage() {
 
           {/* Emergency SOS Quick Trigger */}
           <Link
-            href="/emergency/report"
+            href="/sos"
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all animate-pulse"
           >
             <Flame className="w-3.5 h-3.5" />

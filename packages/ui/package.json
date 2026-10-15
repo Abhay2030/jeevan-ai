@@ -9,6 +9,7 @@
     "lint": "echo \"No lint configured yet\""
   },
   "dependencies": {
+    "@jeevan-ai/types": "workspace:*",
     "lucide-react": "^0.475.0",
     "mapbox-gl": "^3.29.0",
     "react-map-gl": "^8.1.2"

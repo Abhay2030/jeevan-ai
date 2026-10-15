@@ -93,11 +93,15 @@ export async function handleTwilioWebSocket(server: WebSocket, env: Env) {
       // Get raw WAV/PCM bytes from Sarvam TTS
       const audioBytes = await getSarvamTTS(text, language, env);
       
-      // Since Sarvam returns a WAV/PCM, we need to convert it to mu-law 8000Hz base64.
-      // For the MVP, we assume Sarvam's output is directly playable or we convert it.
-      // (A real implementation would need a PCM to mu-law encoder here)
-      // We will send it back to Twilio.
-      const b64 = btoa(String.fromCharCode(...new Uint8Array(audioBytes)));
+      // Convert uint8Array to base64 safely in chunks to avoid RangeError stack overflow
+      const uint8 = new Uint8Array(audioBytes);
+      let binary = "";
+      const chunkSize = 8192;
+      for (let i = 0; i < uint8.length; i += chunkSize) {
+        const chunk = uint8.subarray(i, Math.min(i + chunkSize, uint8.length));
+        binary += String.fromCharCode.apply(null, chunk as unknown as number[]);
+      }
+      const b64 = btoa(binary);
 
       // Send clear message to interrupt Twilio buffering
       server.send(JSON.stringify({

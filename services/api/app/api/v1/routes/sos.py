@@ -4,8 +4,9 @@ JEEVAN AI — Critical SOS API Endpoint
 
 
 from fastapi import APIRouter, BackgroundTasks, status
+from geoalchemy2 import Geography
 from geoalchemy2.functions import ST_Distance, ST_DWithin
-from sqlalchemy import select
+from sqlalchemy import cast, select
 
 from app.api.dependencies import CurrentUser, SessionDep
 from app.core.pubsub import pubsub_manager
@@ -32,7 +33,7 @@ async def trigger_emergency_sos(
     """
     Module 1: One-Tap Emergency SOS
     1. Creates the incident
-    2. Uses PostGIS to find the nearest available ambulance
+    2. Uses PostGIS to find the nearest available ambulance within 10,000 meters
     3. Assigns the ambulance
     4. Triggers background family notification
     5. Broadcasts via WebSocket to Command Center
@@ -53,23 +54,26 @@ async def trigger_emergency_sos(
     await session.commit()
     await session.refresh(incident)
 
-    # 2. Find nearest available ambulance (within 10km)
+    # 2. Find nearest available ambulance (within 10,000 meters / 10km using geodesic Geography)
+    geo_ambulance = cast(Ambulance.current_location, Geography)
+    geo_wkt = cast(wkt_location, Geography)
+
     stmt = select(
         Ambulance,
-        ST_Distance(Ambulance.current_location, wkt_location).label("distance")
+        ST_Distance(geo_ambulance, geo_wkt).label("distance")
     ).where(
         Ambulance.status == "AVAILABLE",
-        ST_DWithin(Ambulance.current_location, wkt_location, 10000)
+        ST_DWithin(geo_ambulance, geo_wkt, 10000)
     ).order_by("distance").limit(1)
 
     result = await session.execute(stmt)
     nearest_ambulance = result.scalar_one_or_none()
 
-    # 3. Assign if found
+    # 3. Assign if found (Ambulance gets DISPATCHED, Incident gets ASSIGNED per DB enum)
     if nearest_ambulance:
         nearest_ambulance.status = "DISPATCHED"
         nearest_ambulance.current_incident_id = incident.id
-        incident.status = "DISPATCHED"
+        incident.status = "ASSIGNED"
         await session.commit()
         await session.refresh(incident)
         print(
@@ -80,9 +84,10 @@ async def trigger_emergency_sos(
     # 4. Background tasks (Family + AI Prediction engine hooks)
     background_tasks.add_task(notify_family_background, str(current_user.id), str(incident.id))
 
-    # 5. Broadcast to Command Center via Redis Pub/Sub
+    # 5. Broadcast to Command Center via Redis Pub/Sub (both dedicated channel and legacy)
     from app.api.v1.routes.incidents import format_incident
     read_schema = format_incident(incident)
+    await pubsub_manager.publish_incident(read_schema.model_dump(mode="json"))
     await pubsub_manager.publish("incidents:live", read_schema.model_dump_json())
 
     return read_schema

@@ -20,7 +20,9 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@web/*": ["./src/*"]
+      "@web/*": ["./src/*"],
+      "@jeevan-ai/types": ["../../packages/types/src/index.ts"],
+      "@jeevan-ai/ui": ["../../packages/ui/src/index.ts"]
     }
   },
   "include": [
