@@ -364,7 +364,7 @@ export default function DigitalTwin() {
     }
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [results, rescueState, mapRef]);
+  }, [results, rescueState, mapRef, activeHub.routeToHospital, activeHub.routeToSOS]);
 
   const scenarios = [
     { id: "crowd_surge", icon: Users, title: "Crowd Surge", desc: "Simulate massive influx in high-density gathering sector" },

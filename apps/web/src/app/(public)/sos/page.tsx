@@ -277,11 +277,14 @@ export default function SOSPage() {
       const stored = localStorage.getItem("jeevan_offline_sos");
       if (stored) {
         localStorage.removeItem("jeevan_offline_sos");
-        setTimeline(prev => [
-          ...prev,
-          { time: now(), label: "Network Restored — Syncing queued emergency to national grid...", icon: Wifi, done: true, provenance: "[LIVE]" }
-        ]);
-        triggerSOS();
+        const timer = setTimeout(() => {
+          setTimeline(prev => [
+            ...prev,
+            { time: now(), label: "Network Restored — Syncing queued emergency to national grid...", icon: Wifi, done: true, provenance: "[LIVE]" }
+          ]);
+          triggerSOS();
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [isOnline, phase, triggerSOS]);
