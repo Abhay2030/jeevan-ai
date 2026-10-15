@@ -28,15 +28,15 @@ import {
 } from "firebase/firestore";
 import type { User, UserRole } from "@jeevan-ai/types";
 
-// Firebase web configuration (strictly configured via environment variables)
+// Firebase web configuration (using environment variables with verified production fallback)
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyD06qixYK6qhxwwizZeyGBe5qXhVcwwa1g",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "jeevanai-598e7.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "jeevanai-598e7",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "jeevanai-598e7.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || ""
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "702350817486",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:702350817486:web:904dcf1655d96066fdf89f",
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-QFVCFYX4TN"
 };
 
 // Singleton pattern for Firebase initialization

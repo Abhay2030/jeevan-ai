@@ -101,11 +101,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen to Firebase Authentication state transitions
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      await syncCurrentUser(fbUser);
-    });
+    try {
+      const unsubscribe = onAuthStateChanged(
+        auth,
+        async (fbUser) => {
+          await syncCurrentUser(fbUser);
+        },
+        (error) => {
+          console.warn("Firebase onAuthStateChanged error:", error);
+          setIsLoading(false);
+        }
+      );
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Failed to attach Firebase auth state listener:", e);
+      setTimeout(() => setIsLoading(false), 0);
+    }
   }, [syncCurrentUser]);
 
   // Login handler

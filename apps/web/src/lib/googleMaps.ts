@@ -8,7 +8,7 @@
 export const GOOGLE_MAPS_API_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
   process.env.NEXT_PUBLIC_MAP_API_KEY ||
-  "";
+  "AIzaSyAv8vfHll5jyKGOpcDdt3ZDMCBEsm7Zgp8";
 
 let googleMapsPromise: Promise<typeof google.maps | null> | null = null;
 
