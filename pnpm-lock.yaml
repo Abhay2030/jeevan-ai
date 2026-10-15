@@ -117,6 +117,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@jeevan-ai/types':
+        specifier: workspace:*
+        version: link:../types
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.2.8)
