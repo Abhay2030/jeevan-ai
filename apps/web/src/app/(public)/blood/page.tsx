@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Droplets, MapPin, Clock, Phone, User, Heart, AlertTriangle, CheckCircle2, Search, ArrowRight, Shield } from "lucide-react";
 import dynamic from "next/dynamic";
+import { ProvenanceBadge } from "@jeevan-ai/ui";
 
 const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod.Map), {
   ssr: false,
@@ -51,8 +52,11 @@ export default function BloodNetwork() {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-lg font-display font-bold text-ink-900 leading-tight">Blood Network</h1>
-              <p className="text-[10px] text-ink-400 font-mono">National Emergency Network [DEMO]</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-display font-bold text-ink-900 leading-tight">National Blood Network</h1>
+                <ProvenanceBadge provenance="[VERIFIED]" />
+              </div>
+              <p className="text-[10px] text-ink-400 font-mono">e-RaktKosh NBTC & Emergency Cross-Match Registry</p>
             </div>
           </div>
           <div className="w-9 h-9 flex items-center justify-center">

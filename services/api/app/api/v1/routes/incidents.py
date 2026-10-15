@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from geoalchemy2.shape import to_shape
 from sqlalchemy import select
 
-from app.api.dependencies import CurrentUser, SessionDep, require_role
+from app.api.dependencies import CurrentUser, OptionalCurrentUser, SessionDep, require_role
 from app.models.incident import Incident
 from app.schemas.incident import IncidentCreate, IncidentRead, IncidentUpdate, Location
 
@@ -84,9 +84,9 @@ async def list_incidents(
 async def create_incident(
     data: IncidentCreate,
     session: SessionDep,
-    current_user: CurrentUser
+    current_user: OptionalCurrentUser = None
 ) -> IncidentRead:
-    """Report a new incident. Anyone authenticated can report."""
+    """Report a new incident. Authenticated or guest citizen report."""
     # Convert Location into WKT (Well-Known Text) for PostGIS
     wkt_location = f"SRID=4326;POINT({data.location.longitude} {data.location.latitude})"
 
@@ -104,7 +104,7 @@ async def create_incident(
         zone_id=data.zone_id,
         state_code=data.state_code,
         district=data.district,
-        reported_by_id=current_user.id
+        reported_by_id=current_user.id if current_user else None
     )
 
     session.add(incident)

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2, Search, CloudRain, Wind, Mic, Moon, Sun, FastForward } from "lucide-react";
+import { Play, RotateCcw, AlertTriangle, ThermometerSun, Users, BarChart3, Activity, ArrowRight, Settings2, SlidersHorizontal, Layers, Crosshair, Clock, CheckCircle2, Search, CloudRain, Wind, Mic, Moon, Sun, FastForward, MapPin } from "lucide-react";
 import type { MapPoint } from "@web/components/Map";
 import * as turf from "@turf/turf";
 
@@ -14,26 +14,145 @@ const DynamicMap = dynamic(() => import("@web/components/Map").then((mod) => mod
 type Scenario = "baseline" | "crowd_surge" | "heatwave" | "road_closure";
 type RescueState = "IDLE" | "SOS" | "DISPATCHED" | "EN_ROUTE" | "REROUTING" | "AT_SCENE" | "TO_HOSPITAL" | "ARRIVED";
 
-const STATIC_POINTS: MapPoint[] = [
-  { id: "z1", type: "zone", title: "ZONE ALPHA", latitude: 20.0059, longitude: 73.7903, severity: "HIGH", metadata: { risk: 84 } },
-  { id: "z2", type: "zone", title: "ZONE BRAVO", latitude: 20.0080, longitude: 73.7920, severity: "MEDIUM", metadata: { risk: 42 } },
-  { id: "z3", type: "zone", title: "ZONE CHARLIE", latitude: 19.9950, longitude: 73.8050, severity: "LOW", metadata: { risk: 15 } },
-  { id: "h1", type: "hospital", title: "District Civil Hospital", latitude: 19.9975, longitude: 73.7890 },
-  { id: "h2", type: "hospital", title: "Metropolitan Hospital", latitude: 20.0120, longitude: 73.7800 },
-  { id: "c1", type: "camp", title: "Medical Unit Alpha", latitude: 20.0030, longitude: 73.7950 },
-  { id: "c2", type: "camp", title: "Medical Unit Beta", latitude: 20.0090, longitude: 73.7850 },
-];
+interface HubConfig {
+  id: string;
+  name: string;
+  state: string;
+  center: [number, number];
+  zoom: number;
+  points: MapPoint[];
+  corridor: number[][];
+  routeToSOS: number[][];
+  routeToHospital: number[][];
+}
 
-// Shahi Marg path
-const CORRIDOR_PATH = [
-  [73.7850, 20.0120], [73.7880, 20.0090], [73.7903, 20.0059], [73.7950, 20.0030], [73.8000, 20.0000]
-];
+const NATIONAL_HUBS: Record<string, HubConfig> = {
+  delhi: {
+    id: "delhi",
+    name: "Delhi NCR",
+    state: "National Capital Region",
+    center: [28.6139, 77.2090],
+    zoom: 14,
+    points: [
+      { id: "del-z1", type: "zone", title: "Central Delhi High Density Zone", latitude: 28.6139, longitude: 77.2090, severity: "HIGH", metadata: { risk: 82 } },
+      { id: "del-z2", type: "zone", title: "Old Delhi Concourse", latitude: 28.6562, longitude: 77.2410, severity: "MEDIUM", metadata: { risk: 54 } },
+      { id: "del-h1", type: "hospital", title: "AIIMS Apex Trauma Centre", latitude: 28.5672, longitude: 77.2100 },
+      { id: "del-h2", type: "hospital", title: "Safdarjung Hospital ER", latitude: 28.5701, longitude: 77.2078 },
+      { id: "del-c1", type: "camp", title: "Red Fort Transit Aid Camp", latitude: 28.6540, longitude: 77.2370 },
+      { id: "del-c2", type: "camp", title: "Pragati Maidan Emergency Post", latitude: 28.6180, longitude: 77.2440 },
+    ],
+    corridor: [
+      [77.2410, 28.6562], [77.2370, 28.6540], [77.2090, 28.6139], [77.2078, 28.5701], [77.2100, 28.5672]
+    ],
+    routeToSOS: [
+      [77.2440, 28.6180], [77.2250, 28.6150], [77.2090, 28.6139]
+    ],
+    routeToHospital: [
+      [77.2090, 28.6139], [77.2085, 28.5850], [77.2100, 28.5672]
+    ]
+  },
+  mumbai: {
+    id: "mumbai",
+    name: "Mumbai MMR",
+    state: "Maharashtra",
+    center: [19.0024, 72.8427],
+    zoom: 13.5,
+    points: [
+      { id: "mum-z1", type: "zone", title: "Dadar / Parel Concourse", latitude: 19.0178, longitude: 72.8478, severity: "HIGH", metadata: { risk: 88 } },
+      { id: "mum-z2", type: "zone", title: "Bandra Transit Hub", latitude: 19.0514, longitude: 72.8295, severity: "LOW", metadata: { risk: 24 } },
+      { id: "mum-h1", type: "hospital", title: "KEM Hospital Trauma Unit", latitude: 19.0024, longitude: 72.8427 },
+      { id: "mum-h2", type: "hospital", title: "Lilavati Superspecialty", latitude: 19.0514, longitude: 72.8295 },
+      { id: "mum-c1", type: "camp", title: "Shivaji Park Rapid Care", latitude: 19.0270, longitude: 72.8380 },
+    ],
+    corridor: [
+      [72.8478, 19.0178], [72.8380, 19.0270], [72.8427, 19.0024]
+    ],
+    routeToSOS: [
+      [72.8295, 19.0514], [72.8380, 19.0270], [72.8478, 19.0178]
+    ],
+    routeToHospital: [
+      [72.8478, 19.0178], [72.8450, 19.0100], [72.8427, 19.0024]
+    ]
+  },
+  varanasi: {
+    id: "varanasi",
+    name: "Varanasi Ganga",
+    state: "Uttar Pradesh",
+    center: [25.3100, 83.0100],
+    zoom: 14,
+    points: [
+      { id: "var-z1", type: "zone", title: "Dashashwamedh Ghat Core", latitude: 25.3074, longitude: 83.0103, severity: "CRITICAL", metadata: { risk: 91 } },
+      { id: "var-z2", type: "zone", title: "Assi Ghat Pilgrimage Enclosure", latitude: 25.2890, longitude: 83.0060, severity: "MEDIUM", metadata: { risk: 46 } },
+      { id: "var-h1", type: "hospital", title: "BHU Trauma Centre", latitude: 25.2755, longitude: 82.9984 },
+      { id: "var-c1", type: "camp", title: "Godowlia Relief Enclosure", latitude: 25.3110, longitude: 83.0060 },
+    ],
+    corridor: [
+      [83.0103, 25.3074], [83.0060, 25.3110], [82.9984, 25.2755]
+    ],
+    routeToSOS: [
+      [83.0060, 25.3110], [83.0090, 25.3090], [83.0103, 25.3074]
+    ],
+    routeToHospital: [
+      [83.0103, 25.3074], [83.0050, 25.2950], [82.9984, 25.2755]
+    ]
+  },
+  indore: {
+    id: "indore",
+    name: "Indore Malwa",
+    state: "Madhya Pradesh",
+    center: [22.7196, 75.8577],
+    zoom: 14,
+    points: [
+      { id: "ind-z1", type: "zone", title: "Rajwada Cultural Core", latitude: 22.7188, longitude: 75.8560, severity: "HIGH", metadata: { risk: 75 } },
+      { id: "ind-z2", type: "zone", title: "BRTS Medical Corridor", latitude: 22.7300, longitude: 75.8800, severity: "LOW", metadata: { risk: 20 } },
+      { id: "ind-h1", type: "hospital", title: "MY Hospital Trauma Unit", latitude: 22.7153, longitude: 75.8772 },
+      { id: "ind-c1", type: "camp", title: "Chiman Bagh Rapid Care Unit", latitude: 22.7210, longitude: 75.8620 },
+    ],
+    corridor: [
+      [75.8560, 22.7188], [75.8620, 22.7210], [75.8772, 22.7153]
+    ],
+    routeToSOS: [
+      [75.8620, 22.7210], [75.8580, 22.7200], [75.8560, 22.7188]
+    ],
+    routeToHospital: [
+      [75.8560, 22.7188], [75.8680, 22.7160], [75.8772, 22.7153]
+    ]
+  },
+  nashik: {
+    id: "nashik",
+    name: "Nashik Kumbh Zone",
+    state: "Maharashtra",
+    center: [20.0059, 73.7903],
+    zoom: 14,
+    points: [
+      { id: "z1", type: "zone", title: "ZONE ALPHA (Ramkund)", latitude: 20.0059, longitude: 73.7903, severity: "HIGH", metadata: { risk: 84 } },
+      { id: "z2", type: "zone", title: "ZONE BRAVO (Panchavati)", latitude: 20.0080, longitude: 73.7920, severity: "MEDIUM", metadata: { risk: 42 } },
+      { id: "z3", type: "zone", title: "ZONE CHARLIE (Tapovan)", latitude: 19.9950, longitude: 73.8050, severity: "LOW", metadata: { risk: 15 } },
+      { id: "h1", type: "hospital", title: "District Civil Hospital", latitude: 19.9975, longitude: 73.7890 },
+      { id: "h2", type: "hospital", title: "Metropolitan Hospital", latitude: 20.0120, longitude: 73.7800 },
+      { id: "c1", type: "camp", title: "Medical Unit Alpha", latitude: 20.0030, longitude: 73.7950 },
+      { id: "c2", type: "camp", title: "Medical Unit Beta", latitude: 20.0090, longitude: 73.7850 },
+    ],
+    corridor: [
+      [73.7850, 20.0120], [73.7880, 20.0090], [73.7903, 20.0059], [73.7950, 20.0030], [73.8000, 20.0000]
+    ],
+    routeToSOS: [
+      [73.7850, 20.0120], [73.7880, 20.0090], [73.7930, 20.0070], [73.7903, 20.0059]
+    ],
+    routeToHospital: [
+      [73.7903, 20.0059], [73.7880, 20.0020], [73.7850, 19.9990], [73.7890, 19.9975]
+    ]
+  }
+};
 
 export default function DigitalTwin() {
+  const [selectedHub, setSelectedHub] = useState<string>("delhi");
+  const activeHub = NATIONAL_HUBS[selectedHub] || NATIONAL_HUBS.delhi;
+
   const [scenario, setScenario] = useState<Scenario>("baseline");
   const [simulating, setSimulating] = useState(false);
   const [results, setResults] = useState<boolean>(false);
-  const [mapTheme, setMapTheme] = useState<"light" | "dark">("light");
+  const [mapTheme, setMapTheme] = useState<"light" | "dark">("dark");
   const [isListening, setIsListening] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -48,14 +167,35 @@ export default function DigitalTwin() {
   const [temperature, setTemperature] = useState(34);
 
   const [activeAmbulances, setActiveAmbulances] = useState<MapPoint[]>([
-    { id: "a1", type: "ambulance", title: "AMB-04", latitude: 20.0120, longitude: 73.7850, metadata: { speed: 0, status: "STANDBY", dest: "-" } },
-    { id: "a2", type: "ambulance", title: "AMB-12", latitude: 19.9950, longitude: 73.8000, metadata: { speed: 45, status: "EN_ROUTE", dest: "Civil Hospital" } },
+    { id: "a1", type: "ambulance", title: "AMB-04", latitude: 28.6180, longitude: 77.2440, metadata: { speed: 0, status: "STANDBY", dest: "-" } },
+    { id: "a2", type: "ambulance", title: "AMB-12", latitude: 28.5701, longitude: 77.2078, metadata: { speed: 45, status: "EN_ROUTE", dest: "Apex Trauma Centre" } },
   ]);
 
   const [activeIncidents, setActiveIncidents] = useState<MapPoint[]>([]);
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
 
-  const defaultCenter: [number, number] = [20.0059, 73.7903]; // Operational Sector Alpha
+  const handleHubChange = (hubKey: string) => {
+    setSelectedHub(hubKey);
+    const target = NATIONAL_HUBS[hubKey];
+    if (target) {
+      setActiveAmbulances([
+        { id: "a1", type: "ambulance", title: "AMB-04", latitude: target.center[0] + 0.005, longitude: target.center[1] + 0.005, metadata: { speed: 0, status: "STANDBY", dest: "-" } },
+        { id: "a2", type: "ambulance", title: "AMB-12", latitude: target.center[0] - 0.005, longitude: target.center[1] - 0.005, metadata: { speed: 42, status: "EN_ROUTE", dest: "Trauma Centre" } },
+      ]);
+      setActiveIncidents([]);
+      setResults(false);
+      setRescueState("IDLE");
+      setLiveRouteData(null);
+      if (mapRef.current) {
+        mapRef.current.flyTo({
+          center: [target.center[1], target.center[0]],
+          zoom: target.zoom,
+          pitch: 60,
+          duration: 2200
+        });
+      }
+    }
+  };
 
   const handleSimulate = () => {
     setSimulating(true);
@@ -65,8 +205,8 @@ export default function DigitalTwin() {
     setActiveIncidents([]);
     setLiveRouteData(null);
     setActiveAmbulances([
-      { id: "a1", type: "ambulance", title: "AMB-04", latitude: 20.0120, longitude: 73.7850, metadata: { speed: 0, status: "STANDBY", dest: "-" } },
-      { id: "a2", type: "ambulance", title: "AMB-12", latitude: 19.9950, longitude: 73.8000, metadata: { speed: 45, status: "EN_ROUTE", dest: "Civil Hospital" } },
+      { id: "a1", type: "ambulance", title: "AMB-04", latitude: activeHub.center[0] + 0.005, longitude: activeHub.center[1] + 0.005, metadata: { speed: 0, status: "STANDBY", dest: "-" } },
+      { id: "a2", type: "ambulance", title: "AMB-12", latitude: activeHub.center[0] - 0.005, longitude: activeHub.center[1] - 0.005, metadata: { speed: 45, status: "EN_ROUTE", dest: "Trauma Centre" } },
     ]);
     
     setTimeout(() => {
@@ -74,16 +214,28 @@ export default function DigitalTwin() {
       setResults(true);
       setRescueState("SOS");
       
-      // Spawn incident at Zone Alpha
-      setActiveIncidents([{ id: "i1", type: "incident", title: "EMERGENCY INCIDENT (SOS)", latitude: 20.0059, longitude: 73.7903, severity: "CRITICAL" }]);
+      // Spawn incident at Active Hub's Center
+      setActiveIncidents([{
+        id: "i1",
+        type: "incident",
+        title: `EMERGENCY INCIDENT (${activeHub.name})`,
+        latitude: activeHub.center[0],
+        longitude: activeHub.center[1],
+        severity: "CRITICAL"
+      }]);
       
       // Camera FlyTo SOS
       if (mapRef.current) {
-        mapRef.current.flyTo({ center: [73.7903, 20.0059], zoom: 16.5, pitch: 70, duration: 3000 });
+        mapRef.current.flyTo({
+          center: [activeHub.center[1], activeHub.center[0]],
+          zoom: 16,
+          pitch: 70,
+          duration: 2500
+        });
       }
       
-      // Trigger Dispatch after 3s
-      setTimeout(() => setRescueState("DISPATCHED"), 3000);
+      // Trigger Dispatch after 2.5s
+      setTimeout(() => setRescueState("DISPATCHED"), 2500);
       
     }, 1000);
   };
@@ -115,22 +267,12 @@ export default function DigitalTwin() {
     if (!results || rescueState === "IDLE" || rescueState === "SOS") return;
 
     // Stage 3 & 4: Route to SOS
-    const lineToSOS = turf.lineString([
-      [73.7850, 20.0120], 
-      [73.7880, 20.0090], 
-      [73.7930, 20.0070], 
-      [73.7903, 20.0059] // Zone Alpha
-    ]);
+    const lineToSOS = turf.lineString(activeHub.routeToSOS);
     const routeToSOS = turf.bezierSpline(lineToSOS);
     const lengthToSOS = turf.length(routeToSOS, { units: 'kilometers' });
 
     // Stage 6: Route to Hospital
-    const lineToHospital = turf.lineString([
-      [73.7903, 20.0059], // Zone Alpha
-      [73.7880, 20.0020],
-      [73.7850, 19.9990],
-      [73.7890, 19.9975] // District Hospital
-    ]);
+    const lineToHospital = turf.lineString(activeHub.routeToHospital);
     const routeToHospital = turf.bezierSpline(lineToHospital);
     const lengthToHospital = turf.length(routeToHospital, { units: 'kilometers' });
 
@@ -233,8 +375,8 @@ export default function DigitalTwin() {
   const generateMockHeatmapData = useCallback(() => {
     if (scenario !== "crowd_surge") return null;
     
-    const centerLat = 20.0059;
-    const centerLng = 73.7903;
+    const centerLat = activeHub.center[0];
+    const centerLng = activeHub.center[1];
     
     const features = [];
     const count = Math.floor(500 * crowdMultiplier);
@@ -265,7 +407,7 @@ export default function DigitalTwin() {
       type: "FeatureCollection",
       features
     };
-  }, [scenario, crowdMultiplier]);
+  }, [scenario, crowdMultiplier, activeHub]);
 
   const heatmapData = useMemo(() => results ? generateMockHeatmapData() : null, [results, generateMockHeatmapData]);
 
@@ -278,20 +420,20 @@ export default function DigitalTwin() {
           properties: { color: scenario === "road_closure" && results ? "#ef4444" : "#10b981" },
           geometry: {
             type: "LineString",
-            coordinates: CORRIDOR_PATH
+            coordinates: activeHub.corridor
           }
         }
       ]
     };
-  }, [scenario, results]);
+  }, [scenario, results, activeHub]);
 
   // Dynamic Risk calculation for zones
   const mapPoints = useMemo(() => {
-    return STATIC_POINTS.map(p => {
+    return activeHub.points.map(p => {
       if (p.type === "zone") {
         let risk = p.metadata?.risk || 50;
-        if (results && scenario === "crowd_surge" && p.id === "z1") risk = Math.min(99, risk + 15 * crowdMultiplier);
-        if (results && scenario === "heatwave" && p.id === "z1") risk = Math.min(99, risk + (temperature - 34) * 2);
+        if (results && scenario === "crowd_surge") risk = Math.min(99, risk + 15 * crowdMultiplier);
+        if (results && scenario === "heatwave") risk = Math.min(99, risk + (temperature - 34) * 2);
         
         let severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" = "LOW";
         if (risk > 80) severity = "CRITICAL";
@@ -302,7 +444,7 @@ export default function DigitalTwin() {
       }
       return p;
     }).concat(activeAmbulances).concat(activeIncidents);
-  }, [results, scenario, crowdMultiplier, temperature, activeAmbulances, activeIncidents]);
+  }, [activeHub, results, scenario, crowdMultiplier, temperature, activeAmbulances, activeIncidents]);
 
 
   return (
@@ -319,6 +461,30 @@ export default function DigitalTwin() {
 
         <div className="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar">
           
+          {/* National Operational Hub Selector */}
+          <div>
+            <h3 className="text-[10px] font-bold text-ink-500 uppercase tracking-widest mb-3 flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary-400" /> Operational Hub</span>
+              <span className="text-[9px] font-mono text-primary-400">{activeHub.name}</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.values(NATIONAL_HUBS).map((h) => (
+                <button
+                  key={h.id}
+                  onClick={() => handleHubChange(h.id)}
+                  className={`p-2.5 rounded-xl text-left border transition-all ${
+                    selectedHub === h.id
+                      ? "border-primary-500 bg-primary-950/40 text-white font-bold shadow-glow-primary"
+                      : "border-ink-800 bg-ink-900/60 text-ink-300 hover:border-ink-700"
+                  }`}
+                >
+                  <div className="text-xs truncate font-display">{h.name}</div>
+                  <div className="text-[9px] font-mono text-ink-500 mt-0.5">{h.state}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Scenario Selection */}
           <div>
             <h3 className="text-[10px] font-bold text-ink-500 uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -424,7 +590,7 @@ export default function DigitalTwin() {
         <div className="absolute inset-0 bg-black">
           <DynamicMap 
             mapRef={mapRef}
-            center={defaultCenter} 
+            center={activeHub.center} 
             zoom={14} 
             className="h-full w-full" 
             heatmapData={heatmapData} 
@@ -441,7 +607,7 @@ export default function DigitalTwin() {
         <div className="absolute bottom-6 right-6 w-48 h-48 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl z-20 pointer-events-none">
           <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none mix-blend-overlay" />
           <DynamicMap 
-            center={defaultCenter} 
+            center={activeHub.center} 
             zoom={11} 
             className="h-full w-full" 
             points={[]}

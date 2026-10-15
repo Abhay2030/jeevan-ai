@@ -8,7 +8,7 @@ from geoalchemy2 import Geography
 from geoalchemy2.functions import ST_Distance, ST_DWithin
 from sqlalchemy import cast, select
 
-from app.api.dependencies import CurrentUser, SessionDep
+from app.api.dependencies import OptionalCurrentUser, SessionDep
 from app.core.pubsub import pubsub_manager
 from app.models.ambulance import Ambulance
 from app.models.incident import Incident
@@ -27,7 +27,7 @@ async def notify_family_background(user_id: str, incident_id: str):
 async def trigger_emergency_sos(
     data: IncidentCreate,
     session: SessionDep,
-    current_user: CurrentUser,
+    current_user: OptionalCurrentUser,
     background_tasks: BackgroundTasks
 ) -> IncidentRead:
     """
@@ -48,7 +48,7 @@ async def trigger_emergency_sos(
         severity=data.severity,
         status="NEW",
         location=wkt_location,
-        reported_by_id=current_user.id
+        reported_by_id=current_user.id if current_user else None
     )
     session.add(incident)
     await session.commit()
@@ -82,7 +82,8 @@ async def trigger_emergency_sos(
         )
 
     # 4. Background tasks (Family + AI Prediction engine hooks)
-    background_tasks.add_task(notify_family_background, str(current_user.id), str(incident.id))
+    if current_user:
+        background_tasks.add_task(notify_family_background, str(current_user.id), str(incident.id))
 
     # 5. Broadcast to Command Center via Redis Pub/Sub (both dedicated channel and legacy)
     from app.api.v1.routes.incidents import format_incident

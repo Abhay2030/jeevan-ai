@@ -8,7 +8,7 @@ from geoalchemy2 import Geography
 from geoalchemy2.functions import ST_Distance, ST_DWithin
 from sqlalchemy import cast, select
 
-from app.api.dependencies import CurrentUser, SessionDep
+from app.api.dependencies import OptionalCurrentUser, SessionDep
 from app.models.hospital import Hospital
 from app.schemas.hospital import HospitalResponse
 
@@ -18,7 +18,7 @@ router = APIRouter(tags=["hospitals"])
 @router.get("/hospitals/nearby", response_model=list[HospitalResponse])
 async def get_nearby_hospitals(
     session: SessionDep,
-    user: CurrentUser,
+    user: OptionalCurrentUser = None,
     lat: float = Query(..., description="User latitude", ge=-90, le=90),
     lng: float = Query(..., description="User longitude", ge=-180, le=180),
     radius_km: float = Query(10.0, description="Search radius in kilometers"),

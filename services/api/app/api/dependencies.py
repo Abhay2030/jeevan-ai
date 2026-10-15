@@ -22,8 +22,14 @@ reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/token"
 )
 
+reusable_oauth2_optional = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/token",
+    auto_error=False
+)
+
 SessionDep = Annotated[AsyncSession, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
+OptionalTokenDep = Annotated[str | None, Depends(reusable_oauth2_optional)]
 
 
 async def get_current_user(session: SessionDep, token: TokenDep) -> User:
@@ -61,7 +67,31 @@ async def get_current_user(session: SessionDep, token: TokenDep) -> User:
     return user
 
 
+async def get_optional_current_user(
+    session: SessionDep, token: OptionalTokenDep
+) -> User | None:
+    """Return user if valid token present, otherwise None without failing."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+        if not token_data.sub:
+            return None
+        stmt = select(User).where(User.id == token_data.sub)
+        result = await session.execute(stmt)
+        user = result.scalar_one_or_none()
+        if user and user.is_active:
+            return user
+        return None
+    except Exception:
+        return None
+
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
+OptionalCurrentUser = Annotated[User | None, Depends(get_optional_current_user)]
 
 
 def require_role(allowed_roles: list[str]) -> Callable[[CurrentUser], User]:
